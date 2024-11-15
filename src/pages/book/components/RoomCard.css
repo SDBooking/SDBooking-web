@@ -1,0 +1,98 @@
+.room-card {
+  width: 794px;
+  height: 260px;
+  box-shadow: 0px 4px 14px -1px rgba(12, 12, 13, 0.1),
+    0px 4px 4px -1px rgba(12, 12, 13, 0.05);
+  background: #ffffff;
+  border-radius: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  padding: 16px;
+  gap: 16px;
+}
+
+.room-card.inactive {
+  opacity: 0.5;
+}
+
+.room-image {
+  width: 304px;
+  height: 228px;
+  background: url(.jpg), #d9d9d9;
+  border-radius: 16px;
+}
+
+.room-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 417px;
+}
+
+.room-details h2 {
+  font-family: "Kanit";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 30px;
+  color: #000000;
+}
+
+.room-details p {
+  font-family: "Kanit";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.room-details .highlight {
+  color: #fd7427;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  gap: 35px;
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+}
+
+.room-details button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 24px;
+  gap: 10px;
+  width: 150px;
+  height: 44px;
+  border-radius: 24px;
+  font-family: "Kanit";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  cursor: pointer;
+}
+
+.room-details .book-now {
+  background: linear-gradient(270deg, rgba(255, 218, 86, 0) 0%, #ffc121 100%),
+    #fd7427;
+  color: #ffffff;
+  border: none;
+}
+
+.room-details .book-now:disabled {
+  background: #d9d9d9;
+  cursor: not-allowed;
+}
+
+.room-details .cancel {
+  background: #ffffff;
+  border: 2px solid #fd7427;
+  color: #fd7427;
+}
