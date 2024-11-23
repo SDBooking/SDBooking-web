@@ -1,10 +1,8 @@
-import React from "react";
-
 import { AuthKey } from "../constants/keys";
 import Unauth from "../components/middleware/unauth";
 import { useLoadingContext } from "react-router-loading";
 import useAccountContext from "../contexts/AccountContext";
-import Navbar from "../components/Navbar/Navbar";
+import Navbar from "../components/navbar/Navbar";
 
 function withAuth(authType: AuthKey) {
   return <P extends object>(WrappedComponent: React.ComponentType<P>) => {
@@ -23,7 +21,7 @@ function withAuth(authType: AuthKey) {
       // }
 
       // for prod
-      if (authType === AuthKey.UserAuth && accountData) {
+      if (authType === accountData?.userData.role || authType === "Both") {
         return (
           <>
             <Navbar />

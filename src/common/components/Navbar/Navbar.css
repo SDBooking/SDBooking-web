@@ -6,6 +6,7 @@
   left: 0; /* Position at left */
   height: 100vh; /* Make it full viewport height */
   width: 250px; /* Set a fixed width for the navbar */
+  z-index: 10;
 }
 
 .main-content {

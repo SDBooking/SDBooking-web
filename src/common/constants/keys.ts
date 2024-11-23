@@ -6,6 +6,11 @@ export const enum ApiRouteKey {
   SignIn = "/oauth",
   SignOut = "/oauth/signout",
   Me = "/oauth/me",
+  Room = "/room",
+  RoomService = "/room_service",
+  RoomType = "/room_type",
+  RoomLocation = "/room_location",
+  RoomFacility = "/room_facility",
 }
 
 export const enum ClientRouteKey {
@@ -16,9 +21,13 @@ export const enum ClientRouteKey {
   Profile = "/profile",
   Login = "/login",
   OAuth = "/cmuOAuthCallback",
+  Setting = "/setting",
+  RoomManagement = "/room-management",
 }
 
 export const enum AuthKey {
-  UserAuth = "user-auth",
-  AdminAuth = "admin-auth",
+  StudentAuth = "STUDENT",
+  EmployeeAuth = "EMPLOYEE",
+  AdminAuth = "ADMIN",
+  Both = "Both",
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./RoomCard.css";
-import { BuildingOfficeIcon } from "@heroicons/react/24/solid";
+import { BuildingOfficeIcon, Cog6ToothIcon } from "@heroicons/react/24/solid";
 import RoomDetailModal from "./RoomDetailModal";
 
 interface RoomCardProps {
@@ -14,7 +14,7 @@ interface RoomCardProps {
   services: string[];
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({
+const RoomCardAdmin: React.FC<RoomCardProps> = ({
   name,
   type,
   location,
@@ -60,6 +60,9 @@ const RoomCard: React.FC<RoomCardProps> = ({
             </div>
           )}
         </div>
+        <div className="absolute right-4 bottom-4">
+          <Cog6ToothIcon className="w-6 h-6 text-gray-800 bg-gray-200 rounded-full p-0.5 cursor-pointer" />
+        </div>
       </div>
       <RoomDetailModal
         isOpen={isModalOpen}
@@ -76,4 +79,4 @@ const RoomCard: React.FC<RoomCardProps> = ({
   );
 };
 
-export default RoomCard;
+export default RoomCardAdmin;

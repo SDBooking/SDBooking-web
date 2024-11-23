@@ -1,5 +1,6 @@
 export type Account = {
   userData: User;
+  isAdmin: boolean;
 };
 
 export type User = {
@@ -7,8 +8,7 @@ export type User = {
   prename?: string;
   firstname: string;
   lastname: string;
-  account_typ: string;
-  organization: string;
+  role: string;
   created_at: Date;
   updated_at: Date;
 };

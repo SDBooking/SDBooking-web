@@ -5,3 +5,9 @@ export type TResponse<T> = {
   message?: string;
   result?: T;
 };
+
+export type TResponseOK<T> = {
+  success: boolean;
+  message: string;
+  result: T;
+};

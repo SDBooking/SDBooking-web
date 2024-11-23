@@ -97,6 +97,18 @@ const Navbar: React.FC = () => {
           "/imgs/history.svg",
           "ประวัติการจองห้อง"
         )}
+        {accountData?.isAdmin &&
+          renderNavItem(
+            ClientRouteKey.Setting,
+            "/imgs/setting.svg",
+            "ตั้งค่าระบบ"
+          )}
+        {accountData?.isAdmin &&
+          renderNavItem(
+            ClientRouteKey.RoomManagement,
+            "/imgs/bookmark.svg",
+            "สร้างห้อง"
+          )}
 
         <li className="nav-bot mb-4 flex flex-col justify-center items-center text-center">
           <p className="flex flex-row px-4 p-2 m-4 bg-white text-maincolor rounded-[24px] text-sm gap-4 cursor-default">

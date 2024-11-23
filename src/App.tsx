@@ -18,10 +18,21 @@ import { useEffect } from "react";
 import FixedLayer from "./common/components/layers/FixLayer";
 import DebugPanel from "./debug/DebugPanel";
 
+import { createTheme, ThemeProvider } from "@mui/material";
+import { usePopupContext } from "./common/contexts/PopupContext";
+import Popup from "./common/components/popup/Popup";
+
+const theme = createTheme({
+  typography: {
+    fontFamily: ["Kanit"].join(","),
+  },
+});
+
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setAccountData, accountData } = useAccountContext();
+  const { visible } = usePopupContext();
 
   useEffect(() => {
     if (accountData) {
@@ -50,29 +61,32 @@ function App() {
 
   return (
     <>
-      <Toaster />
-      <FixedLayer>
-        <DebugPanel isDisplayed={!IS_PRODUCTION_MODE} routes={routes} />
-      </FixedLayer>
-      <ReactFlowProvider>
-        {status === "loading" ? null : status === "success" ? (
-          <Routes>
-            {routes.map(({ path, component: Component }) => (
-              <Route
-                key={path}
-                path={path}
-                element={
-                  <PageLayout>
-                    <Component />
-                  </PageLayout>
-                }
-              />
-            ))}
-          </Routes>
-        ) : (
-          <Navigate to={ClientRouteKey.Login} replace={true} />
-        )}
-      </ReactFlowProvider>
+      <ThemeProvider theme={theme}>
+        <Toaster />
+        {visible && <Popup />}
+        <FixedLayer>
+          <DebugPanel isDisplayed={!IS_PRODUCTION_MODE} routes={routes} />
+        </FixedLayer>
+        <ReactFlowProvider>
+          {status === "loading" ? null : status === "success" ? (
+            <Routes>
+              {routes.map(({ path, component: Component }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <PageLayout>
+                      <Component />
+                    </PageLayout>
+                  }
+                />
+              ))}
+            </Routes>
+          ) : (
+            <Navigate to={ClientRouteKey.Login} replace={true} />
+          )}
+        </ReactFlowProvider>
+      </ThemeProvider>
     </>
   );
 }
