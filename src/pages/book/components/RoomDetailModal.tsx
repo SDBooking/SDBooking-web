@@ -1,17 +1,12 @@
 import React from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
+import { Room } from "../../../types/room";
 
-interface RoomDetailModalProps {
+interface RoomDetailModalProps extends Room {
   isOpen: boolean;
   onClose: () => void;
-  name: string;
-  type: string;
-  location: string;
-  capacity: number;
-  description: string;
-  services?: string[];
-  requiresConfirmation: boolean;
+  services: string[];
 }
 
 const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
@@ -23,7 +18,10 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   capacity,
   description,
   services,
-  requiresConfirmation,
+  requires_confirmation,
+  open_time,
+  close_time,
+  bookingIntervalMinutes,
 }) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -62,6 +60,13 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                   <p className="text-sm text-gray-500">ประเภท: {type}</p>
                   <p className="text-sm text-gray-500">สถานที่: {location}</p>
                   <p className="text-sm text-gray-500">
+                    ช่วงเวลาที่ห้องเปิดให้สามารถจองได้: {open_time} -{" "}
+                    {close_time}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    เวลาการจองชั้นต่ำ (นาที): {bookingIntervalMinutes}
+                  </p>
+                  <p className="text-sm text-gray-500">
                     ความจุ: {capacity} ที่นั่ง
                   </p>
                   <p className="text-sm text-gray-500">
@@ -79,7 +84,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                       </ul>
                     </div>
                   )}
-                  {requiresConfirmation && (
+                  {requires_confirmation && (
                     <p className="mt-2 text-xs text-red-500">
                       * ต้องขออนุมัติก่อนใช้งาน
                     </p>

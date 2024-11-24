@@ -1,11 +1,14 @@
 import { coreApi } from "../../../core/connections";
 import { TResponseOK } from "../../../types";
-import { RoomService } from "../../../types/room_service";
+import {
+  RoomServiceCreateModel,
+  RoomServiceModel,
+} from "../../../types/room_service";
 import { ApiRouteKey } from "../../constants/keys";
 
 export function CreateRoomService(
-  RoomService: RoomService
-): Promise<TResponseOK<RoomService>> {
+  RoomService: RoomServiceCreateModel
+): Promise<TResponseOK<RoomServiceModel>> {
   return new Promise((resolve, reject) => {
     coreApi
       .post(`${ApiRouteKey.RoomService}/`, RoomService)
@@ -17,8 +20,8 @@ export function CreateRoomService(
 }
 
 export function UpdateRoomService(
-  RoomService: RoomService
-): Promise<TResponseOK<RoomService>> {
+  RoomService: RoomServiceModel
+): Promise<TResponseOK<RoomServiceModel>> {
   return new Promise((resolve, reject) => {
     coreApi
       .put(`${ApiRouteKey.RoomService}/${RoomService.room_id}`, RoomService)
@@ -31,7 +34,7 @@ export function UpdateRoomService(
 
 export function DeleteRoomService(
   id: number
-): Promise<TResponseOK<RoomService>> {
+): Promise<TResponseOK<RoomServiceModel>> {
   return new Promise((resolve, reject) => {
     coreApi
       .delete(`${ApiRouteKey.RoomService}/${id}`)

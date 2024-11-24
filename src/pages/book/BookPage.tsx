@@ -62,8 +62,6 @@ const BookPage: React.FC = () => {
               .map((service) => service.facility)
               .flat();
 
-            console.log("Services:", services);
-
             return (
               <RoomCard
                 key={room.id}
@@ -73,8 +71,12 @@ const BookPage: React.FC = () => {
                 capacity={room.capacity}
                 services={services}
                 description={room.description || "No description provided."}
-                requiresConfirmation={room.requires_confirmation}
-                isActive={room.activation}
+                requires_confirmation={room.requires_confirmation}
+                bookingIntervalMinutes={room.bookingIntervalMinutes}
+                open_time={room.open_time}
+                close_time={room.close_time}
+                activation={room.activation}
+                id={room.id}
               />
             );
           })}

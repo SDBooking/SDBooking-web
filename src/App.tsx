@@ -26,6 +26,11 @@ const theme = createTheme({
   typography: {
     fontFamily: ["Kanit"].join(","),
   },
+  palette: {
+    primary: {
+      main: "#F3A51D", // You can change this to your desired primary color
+    },
+  },
 });
 
 function App() {

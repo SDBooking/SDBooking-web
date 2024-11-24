@@ -8,6 +8,8 @@ import { Room } from "../../types/room";
 import { RoomServiceDTO } from "../../types/room_service";
 import RoomCardAdmin from "./components/RoomCardAdmin";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
+import { Link } from "react-router-dom";
+import { ClientRouteKey } from "../../common/constants/keys";
 
 const RoomManagementPage: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -46,12 +48,15 @@ const RoomManagementPage: React.FC = () => {
       <Box>
         <div className="flex flex-col">
           <div className="flex items-center justify-between flex-grow-0 mb-4">
-            <p className="p-2">ตั้งค่าข้อมูลทั่วไปในระบบ</p>
+            <p className="p-2 text-lg">อัพเดทข้อมูลห้อง</p>
             <div>
-              <span className="flex flex-row gap-2 p-2 rounded-2xl text-maincolor bg-gray-50 cursor-pointer">
+              <Link
+                className="flex flex-row gap-2 p-2 rounded-2xl text-maincolor bg-gray-50 cursor-pointer"
+                to={ClientRouteKey.RoomManipulate}
+              >
                 <PlusCircleIcon className="size-6" />
                 เพิ่มห้อง
-              </span>
+              </Link>
             </div>
           </div>
 
@@ -68,8 +73,6 @@ const RoomManagementPage: React.FC = () => {
                   .filter((service) => service.room_id === room.id)
                   .map((service) => service.facility)
                   .flat();
-
-                console.log("Services:", services);
 
                 return (
                   <RoomCardAdmin

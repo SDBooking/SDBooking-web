@@ -3,8 +3,12 @@ export interface RoomServiceDTO {
   facility: string[];
 }
 
-export interface RoomService {
+export interface RoomServiceModel {
   id: number;
+  facility_id: number;
+  room_id: number;
+}
+export interface RoomServiceCreateModel {
   facility_id: number;
   room_id: number;
 }

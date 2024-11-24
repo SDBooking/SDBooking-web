@@ -7,7 +7,9 @@ import HomePage from "../pages/home/HomePage";
 import LoginPage from "../pages/login/LoginPage";
 import OAuthPage from "../pages/oauth/OAuthPage";
 import RoomManagementPage from "../pages/room/RoomManagementPage";
+import RoomManipulatePage from "../pages/room/RoomManipulate";
 import SettingPage from "../pages/setting/SettingPage";
+import UserSettingPage from "../pages/user/UserSettingPage";
 
 type Route = {
   path: string;
@@ -37,6 +39,14 @@ const routes: Route[] = [
   {
     path: ClientRouteKey.RoomManagement,
     component: withAuth(AuthKey.AdminAuth)(RoomManagementPage),
+  },
+  {
+    path: ClientRouteKey.RoomManipulate,
+    component: withAuth(AuthKey.AdminAuth)(RoomManipulatePage),
+  },
+  {
+    path: ClientRouteKey.UserSetting,
+    component: withAuth(AuthKey.Both)(UserSettingPage),
   },
   {
     path: ClientRouteKey.Login,

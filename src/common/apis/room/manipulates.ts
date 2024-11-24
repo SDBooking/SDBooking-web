@@ -1,9 +1,9 @@
 import { coreApi } from "../../../core/connections";
 import { TResponse } from "../../../types";
-import { Room } from "../../../types/room";
+import { Room, RoomModel } from "../../../types/room";
 import { ApiRouteKey } from "../../constants/keys";
 
-export function CreateRoom(room: Room): Promise<TResponse<Room>> {
+export function CreateRoom(room: RoomModel): Promise<TResponse<Room>> {
   return new Promise((resolve, reject) => {
     coreApi
       .post(`${ApiRouteKey.Room}/`, room)

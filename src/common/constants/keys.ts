@@ -11,6 +11,7 @@ export const enum ApiRouteKey {
   RoomType = "/room_type",
   RoomLocation = "/room_location",
   RoomFacility = "/room_facility",
+  Account = "/account",
 }
 
 export const enum ClientRouteKey {
@@ -23,6 +24,8 @@ export const enum ClientRouteKey {
   OAuth = "/cmuOAuthCallback",
   Setting = "/setting",
   RoomManagement = "/room-management",
+  RoomManipulate = "/room-management/manipulate",
+  UserSetting = "/user-setting",
 }
 
 export const enum AuthKey {

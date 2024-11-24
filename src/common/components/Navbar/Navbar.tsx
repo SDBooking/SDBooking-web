@@ -106,8 +106,14 @@ const Navbar: React.FC = () => {
         {accountData?.isAdmin &&
           renderNavItem(
             ClientRouteKey.RoomManagement,
-            "/imgs/bookmark.svg",
-            "สร้างห้อง"
+            "/imgs/setting.svg",
+            "จัดการห้อง"
+          )}
+        {accountData?.isAdmin &&
+          renderNavItem(
+            ClientRouteKey.UserSetting,
+            "/imgs/usersetting.svg",
+            "จัดการผู้ใช้"
           )}
 
         <li className="nav-bot mb-4 flex flex-col justify-center items-center text-center">

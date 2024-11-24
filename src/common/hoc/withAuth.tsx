@@ -21,7 +21,10 @@ function withAuth(authType: AuthKey) {
       // }
 
       // for prod
-      if (authType === accountData?.userData.role || authType === "Both") {
+      if (
+        authType === accountData?.userData.role ||
+        (authType === "Both" && accountData)
+      ) {
         return (
           <>
             <Navbar />
