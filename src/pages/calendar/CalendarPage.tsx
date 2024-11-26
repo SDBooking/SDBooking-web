@@ -102,7 +102,7 @@ const CalendarPage: React.FC = () => {
               className="flex flex-row text-start justify-center items-center px-4 p-1 w-max border-2 rounded-[24px] bg-white gap-4"
               style={{ borderColor: "#FFEFE0" }}
             >
-              <p>ห้องประชุมสโมสรนักศึกษา</p>
+              <div>ห้องประชุมสโมสรนักศึกษา</div>
               <ChevronDownIcon className="w-4 h-4" />
             </div>
             <div className="flex flex-row text-start justify-center items-center px-4 p-1 w-max rounded-[24px] bg-white gap-4 ml-auto">

@@ -7,6 +7,7 @@ export const enum ApiRouteKey {
   SignOut = "/oauth/signout",
   Me = "/oauth/me",
   Room = "/room",
+  Booking = "/booking",
   RoomService = "/room_service",
   RoomType = "/room_type",
   RoomLocation = "/room_location",

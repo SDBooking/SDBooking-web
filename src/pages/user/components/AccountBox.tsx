@@ -55,7 +55,7 @@ const AccountBox: React.FC = () => {
   return (
     <Box sx={{ padding: 2 }}>
       <Typography variant="body1" gutterBottom className="p-2">
-        Account Information
+        บัญชีผู้ใช้ทั้งหมดในระบบ
       </Typography>
       {accountData && accountData.length > 0 ? (
         accountData.map((account, index) => (
@@ -84,7 +84,7 @@ const AccountBox: React.FC = () => {
                     : "green",
               }}
             >
-              {account.role}
+              {account.role == "STUDENT" ? "APPROVED STUDENT" : account.role}
             </Typography>
           </Paper>
         ))

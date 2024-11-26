@@ -11,6 +11,7 @@ import { Room } from "../../../types/room";
 
 interface RoomCardProps extends Room {
   services: string[];
+  images: string[];
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({
@@ -26,6 +27,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
   open_time,
   close_time,
   bookingIntervalMinutes,
+  images,
 }) => {
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -60,27 +62,30 @@ const RoomCard: React.FC<RoomCardProps> = ({
           {requires_confirmation && (
             <div className="flex flex-row confirmation-required bg-[#E54A5F] text-xs gap-2 text-white p-1 px-2 rounded-xl">
               <LockClosedIcon className="size-4" />
-              <span>ต้องขออนุมัติก่อนใช้งาน</span>
+              <div>ต้องขออนุมัติก่อนใช้งาน</div>
             </div>
           )}
         </div>
       </div>
-      <RoomDetailModal
-        id={id}
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        name={name}
-        type={type || "ไม่ระบุ"}
-        location={location || "ไม่ระบุ"}
-        capacity={capacity}
-        description={description || "ไม่ระบุ"}
-        services={services}
-        requires_confirmation={requires_confirmation}
-        activation={activation}
-        open_time={open_time || "00:00"}
-        close_time={close_time || "23:59"}
-        bookingIntervalMinutes={bookingIntervalMinutes || 60}
-      />
+      {isModalOpen && (
+        <RoomDetailModal
+          id={id}
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          name={name}
+          type={type || "ไม่ระบุ"}
+          location={location || "ไม่ระบุ"}
+          capacity={capacity}
+          description={description || "ไม่ระบุ"}
+          services={services}
+          requires_confirmation={requires_confirmation}
+          activation={activation}
+          open_time={open_time || "00:00"}
+          close_time={close_time || "23:59"}
+          bookingIntervalMinutes={bookingIntervalMinutes || 60}
+          images={images}
+        />
+      )}
     </div>
   );
 };

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build --mode prod",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -21,6 +21,7 @@
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.1.5",
     "@mui/material": "^6.1.8",
+    "@mui/x-data-grid": "^7.22.3",
     "@mui/x-date-pickers": "^7.22.3",
     "@react-pdf-viewer/core": "^3.12.0",
     "@vitejs/plugin-react-swc": "^3.7.1",
@@ -39,6 +40,8 @@
     "react-query": "^3.39.3",
     "react-router-dom": "^6.28.0",
     "react-router-loading": "^1.0.2",
+    "react-slick": "^0.30.2",
+    "slick-carousel": "^1.8.1",
     "styled-components": "^6.1.13",
     "tsdef": "^0.0.14",
     "vite-tsconfig-paths": "^5.1.0"
@@ -48,6 +51,7 @@
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@types/react-slick": "^0.23.13",
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.13.0",

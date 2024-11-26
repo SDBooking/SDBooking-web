@@ -35,7 +35,7 @@ function UploadBox({ handleChange, accept, multiple, title, children }: Props) {
             alt="Upload Icon"
             className="mt-2 w-12"
           />
-          <p>{title}</p>
+          <div>{title}</div>
         </>
       )}
       {/* SVG icon */}

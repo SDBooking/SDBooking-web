@@ -10,6 +10,14 @@ const BookPage: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [roomServices, setRoomServices] = useState<RoomServiceDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const images = [
+    "/imgs/Mockroom.png",
+    "/imgs/Mockroom.png",
+    "/imgs/Mockroom.png",
+    "/imgs/Mockroom.png",
+    "/imgs/Mockroom.png",
+    "/imgs/Mockroom.png",
+  ];
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -77,6 +85,7 @@ const BookPage: React.FC = () => {
                 close_time={room.close_time}
                 activation={room.activation}
                 id={room.id}
+                images={images}
               />
             );
           })}
