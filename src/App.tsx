@@ -30,6 +30,9 @@ const theme = createTheme({
     primary: {
       main: "#F3A51D", // You can change this to your desired primary color
     },
+    secondary: {
+      main: "#FF5963", // You can change this to your desired secondary color
+    },
   },
 });
 

@@ -1,0 +1,47 @@
+.fc-header-toolbar {
+  width: 100% !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 15px !important; /* Adjust padding for more space */
+  background-color: #f8f9fa !important;
+}
+
+.fc-toolbar-chunk {
+  display: flex;
+  align-items: center;
+}
+
+.fc-toolbar-title {
+  font-size: 16px !important; /* Increase title font size */
+  width: 200px !important;
+  font-weight: bold !important; /* Make title bold */
+  padding: 0 20px !important; /* Adjust padding */
+  align-items: center;
+  text-align: center;
+}
+
+.fc-button {
+  font-size: 16px !important;
+  color: #000 !important;
+  background-color: #f0f0f0 !important;
+  border: #fff !important;
+}
+
+.fc-today-button {
+  background-image: linear-gradient(
+    90deg,
+    #ffc163 0%,
+    #fd7427 42.5%,
+    #e54a5f 100%
+  ) !important;
+  color: #fff !important;
+}
+
+.fc-button-active {
+  background-color: #fff !important;
+  color: #000 !important;
+}
+
+.fc-view-harness {
+  overflow: visible !important; /* Ensure full calendar detail is always visible */
+}

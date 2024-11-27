@@ -26,7 +26,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
   services,
   open_time,
   close_time,
-  bookingIntervalMinutes,
+  booking_interval_minutes,
   images,
 }) => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -82,7 +82,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
           activation={activation}
           open_time={open_time || "00:00"}
           close_time={close_time || "23:59"}
-          bookingIntervalMinutes={bookingIntervalMinutes || 60}
+          booking_interval_minutes={booking_interval_minutes}
           images={images}
         />
       )}

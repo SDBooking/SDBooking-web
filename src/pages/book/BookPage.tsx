@@ -80,7 +80,7 @@ const BookPage: React.FC = () => {
                 services={services}
                 description={room.description || "No description provided."}
                 requires_confirmation={room.requires_confirmation}
-                bookingIntervalMinutes={room.bookingIntervalMinutes}
+                booking_interval_minutes={room.booking_interval_minutes}
                 open_time={room.open_time}
                 close_time={room.close_time}
                 activation={room.activation}

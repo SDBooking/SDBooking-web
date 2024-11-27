@@ -7,7 +7,7 @@ export interface Room {
   description?: string;
   requires_confirmation: boolean;
   activation: boolean;
-  bookingIntervalMinutes?: number;
+  booking_interval_minutes?: number;
   open_time?: string;
   close_time?: string;
   created_at?: Date;

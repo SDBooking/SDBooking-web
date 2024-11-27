@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -23,22 +23,27 @@ import {
 import {
   DatePicker,
   LocalizationProvider,
+  renderTimeViewClock,
   TimePicker,
 } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { BookingCreateModel } from "../../../types/booking";
+import { Booking, BookingCreateModel } from "../../../types/booking";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import isBetween from "dayjs/plugin/isBetween";
 import useAccountContext from "../../../common/contexts/AccountContext";
 import toast from "react-hot-toast";
 import {
   CreateBook,
   CreateBookPending,
 } from "../../../common/apis/booking/manipulates";
+import { GetBookByRoomId } from "../../../common/apis/booking/queries";
+import TimeCalendar from "./TimeCalendar";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(isBetween);
 
 interface RoomDetailModalProps extends Room {
   isOpen: boolean;
@@ -59,6 +64,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   services,
   requires_confirmation,
   images,
+  booking_interval_minutes,
 }) => {
   const { accountData } = useAccountContext();
 
@@ -70,7 +76,10 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
     room_id: id,
     account_id: accountData?.userData.cmuitaccount,
     start_time: dayjs().tz("Asia/Bangkok").toDate(),
-    end_time: dayjs().tz("Asia/Bangkok").toDate(),
+    end_time: dayjs()
+      .tz("Asia/Bangkok")
+      .add(booking_interval_minutes || 10, "minute")
+      .toDate(),
     date: dayjs().tz("Asia/Bangkok").toDate(),
     title: "",
     tel: "",
@@ -79,7 +88,27 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
     confirmed_by: "",
   });
 
+  const [books, setBooks] = useState<Booking[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState<boolean>(true);
+  const [timeError, setTimeError] = useState<string>("");
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const roomResponse = await GetBookByRoomId(id);
+        if (Array.isArray(roomResponse.result)) {
+          setBooks(roomResponse.result);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBooks();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -88,17 +117,143 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
     });
   };
 
+  const handleTimeChange = (
+    field: "start_time" | "end_time",
+    value: dayjs.Dayjs | null
+  ) => {
+    if (value) {
+      const updatedTime = value.tz("Asia/Bangkok");
+
+      if (
+        field === "start_time" &&
+        updatedTime.isAfter(dayjs(formData.end_time))
+      ) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          start_time: "Start time cannot be greater than end time",
+        }));
+        return;
+      }
+
+      if (
+        field === "end_time" &&
+        updatedTime.isBefore(dayjs(formData.start_time))
+      ) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          end_time: "End time cannot be smaller than start time",
+        }));
+        return;
+      }
+
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [field]: "",
+      }));
+
+      setFormData((prev) => ({
+        ...prev,
+        [field]: updatedTime.toDate(),
+      }));
+    }
+  };
+
+  const handleDateChange = (date: dayjs.Dayjs | null) => {
+    if (date) {
+      const newDate = date.tz("Asia/Bangkok");
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        date: newDate.toDate(),
+        start_time: newDate
+          .hour(dayjs(prevFormData.start_time).hour())
+          .minute(dayjs(prevFormData.start_time).minute())
+          .second(0)
+          .toDate(),
+        end_time: newDate
+          .hour(dayjs(prevFormData.end_time).hour())
+          .minute(dayjs(prevFormData.end_time).minute())
+          .second(0)
+          .toDate(),
+      }));
+    }
+  };
+
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-    if (!formData.title) newErrors.title = "Title is required";
-    if (!formData.tel) newErrors.tel = "Contact number is required";
-    if (!formData.reason) newErrors.reason = "Reason is required";
+
+    if (!formData.title) newErrors.title = "กรุณาระบุหัวข้อการจอง";
+    if (!formData.tel || !/^\d{9,10}$/.test(formData.tel))
+      newErrors.tel = "กรุณาระบุเบอร์โทรที่ถูกต้อง (9-10 หลัก)";
+    if (!formData.reason) newErrors.reason = "กรุณาระบุเหตุผลการจองห้อง";
+    if (dayjs(formData.end_time).isBefore(dayjs(formData.start_time)))
+      newErrors.end_time = "เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่มต้น";
+
+    setErrors(newErrors);
     return newErrors;
   };
 
+  const isTimeAvailable = (
+    newStartTime: Date,
+    newEndTime: Date,
+    newDate: Date
+  ): boolean[] => {
+    return books
+      .filter((book) => {
+        const sameDay = dayjs(book.date).isSame(newDate, "day");
+        return sameDay;
+      })
+      .map((book) => {
+        const bookStartTime = dayjs(book.start_time).utc();
+        const bookEndTime = dayjs(book.end_time).utc();
+        const newStart = dayjs(newStartTime).utc(true);
+        const newEnd = dayjs(newEndTime).utc(true);
+
+        const isOverlap =
+          newStart.isBetween(bookStartTime, bookEndTime, null, "[)") ||
+          newEnd.isBetween(bookStartTime, bookEndTime, null, "(]") ||
+          (newStart.isBefore(bookStartTime) && newEnd.isAfter(bookEndTime));
+
+        // console.log(
+        //   `Booking ${book.id}:`,
+        //   "Booking Start:",
+        //   bookStartTime.format(),
+        //   "Booking End:",
+        //   bookEndTime.format(),
+        //   "New Start:",
+        //   newStart.format(),
+        //   "New End:",
+        //   newEnd.format(),
+        //   "Overlap:",
+        //   isOverlap
+        // );
+
+        return !isOverlap;
+      });
+  };
+
+  const validateTimeAvailability = () => {
+    if (formData.start_time && formData.end_time && formData.date) {
+      const available = isTimeAvailable(
+        formData.start_time,
+        formData.end_time,
+        formData.date
+      );
+
+      if (!available.every((val) => val)) {
+        setTimeError("The selected time slot is not available.");
+      } else {
+        setTimeError("");
+      }
+    }
+  };
+
+  useEffect(() => {
+    validateTimeAvailability();
+  }, [formData.date, formData.start_time, formData.end_time, books]);
+
   const handleCreateBookSubmit = async () => {
     const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length > 0) {
+    if (Object.keys(validationErrors).length > 0 || timeError) {
       setErrors(validationErrors);
       return;
     }
@@ -131,7 +286,16 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
     onClose();
   };
 
-  console.log("RoomDetailModal", formData);
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // console.log("RoomDetailModal : ", formData);
+  // console.log("TimeError : ", timeError);
+  // console.log(
+  //   isTimeAvailable(formData.start_time, formData.end_time, formData.date)
+  // );
+  // console.log("Formdata : ", formData.start_time, formData.end_time);
 
   return (
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="lg">
@@ -249,43 +413,38 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
             <div className="text-maincolor">กรอกข้อมูลการจอง</div>
             <div className="border w-2/5 border-[#FD7427]" />
           </div>
-          <div className="flex flex-row gap-6 items-center justify-center">
-            <div className="w-1/2 text-center">Time Calendar</div>
-            <div className="w-1/2 text-center">
+          <div className="flex flex-row m-10">
+            <div className="flex w-3/5 justify-center items-center">
+              <TimeCalendar bookings={books} />
+            </div>
+            <div className="flex w-2/5 justify-center items-baseline">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <div className="flex flex-col gap-4 w-3/4">
+                <div className="flex flex-col gap-4 w-3/4 justify-end">
                   <DatePicker
                     className="w-full"
                     value={dayjs(formData.date).tz("Asia/Bangkok")}
-                    onChange={(date) =>
-                      setFormData({
-                        ...formData,
-                        date: date?.tz("Asia/Bangkok").toDate() || new Date(),
-                      })
-                    }
+                    onChange={handleDateChange}
                   />
                   <div className="flex flex-row gap-2">
                     <TimePicker
                       label="เวลาที่เริ่มใช้ห้อง"
+                      timeSteps={{
+                        minutes: booking_interval_minutes,
+                      }}
                       value={dayjs(formData.start_time).tz("Asia/Bangkok")}
-                      onChange={(time) =>
-                        setFormData({
-                          ...formData,
-                          start_time:
-                            time?.tz("Asia/Bangkok").toDate() || new Date(),
-                        })
-                      }
+                      onChange={(time) => handleTimeChange("start_time", time)}
+                      onError={() => errors.start_time}
+                      ampm={false}
                     />
                     <TimePicker
                       label="เวลาที่สิ้นสุด"
+                      timeSteps={{
+                        minutes: booking_interval_minutes,
+                      }}
                       value={dayjs(formData.end_time).tz("Asia/Bangkok")}
-                      onChange={(time) =>
-                        setFormData({
-                          ...formData,
-                          end_time:
-                            time?.tz("Asia/Bangkok").toDate() || new Date(),
-                        })
-                      }
+                      onChange={(time) => handleTimeChange("end_time", time)}
+                      onError={() => errors.end_time}
+                      ampm={false}
                     />
                   </div>
                   <TextField
@@ -310,7 +469,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                     id="outlined-multiline-static"
                     label="เหตุผล"
                     multiline
-                    rows={3}
+                    rows={4}
                     name="reason"
                     value={formData.reason}
                     onChange={handleChange}
@@ -324,16 +483,22 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
         </div>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary" variant="contained">
+        <Button onClick={onClose} color="error" variant="contained">
           ปิด
         </Button>
         <Button
           onClick={handleCreateBookSubmit}
-          color="primary"
+          color="success"
           variant="contained"
+          disabled={!!timeError} // Disable if there's a time error
         >
           ยืนยันการจอง
         </Button>
+        {timeError && (
+          <Typography color="error" variant="body2">
+            {timeError}
+          </Typography>
+        )}
       </DialogActions>
     </Dialog>
   );
