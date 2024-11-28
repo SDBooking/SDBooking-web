@@ -3,7 +3,8 @@ import { TResponse } from "../../../types";
 import {
   Booking,
   BookingDTOModel,
-  BookingRejectTransaction,
+  BookingRejectTransactionCreateModel,
+  BookingUpdateDTOModel,
 } from "../../../types/booking";
 import { ApiRouteKey } from "../../constants/keys";
 
@@ -31,7 +32,9 @@ export function CreateBookPending(
   });
 }
 
-export function UpdateBook(Book: Booking): Promise<TResponse<Booking>> {
+export function UpdateBook(
+  Book: BookingUpdateDTOModel
+): Promise<TResponse<Booking>> {
   return new Promise((resolve, reject) => {
     coreApi
       .put(`${ApiRouteKey.Booking}/${Book.id}`, Book)
@@ -53,10 +56,13 @@ export function DeleteBook(id: number): Promise<TResponse<Booking>> {
   });
 }
 
-export function ApproveBook(id: number): Promise<TResponse<Booking>> {
+export function ApproveBook(
+  id: number,
+  acc: string
+): Promise<TResponse<Booking>> {
   return new Promise((resolve, reject) => {
     coreApi
-      .put(`${ApiRouteKey.Booking}/approve/${id}`)
+      .put(`${ApiRouteKey.Booking}/approve/${id}/${acc}`)
       .then((res) => {
         resolve(res.data);
       })
@@ -65,7 +71,7 @@ export function ApproveBook(id: number): Promise<TResponse<Booking>> {
 }
 
 export function RejectBook(
-  book: BookingRejectTransaction
+  book: BookingRejectTransactionCreateModel
 ): Promise<TResponse<Booking>> {
   return new Promise((resolve, reject) => {
     coreApi

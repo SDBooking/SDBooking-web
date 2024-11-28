@@ -3,7 +3,7 @@
   justify-content: space-between !important;
   align-items: center !important;
   padding: 15px !important; /* Adjust padding for more space */
-  background-color: #f8f9fa !important;
+  background-color: #fff !important;
 }
 
 .fc-toolbar-chunk {
@@ -38,8 +38,8 @@
 }
 
 .fc-button-active {
-  background-color: #fff !important;
-  color: #000 !important;
+  background-color: #fd7427 !important;
+  color: #fff !important;
 }
 
 .fc-view-harness {

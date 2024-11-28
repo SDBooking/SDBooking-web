@@ -5,28 +5,31 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import { Calendar } from "@fullcalendar/core";
-import { Booking } from "../../types/booking";
+import {
+  Booking,
+  BookingRejectTransactionCreateModel,
+  BookingStatusList,
+} from "../../types/booking";
 import { GetAllBooks } from "../../common/apis/booking/queries";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   Checkbox,
   FormControlLabel,
+  FormGroup,
+  FormLabel,
   SelectChangeEvent,
+  colors,
 } from "@mui/material";
 import useAccountContext from "../../common/contexts/AccountContext";
 import { Room } from "../../types/room";
 import { GetAllRooms } from "../../common/apis/room/queries";
+import BookingDetailsDialog from "./components/BookingDetailDialog";
+import { ApproveBook, RejectBook } from "../../common/apis/booking/manipulates";
 
 dayjs.extend(utc);
 
@@ -39,9 +42,10 @@ const CalendarPage: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isMyBooking, setIsMyBooking] = useState<boolean>(false);
   const [selectedRoom, setSelectedRoom] = useState<string | "">("");
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const { accountData } = useAccountContext();
 
-  useEffect(() => {
+  const fetchData = async () => {
     const fetchBooks = async () => {
       try {
         const bookResponse = await GetAllBooks();
@@ -68,7 +72,60 @@ const CalendarPage: React.FC = () => {
 
     fetchRooms();
     fetchBooks();
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
+
+  const handleOnApproved = async () => {
+    if (selectedBooking) {
+      try {
+        if (accountData?.userData.cmuitaccount) {
+          await ApproveBook(
+            selectedBooking.id,
+            accountData.userData.cmuitaccount
+          );
+        } else {
+          console.error("User account is undefined");
+        }
+        setBooks((prevBooks) =>
+          prevBooks.map((book) =>
+            book.id === selectedBooking.id
+              ? { ...book, status: "APPROVED" }
+              : book
+          )
+        );
+        fetchData();
+        setModalOpen(false);
+      } catch (error) {
+        console.error("Error approving booking:", error);
+      }
+    }
+  };
+
+  const handleOnRejected = async (reason: string) => {
+    if (selectedBooking) {
+      try {
+        const rejectTransaction: BookingRejectTransactionCreateModel = {
+          booking_id: selectedBooking.id,
+          reason,
+        };
+        await RejectBook(rejectTransaction);
+        setBooks((prevBooks) =>
+          prevBooks.map((book) =>
+            book.id === selectedBooking.id
+              ? { ...book, status: "REJECTED" }
+              : book
+          )
+        );
+        fetchData();
+        setModalOpen(false);
+      } catch (error) {
+        console.error("Error rejecting booking:", error);
+      }
+    }
+  };
 
   useEffect(() => {
     if (calendarRef.current) {
@@ -82,6 +139,12 @@ const CalendarPage: React.FC = () => {
         if (selectedRoom && book.room_id.toString() !== selectedRoom) {
           return false;
         }
+        if (
+          selectedStatuses.length > 0 &&
+          !selectedStatuses.includes(book.status)
+        ) {
+          return false;
+        }
         return true;
       });
 
@@ -90,11 +153,18 @@ const CalendarPage: React.FC = () => {
         start: dayjs(book.start_time).utc().format(),
         end: dayjs(book.end_time).utc().format(),
         extendedProps: { booking: book },
+        color:
+          book.status === BookingStatusList[1]
+            ? colors.green[500]
+            : book.status === BookingStatusList[2]
+            ? colors.red[500]
+            : book.status === BookingStatusList[3]
+            ? colors.grey[500]
+            : colors.yellow[800],
       }));
 
       const calendar = new Calendar(calendarRef.current, {
         plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
-        themeSystem: "standard",
         headerToolbar: {
           left: "prev,next today",
           center: "title",
@@ -104,7 +174,7 @@ const CalendarPage: React.FC = () => {
         locale: "th",
         navLinks: true, // can click day/week names to navigate views
         editable: false,
-        dayMaxEvents: true, // allow "more" link when too many events
+        dayMaxEvents: 5, // allow "more" link when too many events
         events,
         eventClick: (info) => {
           setSelectedBooking(info.event.extendedProps.booking);
@@ -113,7 +183,7 @@ const CalendarPage: React.FC = () => {
       });
       calendar.render();
     }
-  }, [books, isMyBooking, selectedRoom]);
+  }, [books, isMyBooking, selectedRoom, selectedStatuses]);
 
   const handleCloseModal = () => {
     setModalOpen(false);
@@ -122,6 +192,15 @@ const CalendarPage: React.FC = () => {
 
   const handleRoomChange = (event: SelectChangeEvent<string>) => {
     setSelectedRoom(event.target.value as string);
+  };
+
+  const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSelectedStatuses((prev) =>
+      prev.includes(value)
+        ? prev.filter((status) => status !== value)
+        : [...prev, value]
+    );
   };
 
   const handleMyBookingChange = (
@@ -136,14 +215,14 @@ const CalendarPage: React.FC = () => {
 
   return (
     <PageContainer>
-      <div className="w-[1000px] overflow-y-auto">
+      <div className="flex flex-col p-4 overflow-y-auto">
         <div className="flex flex-row gap-2">
           <img src="/imgs/calendar.svg" />
           <h1 className="text-maincolor text-xl">ปฎิทินการจองห้อง</h1>
         </div>
 
         <p className="text-sm font-light my-4">หมายเหตุ/รายละเอียด</p>
-        <div className="flex flex-row items-center gap-4 my-2">
+        <div className="flex flex-row items-center gap-4  bg-white p-4">
           <p className="text-base font-normal my-4">เลือกแสดง</p>
           <FormControl variant="outlined" className="w-1/3">
             <InputLabel id="room-select-label">ห้องประชุม</InputLabel>
@@ -163,6 +242,29 @@ const CalendarPage: React.FC = () => {
               ))}
             </Select>
           </FormControl>
+          <FormControl
+            component="fieldset"
+            variant="outlined"
+            className="w-1/2"
+          >
+            <FormLabel component="legend">สถานะการจอง</FormLabel>
+            <FormGroup row>
+              {BookingStatusList.map((status, index) => (
+                <FormControlLabel
+                  key={index}
+                  control={
+                    <Checkbox
+                      checked={selectedStatuses.includes(status)}
+                      onChange={handleStatusChange}
+                      value={status}
+                      color="primary"
+                    />
+                  }
+                  label={status}
+                />
+              ))}
+            </FormGroup>
+          </FormControl>
           <FormControlLabel
             control={
               <Checkbox
@@ -174,68 +276,17 @@ const CalendarPage: React.FC = () => {
             label="การจองของฉัน"
           />
         </div>
-        <div ref={calendarRef} id="calendar" />
+        <div ref={calendarRef} id="calendar" className="bg-white" />
       </div>
 
       {selectedBooking && isModalOpen && (
-        <Dialog
-          open={isModalOpen}
+        <BookingDetailsDialog
+          isOpen={isModalOpen}
           onClose={handleCloseModal}
-          fullWidth
-          maxWidth="sm"
-        >
-          <DialogTitle>Booking Details</DialogTitle>
-          <DialogContent dividers>
-            <Typography variant="body1">
-              <strong>Book ID:</strong> {selectedBooking.id}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Room Name:</strong> {selectedBooking.room_name}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Title:</strong> {selectedBooking.title}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Reason:</strong> {selectedBooking.reason}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Contact:</strong> {selectedBooking.tel}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Date:</strong>{" "}
-              {dayjs(selectedBooking.date).utc().format("YYYY-MM-DD")}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Start Time:</strong>{" "}
-              {dayjs(selectedBooking.start_time).utc().format("HH:mm:ss")}
-            </Typography>
-            <Typography variant="body1">
-              <strong>End Time:</strong>{" "}
-              {dayjs(selectedBooking.end_time).utc().format("HH:mm:ss")}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Status:</strong> {selectedBooking.status}
-            </Typography>
-            {selectedBooking.reject_historys &&
-              selectedBooking.reject_historys.length > 0 && (
-                <Typography variant="body1">
-                  <strong>Reject Reasons:</strong>
-                  <ul>
-                    {selectedBooking.reject_historys.map((reject, index) => (
-                      <li key={index}>
-                        {reject.reason || "No reason provided"}
-                      </li>
-                    ))}
-                  </ul>
-                </Typography>
-              )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseModal} color="primary">
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
+          selectedBooking={selectedBooking}
+          onApprove={handleOnApproved}
+          onReject={handleOnRejected}
+        />
       )}
     </PageContainer>
   );

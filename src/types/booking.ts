@@ -33,6 +33,11 @@ export interface BookingRejectTransaction {
   created_at: Date;
 }
 
+export interface BookingRejectTransactionCreateModel {
+  booking_id: number;
+  reason: string;
+}
+
 export interface BookingCreateModel {
   room_id: number;
   account_id: string;
@@ -47,6 +52,34 @@ export interface BookingCreateModel {
 }
 
 export interface BookingDTOModel {
+  room_id: number;
+  account_id: string;
+  start_time: string;
+  end_time: string;
+  date: string;
+  title: string;
+  tel: string;
+  reason: string;
+  status: BookingStatus;
+  confirmed_by: string | null;
+}
+
+export interface BookingUpdateModel {
+  id: number;
+  room_id: number;
+  account_id: string;
+  start_time: Date;
+  end_time: Date;
+  date: Date;
+  title: string;
+  tel: string;
+  reason: string;
+  status: BookingStatus;
+  confirmed_by: string | null;
+}
+
+export interface BookingUpdateDTOModel {
+  id: number;
   room_id: number;
   account_id: string;
   start_time: string;

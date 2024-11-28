@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import PageContainer from "../../common/components/container/PageContainer";
 import { Booking, BookingStatusList } from "../../types/booking";
-import { GetAllBooks } from "../../common/apis/booking/queries";
+import {
+  GetAllBooks,
+  GetBookByAccountId,
+} from "../../common/apis/booking/queries";
 import {
   Table,
   TableBody,
@@ -13,9 +16,13 @@ import {
   CircularProgress,
   Typography,
   TableSortLabel,
+  colors,
+  Button,
 } from "@mui/material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import useAccountContext from "../../common/contexts/AccountContext";
+import RejectionHistoryModal from "./components/RejectionHistoryModal";
 
 dayjs.extend(utc);
 
@@ -26,13 +33,29 @@ const HistoryPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<keyof Booking>("id");
+  const [selectedRejectHistory, setSelectedRejectHistory] = useState<
+    { reason: string }[] | null
+  >(null);
+  const [isModalOpen, setModalOpen] = useState<boolean>(false);
+  const { accountData } = useAccountContext();
 
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const roomResponse = await GetAllBooks();
-        if (Array.isArray(roomResponse.result)) {
-          setBooks(roomResponse.result);
+        if (accountData?.isAdmin) {
+          const bookResponse = await GetAllBooks();
+          if (Array.isArray(bookResponse.result)) {
+            setBooks(bookResponse.result);
+          }
+        } else {
+          if (accountData?.userData.cmuitaccount) {
+            const bookResponse = await GetBookByAccountId(
+              accountData.userData.cmuitaccount
+            );
+            if (Array.isArray(bookResponse.result)) {
+              setBooks(bookResponse.result);
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -59,6 +82,16 @@ const HistoryPage: React.FC = () => {
     }
     return 0;
   });
+
+  const handleOpenModal = (rejectHistory: { reason: string }[]) => {
+    setSelectedRejectHistory(rejectHistory);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedRejectHistory(null);
+  };
 
   if (loading) {
     return <CircularProgress />;
@@ -163,31 +196,41 @@ const HistoryPage: React.FC = () => {
                     <Typography
                       style={{
                         color:
-                          book.status === BookingStatusList[1]
-                            ? "#5FA13F"
-                            : book.status === BookingStatusList[0]
+                          book.status === BookingStatusList[0]
                             ? "#F3A51D"
-                            : "#E54444",
+                            : book.status === BookingStatusList[1]
+                            ? "#5FA13F"
+                            : book.status === BookingStatusList[2]
+                            ? "#E54444"
+                            : colors.grey[500], // Default color for the fourth status
                       }}
                     >
                       {book.status}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    {book.reject_historys && book.reject_historys.length > 0 ? (
-                      book.reject_historys.map((reject, index) => (
-                        <div key={index}>
-                          {reject.reason ? reject.reason : "No reason provided"}
-                        </div>
-                      ))
-                    ) : (
-                      <div>No rejection history</div>
-                    )}
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() =>
+                        handleOpenModal(book.reject_historys || [])
+                      }
+                      disabled={book.reject_historys?.length === 0}
+                    >
+                      Details
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          {selectedRejectHistory && (
+            <RejectionHistoryModal
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+              rejectHistory={selectedRejectHistory}
+            />
+          )}
         </TableContainer>
       </div>
     </PageContainer>

@@ -36,7 +36,7 @@ export function GetBookByRoomId(id: number): Promise<TResponse<Booking>> {
   });
 }
 
-export function GetBookByAccountId(id: number): Promise<TResponse<Booking>> {
+export function GetBookByAccountId(id: string): Promise<TResponse<Booking>> {
   return new Promise((resolve, reject) => {
     coreApi
       .get(`${ApiRouteKey.Booking}/account/${id}`)

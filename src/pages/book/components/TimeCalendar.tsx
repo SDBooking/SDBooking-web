@@ -6,7 +6,7 @@ import listPlugin from "@fullcalendar/list";
 import { Calendar } from "@fullcalendar/core";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { Booking } from "../../../types/booking";
+import { Booking, BookingStatusList } from "../../../types/booking";
 import {
   Dialog,
   DialogTitle,
@@ -14,6 +14,7 @@ import {
   DialogActions,
   Button,
   Typography,
+  colors,
 } from "@mui/material";
 import "./TimeCalendar.css";
 
@@ -35,6 +36,10 @@ const TimeCalendar: React.FC<TimeCalendarProps> = ({ bookings }) => {
         start: dayjs(book.start_time).utc().format(),
         end: dayjs(book.end_time).utc().format(),
         extendedProps: { booking: book },
+        color:
+          book.status === BookingStatusList[1]
+            ? colors.green[500]
+            : colors.red[500],
       }));
 
       const calendar = new Calendar(calendarRef.current, {
