@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Grid, Typography, CircularProgress, Box } from "@mui/material";
 import PageContainer from "../../common/components/container/PageContainer";
 import RoomCard from "./components/RoomCard";
 import { GetAllRooms } from "../../common/apis/room/queries";
@@ -40,57 +41,63 @@ const BookPage: React.FC = () => {
     fetchRooms();
   }, []);
 
-  console.log("Rooms:", rooms);
-  console.log("Room Services:", roomServices);
-
   return (
     <PageContainer>
-      {/* Page Header */}
-      <div className="flex flex-row gap-2 items-center mb-4">
-        <img src="/imgs/bookmark.svg" alt="Bookmark" className="h-6 w-6" />
-        <h1 className="text-maincolor text-xl font-semibold">จองห้อง</h1>
+      <div className="p-4">
+        {/* Page Header */}
+        <Box display="flex" alignItems="center" mb={2}>
+          <img src="/imgs/bookmark.svg" alt="Bookmark" className="h-6 w-6" />
+          <Typography variant="h6" className="text-maincolor" ml={2}>
+            จองห้อง
+          </Typography>
+        </Box>
+
+        {/* Description */}
+        <Typography variant="body1" color="textSecondary" mb={4}>
+          ค้นหาห้องที่คุณต้องการจอง และดูรายละเอียดของห้องเพื่อดำเนินการจอง
+        </Typography>
+
+        {/* Loading or Room Cards */}
+        {loading ? (
+          <Box display="flex" justifyContent="center" mt={10}>
+            <CircularProgress />
+          </Box>
+        ) : rooms.length === 0 ? (
+          <Typography variant="h6" color="textSecondary" align="center" mt={10}>
+            ไม่มีห้องว่าง
+          </Typography>
+        ) : (
+          <Grid container spacing={4}>
+            {rooms.map((room) => {
+              // Filter room services based on the room ID
+              const services = roomServices
+                .filter((service) => service.room_id === room.id)
+                .map((service) => service.facility)
+                .flat();
+
+              return (
+                <Grid item xs={12} key={room.id}>
+                  <RoomCard
+                    name={room.name}
+                    type={room.type}
+                    location={room.location}
+                    capacity={room.capacity}
+                    services={services}
+                    description={room.description || "No description provided."}
+                    requires_confirmation={room.requires_confirmation}
+                    booking_interval_minutes={room.booking_interval_minutes}
+                    open_time={room.open_time}
+                    close_time={room.close_time}
+                    activation={room.activation}
+                    id={room.id}
+                    images={images}
+                  />
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
       </div>
-
-      {/* Description */}
-      <p className="text-sm font-light my-4 text-gray-600">
-        หมายเหตุ/รายละเอียด
-      </p>
-
-      {/* Loading or Room Cards */}
-      {loading ? (
-        <div className="text-center text-gray-500 mt-10">Loading...</div>
-      ) : rooms.length === 0 ? (
-        <div className="text-center text-gray-500 mt-10">ไม่มีห้องว่าง</div>
-      ) : (
-        <div className="flex flex-col gap-6">
-          {rooms.map((room) => {
-            // Filter room services based on the room ID
-            const services = roomServices
-              .filter((service) => service.room_id === room.id)
-              .map((service) => service.facility)
-              .flat();
-
-            return (
-              <RoomCard
-                key={room.id}
-                name={room.name}
-                type={room.type}
-                location={room.location}
-                capacity={room.capacity}
-                services={services}
-                description={room.description || "No description provided."}
-                requires_confirmation={room.requires_confirmation}
-                booking_interval_minutes={room.booking_interval_minutes}
-                open_time={room.open_time}
-                close_time={room.close_time}
-                activation={room.activation}
-                id={room.id}
-                images={images}
-              />
-            );
-          })}
-        </div>
-      )}
     </PageContainer>
   );
 };

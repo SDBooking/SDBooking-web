@@ -11,6 +11,7 @@ import {
   ImageListItem,
   Box,
   Container,
+  FormHelperText,
 } from "@mui/material";
 import { Room } from "../../../types/room";
 import {
@@ -74,9 +75,10 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   const [formData, setFormData] = useState<BookingCreateModel>({
     room_id: id,
     account_id: accountData?.userData.cmuitaccount,
-    start_time: dayjs().tz("Asia/Bangkok").toDate(),
+    start_time: dayjs().tz("Asia/Bangkok").minute(0).toDate(),
     end_time: dayjs()
       .tz("Asia/Bangkok")
+      .minute(0)
       .add(booking_interval_minutes || 10, "minute")
       .toDate(),
     date: dayjs().tz("Asia/Bangkok").toDate(),
@@ -445,6 +447,12 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                       onError={() => errors.end_time}
                       ampm={false}
                     />
+                    <FormHelperText
+                      className="flex w-fit whitespace-nowrap items-center justify-center"
+                      error={!!errors.end_time || !!errors.start_time}
+                    >
+                      ขั้นต่ำ {booking_interval_minutes} นาที
+                    </FormHelperText>
                   </div>
                   <TextField
                     label="หัวที่ใช้จะใช้ห้อง"

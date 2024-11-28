@@ -7,16 +7,9 @@ import { Calendar } from "@fullcalendar/core";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { Booking, BookingStatusList } from "../../../types/booking";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-  colors,
-} from "@mui/material";
+import { colors } from "@mui/material";
 import "./TimeCalendar.css";
+import BookingDetailsViewDialog from "../../calendar/components/BookingDetailViewDialog";
 
 dayjs.extend(utc);
 
@@ -73,61 +66,11 @@ const TimeCalendar: React.FC<TimeCalendarProps> = ({ bookings }) => {
     <>
       <div ref={calendarRef} id="time-calendar" className="text-sm" />
       {selectedBooking && (
-        <Dialog
-          open={isModalOpen}
+        <BookingDetailsViewDialog
+          isOpen={isModalOpen}
           onClose={handleCloseModal}
-          fullWidth
-          maxWidth="sm"
-        >
-          <DialogTitle>Booking Details</DialogTitle>
-          <DialogContent dividers>
-            <Typography variant="body1">
-              <strong>Room Name:</strong> {selectedBooking.room_name}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Title:</strong> {selectedBooking.title}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Reason:</strong> {selectedBooking.reason}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Contact:</strong> {selectedBooking.tel}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Date:</strong>{" "}
-              {dayjs(selectedBooking.date).utc().format("YYYY-MM-DD")}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Start Time:</strong>{" "}
-              {dayjs(selectedBooking.start_time).utc().format("HH:mm:ss")}
-            </Typography>
-            <Typography variant="body1">
-              <strong>End Time:</strong>{" "}
-              {dayjs(selectedBooking.end_time).utc().format("HH:mm:ss")}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Status:</strong> {selectedBooking.status}
-            </Typography>
-            {selectedBooking.reject_historys &&
-              selectedBooking.reject_historys.length > 0 && (
-                <Typography variant="body1">
-                  <strong>Reject Reasons:</strong>
-                  <ul>
-                    {selectedBooking.reject_historys.map((reject, index) => (
-                      <li key={index}>
-                        {reject.reason || "No reason provided"}
-                      </li>
-                    ))}
-                  </ul>
-                </Typography>
-              )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseModal} color="primary">
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
+          selectedBooking={selectedBooking}
+        />
       )}
     </>
   );

@@ -222,8 +222,10 @@ const CalendarPage: React.FC = () => {
         </div>
 
         <p className="text-sm font-light my-4">หมายเหตุ/รายละเอียด</p>
-        <div className="flex flex-row items-center gap-4  bg-white p-4">
-          <p className="text-base font-normal my-4">เลือกแสดง</p>
+        <div className="flex flex-row items-center gap-4  bg-white p-6 rounded-2xl">
+          <p className="text-base font-normal my-4 w-fit inline whitespace-nowrap px-2">
+            เลือกแสดง
+          </p>
           <FormControl variant="outlined" className="w-1/3">
             <InputLabel id="room-select-label">ห้องประชุม</InputLabel>
             <Select
@@ -233,7 +235,7 @@ const CalendarPage: React.FC = () => {
               label="ห้องประชุม"
             >
               <MenuItem value="">
-                <em>None</em>
+                <em>ทุกห้อง</em>
               </MenuItem>
               {rooms.map((room) => (
                 <MenuItem key={room.id} value={room.id.toString()}>
@@ -245,9 +247,11 @@ const CalendarPage: React.FC = () => {
           <FormControl
             component="fieldset"
             variant="outlined"
-            className="w-1/2"
+            className="w-1/2 items-center justify-center"
           >
-            <FormLabel component="legend">สถานะการจอง</FormLabel>
+            <FormLabel component="legend" className="text-center">
+              สถานะการจอง
+            </FormLabel>
             <FormGroup row>
               {BookingStatusList.map((status, index) => (
                 <FormControlLabel
@@ -266,6 +270,7 @@ const CalendarPage: React.FC = () => {
             </FormGroup>
           </FormControl>
           <FormControlLabel
+            className="right-0 text-base font-normal my-4 w-fit inline whitespace-nowrap px-2 items-center justify-center"
             control={
               <Checkbox
                 checked={isMyBooking}
@@ -276,7 +281,11 @@ const CalendarPage: React.FC = () => {
             label="การจองของฉัน"
           />
         </div>
-        <div ref={calendarRef} id="calendar" className="bg-white" />
+        <div
+          ref={calendarRef}
+          id="calendar"
+          className="bg-white p-10 rounded-b-2xl"
+        />
       </div>
 
       {selectedBooking && isModalOpen && (
