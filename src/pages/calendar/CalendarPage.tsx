@@ -221,7 +221,9 @@ const CalendarPage: React.FC = () => {
           <h1 className="text-maincolor text-xl">ปฎิทินการจองห้อง</h1>
         </div>
 
-        <p className="text-sm font-light my-4">หมายเหตุ/รายละเอียด</p>
+        <p className="text-base my-4">
+          ปฎิทินการจองห้องที่แสดงข้อมูลการจองของระบบทั้งหมด
+        </p>
         <div className="flex flex-row items-center gap-4  bg-white p-6 rounded-2xl">
           <p className="text-base font-normal my-4 w-fit inline whitespace-nowrap px-2">
             เลือกแสดง

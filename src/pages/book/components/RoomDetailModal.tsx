@@ -12,6 +12,7 @@ import {
   Box,
   Container,
   FormHelperText,
+  CircularProgress,
 } from "@mui/material";
 import { Room } from "../../../types/room";
 import {
@@ -75,10 +76,11 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   const [formData, setFormData] = useState<BookingCreateModel>({
     room_id: id,
     account_id: accountData?.userData.cmuitaccount,
-    start_time: dayjs().tz("Asia/Bangkok").minute(0).toDate(),
+    start_time: dayjs().tz("Asia/Bangkok").minute(0).second(0).toDate(),
     end_time: dayjs()
       .tz("Asia/Bangkok")
       .minute(0)
+      .second(0)
       .add(booking_interval_minutes || 10, "minute")
       .toDate(),
     date: dayjs().tz("Asia/Bangkok").toDate(),
@@ -109,7 +111,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
     };
 
     fetchBooks();
-  }, []);
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -214,20 +216,6 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
           newEnd.isBetween(bookStartTime, bookEndTime, null, "(]") ||
           (newStart.isBefore(bookStartTime) && newEnd.isAfter(bookEndTime));
 
-        // console.log(
-        //   `Booking ${book.id}:`,
-        //   "Booking Start:",
-        //   bookStartTime.format(),
-        //   "Booking End:",
-        //   bookEndTime.format(),
-        //   "New Start:",
-        //   newStart.format(),
-        //   "New End:",
-        //   newEnd.format(),
-        //   "Overlap:",
-        //   isOverlap
-        // );
-
         return !isOverlap;
       });
   };
@@ -288,15 +276,21 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="lg">
+        <DialogContent>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="200px"
+          >
+            <CircularProgress />
+          </Box>
+        </DialogContent>
+      </Dialog>
+    );
   }
-
-  // console.log("RoomDetailModal : ", formData);
-  // console.log("TimeError : ", timeError);
-  // console.log(
-  //   isTimeAvailable(formData.start_time, formData.end_time, formData.date)
-  // );
-  // console.log("Formdata : ", formData.start_time, formData.end_time);
 
   return (
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="lg">

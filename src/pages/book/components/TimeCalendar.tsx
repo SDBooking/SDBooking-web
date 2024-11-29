@@ -32,7 +32,11 @@ const TimeCalendar: React.FC<TimeCalendarProps> = ({ bookings }) => {
         color:
           book.status === BookingStatusList[1]
             ? colors.green[500]
-            : colors.red[500],
+            : book.status === BookingStatusList[2]
+            ? colors.red[500]
+            : book.status === BookingStatusList[3]
+            ? colors.grey[500]
+            : colors.yellow[800],
       }));
 
       const calendar = new Calendar(calendarRef.current, {

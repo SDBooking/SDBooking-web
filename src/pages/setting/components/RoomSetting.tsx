@@ -1,5 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { IconButton, TextField } from "@mui/material";
+import {
+  IconButton,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Typography,
+  Box,
+  Paper,
+  Grid,
+  Card,
+  CardContent,
+  ListItem,
+  ListItemText,
+  Divider,
+} from "@mui/material";
 import { Cog6ToothIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { GetAllRoomTypes } from "../../../common/apis/room_type/queries";
 import {
@@ -22,97 +39,106 @@ import {
   DeleteRoomFacility,
   UpdateRoomFacility,
 } from "../../../common/apis/room_facility/manipulates";
+import { GetAllRooms } from "../../../common/apis/room/queries";
+import { Room } from "../../../types/room";
+import { GetAllRoomServices } from "../../../common/apis/room_service/queries";
+import { RoomServiceDTO } from "../../../types/room_service";
 import { usePopupContext } from "../../../common/contexts/PopupContext";
 import RoomEditor from "./RoomEditor";
 import { renameDTO } from "./RoomEditor";
 
 const RoomFilter: React.FC = () => {
   const { setChildren, setVisible } = usePopupContext();
-
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [roomTypes, setRoomTypes] = useState<RoomTypeDTO[]>([]);
   const [roomLocations, setRoomLocations] = useState<RoomLocationDTO[]>([]);
   const [roomFacilities, setRoomFacilities] = useState<RoomFacilityDTO[]>([]);
+  const [roomServices, setRoomServices] = useState<RoomServiceDTO[]>([]);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    index: number;
+    type: "roomType" | "roomLocation" | "roomFacility";
+  } | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchRoomTypes = async () => {
       try {
-        const [
-          roomTypesResponse,
-          roomLocationsResponse,
-          roomFacilitiesResponse,
-        ] = await Promise.all([
-          GetAllRoomTypes(),
-          GetAllRoomLocations(),
-          GetAllRoomFacilities(),
-        ]);
-
-        if (
-          !roomTypesResponse.result ||
-          !roomLocationsResponse.result ||
-          !roomFacilitiesResponse.result
-        ) {
-          throw new Error("Failed to fetch data");
-        }
-
-        setRoomTypes(roomTypesResponse.result);
-        setRoomLocations(roomLocationsResponse.result);
-        setRoomFacilities(roomFacilitiesResponse.result);
+        const response = await GetAllRoomTypes();
+        if (!response.result) throw new Error("Failed to fetch room types");
+        setRoomTypes(response.result);
       } catch (error) {
-        console.error("Failed to fetch data:", error);
+        console.error("Failed to fetch room types:", error);
       }
     };
 
-    fetchData();
+    const fetchRoomLocations = async () => {
+      try {
+        const response = await GetAllRoomLocations();
+        if (!response.result) throw new Error("Failed to fetch room locations");
+        setRoomLocations(response.result);
+      } catch (error) {
+        console.error("Failed to fetch room locations:", error);
+      }
+    };
+
+    const fetchRoomFacilities = async () => {
+      try {
+        const response = await GetAllRoomFacilities();
+        if (!response.result)
+          throw new Error("Failed to fetch room facilities");
+        setRoomFacilities(response.result);
+      } catch (error) {
+        console.error("Failed to fetch room facilities:", error);
+      }
+    };
+
+    const fetchRooms = async () => {
+      try {
+        const response = await GetAllRooms();
+        if (!response.result) throw new Error("Failed to fetch rooms");
+        setRooms(Array.isArray(response.result) ? response.result : []);
+      } catch (error) {
+        console.error("Failed to fetch rooms:", error);
+      }
+    };
+
+    const fetchRoomServices = async () => {
+      try {
+        const response = await GetAllRoomServices();
+        if (!response.result) throw new Error("Failed to fetch room services");
+        setRoomServices(Array.isArray(response.result) ? response.result : []);
+      } catch (error) {
+        console.error("Failed to fetch room services:", error);
+      }
+    };
+
+    fetchRoomTypes();
+    fetchRoomLocations();
+    fetchRoomFacilities();
+    fetchRooms();
+    fetchRoomServices();
   }, []);
 
-  const handleDeleteRoomType = async <T,>(
-    index: number,
-    list: T[],
-    setList: React.Dispatch<React.SetStateAction<T[]>>
-  ) => {
-    try {
-      const itemToDelete = list[index];
-      // Assuming itemToDelete has an id property
-      await DeleteRoomType((itemToDelete as any).id);
-      const updatedList = [...list];
-      updatedList.splice(index, 1);
-      setList(updatedList);
-    } catch (error) {
-      console.error("Failed to delete item:", error);
-    }
-  };
-
-  const handleDeleteRoomLocation = async <T,>(
-    index: number,
-    list: T[],
-    setList: React.Dispatch<React.SetStateAction<T[]>>
-  ) => {
-    try {
-      const itemToDelete = list[index];
-      // Assuming itemToDelete has an id property
-      await DeleteRoomLocation((itemToDelete as any).id);
-      const updatedList = [...list];
-      updatedList.splice(index, 1);
-      setList(updatedList);
-    } catch (error) {
-      console.error("Failed to delete item:", error);
-    }
-  };
-
-  const handleDeleteRoomFacility = async <T,>(
-    index: number,
-    list: T[],
-    setList: React.Dispatch<React.SetStateAction<T[]>>
-  ) => {
-    try {
-      const itemToDelete = list[index];
-      // Assuming itemToDelete has an id property
-      await DeleteRoomFacility((itemToDelete as any).id);
-      const updatedList = [...list];
-      updatedList.splice(index, 1);
-      setList(updatedList);
-    } catch (error) {
-      console.error("Failed to delete item:", error);
+  const handleDelete = async () => {
+    if (deleteTarget) {
+      const { index, type } = deleteTarget;
+      try {
+        if (type === "roomType") {
+          await DeleteRoomType(roomTypes[index].id);
+          setRoomTypes((prev) => prev.filter((_, i) => i !== index));
+        } else if (type === "roomLocation") {
+          await DeleteRoomLocation(roomLocations[index].id);
+          setRoomLocations((prev) => prev.filter((_, i) => i !== index));
+        } else if (type === "roomFacility") {
+          await DeleteRoomFacility(roomFacilities[index].id);
+          setRoomFacilities((prev) => prev.filter((_, i) => i !== index));
+        }
+      } catch (error) {
+        console.error("Failed to delete item:", error);
+      } finally {
+        setDeleteModalOpen(false);
+        setDeleteTarget(null);
+      }
     }
   };
 
@@ -243,46 +269,133 @@ const RoomFilter: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
+    <Box p={4}>
+      {/* Info Box */}
+      <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h5" gutterBottom className="text-center">
+          ข้อมูลห้องในระบบ
+        </Typography>
+        <Divider sx={{ my: 2 }} />
+
+        <Box mb={2}>
+          <Typography variant="h6" gutterBottom className="text-center">
+            ประเภทห้อง
+          </Typography>
+          <div className="grid grid-cols-3">
+            {roomTypes.map((type) => (
+              <ListItem key={type.id}>
+                <ListItemText
+                  primary={type.name}
+                  className="bg-gray-100 text-center rounded-2xl"
+                />
+              </ListItem>
+            ))}
+          </div>
+          <Divider sx={{ my: 2 }} />
+          <Typography variant="h6" gutterBottom className="text-center">
+            สถานที่
+          </Typography>
+          <div className="grid grid-cols-3">
+            {roomLocations.map((location) => (
+              <ListItem key={location.id}>
+                <ListItemText
+                  primary={location.name}
+                  className="bg-gray-100 text-center rounded-2xl"
+                />
+              </ListItem>
+            ))}
+          </div>
+          <Divider sx={{ my: 2 }} />
+          <Typography variant="h6" gutterBottom className="text-center">
+            สิ่งอำนวยความสะดวก
+          </Typography>
+          <div className="grid grid-cols-4">
+            {roomFacilities.map((facility) => (
+              <ListItem key={facility.id}>
+                <ListItemText
+                  primary={facility.name}
+                  className="bg-gray-100 text-center rounded-2xl"
+                />
+              </ListItem>
+            ))}
+          </div>
+        </Box>
+        <Divider sx={{ my: 2 }} />
+        <Typography variant="h6" gutterBottom className="text-center">
+          <div className="my-4">ห้องทั้งหมด</div>
+        </Typography>
+        <Grid container spacing={2}>
+          {rooms.map((room) => {
+            const facilities = roomServices
+              .filter((service) => service.room_id === room.id)
+              .map((service) => service.facility)
+              .flat();
+            return (
+              <Grid item xs={12} sm={6} md={4} key={room.id}>
+                <Card className="h-full">
+                  <CardContent>
+                    <Typography variant="h6">{room.name}</Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      ประเภท: {room.type}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      สถานที่: {room.location}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      สิ่งอำนวยความสะดวก: {facilities.join(", ")}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            );
+          })}
+        </Grid>
+      </Paper>
+
       {/* Room Types */}
-      <div>
-        <h3 className="text-lg font-semibold mb-2 text-maincolor">
+      <Box mb={4}>
+        <Typography variant="h6" color="primary" gutterBottom>
           ประเภทห้อง
-        </h3>
-        {roomTypes &&
-          roomTypes.map((type, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between border-b py-2"
-            >
-              <div className="flex items-center">
-                <span>{type.name}</span>
-              </div>
-              <div className="flex items-center">
-                <IconButton
-                  onClick={() =>
-                    handleEditRoomType({
-                      id: type.id,
-                      name: type.name,
-                    })
-                  }
-                >
-                  <Cog6ToothIcon className="h-4 w-4" />
-                </IconButton>
-                <IconButton
-                  onClick={() =>
-                    handleDeleteRoomType(index, roomTypes, setRoomTypes)
-                  }
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </IconButton>
-              </div>
-            </div>
-          ))}
+        </Typography>
+        {roomTypes.map((type, index) => (
+          <Paper
+            key={index}
+            elevation={1}
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              p: 2,
+              mb: 1,
+            }}
+          >
+            <Typography>{type.name}</Typography>
+            <Box>
+              <IconButton
+                onClick={() =>
+                  handleEditRoomType({
+                    id: type.id,
+                    name: type.name,
+                  })
+                }
+              >
+                <Cog6ToothIcon className="h-4 w-4" />
+              </IconButton>
+              <IconButton
+                onClick={() => {
+                  setDeleteTarget({ index, type: "roomType" });
+                  setDeleteModalOpen(true);
+                }}
+              >
+                <TrashIcon className="h-4 w-4" />
+              </IconButton>
+            </Box>
+          </Paper>
+        ))}
         <TextField
           placeholder="เพิ่มประเภทห้อง"
           size="small"
-          className="w-full mt-2"
+          fullWidth
+          margin="normal"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               handleAddRoomType(
@@ -294,46 +407,52 @@ const RoomFilter: React.FC = () => {
             }
           }}
         />
-        <div className="my-8" />
-        <h3 className="text-lg font-semibold mb-2 text-maincolor">สถานที่</h3>
-        {roomLocations &&
-          roomLocations.map((type, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between border-b py-2"
-            >
-              <div className="flex items-center">
-                <span>{type.name}</span>
-              </div>
-              <div className="flex items-center">
-                <IconButton
-                  onClick={() => {
-                    handleEditRoomLocation({
-                      id: type.id,
-                      name: type.name,
-                    });
-                  }}
-                >
-                  <Cog6ToothIcon className="size-4" />
-                </IconButton>
-                <IconButton
-                  onClick={() =>
-                    handleDeleteRoomLocation(
-                      index,
-                      roomLocations,
-                      setRoomLocations
-                    )
-                  }
-                >
-                  <TrashIcon className="size-4" />
-                </IconButton>
-              </div>
-            </div>
-          ))}
+      </Box>
+
+      {/* Room Locations */}
+      <Box mb={4}>
+        <Typography variant="h6" color="primary" gutterBottom>
+          สถานที่
+        </Typography>
+        {roomLocations.map((type, index) => (
+          <Paper
+            key={index}
+            elevation={1}
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              p: 2,
+              mb: 1,
+            }}
+          >
+            <Typography>{type.name}</Typography>
+            <Box>
+              <IconButton
+                onClick={() =>
+                  handleEditRoomLocation({
+                    id: type.id,
+                    name: type.name,
+                  })
+                }
+              >
+                <Cog6ToothIcon className="h-4 w-4" />
+              </IconButton>
+              <IconButton
+                onClick={() => {
+                  setDeleteTarget({ index, type: "roomLocation" });
+                  setDeleteModalOpen(true);
+                }}
+              >
+                <TrashIcon className="h-4 w-4" />
+              </IconButton>
+            </Box>
+          </Paper>
+        ))}
         <TextField
           placeholder="เพิ่มสถานที่"
           size="small"
-          className="w-full mt-2"
+          fullWidth
+          margin="normal"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               handleAddRoomLocation(
@@ -345,48 +464,52 @@ const RoomFilter: React.FC = () => {
             }
           }}
         />
-        <div className="my-8" />
-        <h3 className="text-lg font-semibold mb-2 text-maincolor">
+      </Box>
+
+      {/* Room Facilities */}
+      <Box mb={4}>
+        <Typography variant="h6" color="primary" gutterBottom>
           สิ่งอำนวยความสะดวก (Room Services)
-        </h3>
-        {roomFacilities &&
-          roomFacilities.map((type, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between border-b py-2"
-            >
-              <div className="flex items-center">
-                <span>{type.name}</span>
-              </div>
-              <div className="flex items-center">
-                <IconButton
-                  onClick={() => {
-                    handleEditRoomFacility({
-                      id: type.id,
-                      name: type.name,
-                    });
-                  }}
-                >
-                  <Cog6ToothIcon className="size-4" />
-                </IconButton>
-                <IconButton
-                  onClick={() =>
-                    handleDeleteRoomFacility(
-                      index,
-                      roomFacilities,
-                      setRoomFacilities
-                    )
-                  }
-                >
-                  <TrashIcon className="size-4" />
-                </IconButton>
-              </div>
-            </div>
-          ))}
+        </Typography>
+        {roomFacilities.map((type, index) => (
+          <Paper
+            key={index}
+            elevation={1}
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              p: 2,
+              mb: 1,
+            }}
+          >
+            <Typography>{type.name}</Typography>
+            <Box>
+              <IconButton
+                onClick={() =>
+                  handleEditRoomFacility({
+                    id: type.id,
+                    name: type.name,
+                  })
+                }
+              >
+                <Cog6ToothIcon className="h-4 w-4" />
+              </IconButton>
+              <IconButton
+                onClick={() => {
+                  setDeleteTarget({ index, type: "roomFacility" });
+                  setDeleteModalOpen(true);
+                }}
+              >
+                <TrashIcon className="h-4 w-4" />
+              </IconButton>
+            </Box>
+          </Paper>
+        ))}
         <TextField
-          placeholder="เพิ่มสถานที่"
+          placeholder="เพิ่มสิ่งอำนวยความสะดวก"
           size="small"
-          className="w-full mt-2"
+          fullWidth
+          margin="normal"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               handleAddRoomFacility(
@@ -398,8 +521,27 @@ const RoomFilter: React.FC = () => {
             }
           }}
         />
-      </div>
-    </div>
+      </Box>
+
+      {/* Confirmation Modal */}
+      <Dialog
+        open={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this item?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteModalOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDelete} color="secondary">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };
 

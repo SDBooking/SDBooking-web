@@ -1,6 +1,4 @@
-import { Autocomplete, TextField } from "@mui/material";
-import { CancelBtn } from "../../../common/components/form/CancelBtn";
-import { SubmitBtn } from "../../../common/components/form/SubmitBtn";
+import { Autocomplete, Button, TextField } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
@@ -32,7 +30,7 @@ function RoomEditor({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className="w-screen max-w-sm">
       <div className="p-6">
         <div>
           <Controller
@@ -61,8 +59,14 @@ function RoomEditor({
       </div>
 
       <div className="rounded-b-xl bg-gray-50 px-4 py-3 flex flex-row-reverse justify-center md:justify-start md:px-6 gap-4">
-        <SubmitBtn type="submit">ตกลง</SubmitBtn>
-        {cancel && <CancelBtn onClick={cancel}>ยกเลิก</CancelBtn>}
+        <Button type="submit" variant="contained" color="success">
+          ตกลง
+        </Button>
+        {cancel && (
+          <Button onClick={cancel} variant="contained" color="error">
+            ยกเลิก
+          </Button>
+        )}
       </div>
     </form>
   );

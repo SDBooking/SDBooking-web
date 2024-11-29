@@ -169,9 +169,6 @@ const RoomManipulatePage: React.FC = () => {
     });
   };
 
-  console.log(formData);
-  console.log(formFacilities);
-
   return (
     <BackPageContainer
       title={"สร้างห้องใหม่"}
@@ -301,6 +298,7 @@ const RoomManipulatePage: React.FC = () => {
                   <DesktopTimePicker
                     defaultValue={dayjs().set("hour", 0).set("minute", 0)}
                     label="Start time"
+                    ampm={false}
                     onChange={(newValue) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -311,6 +309,7 @@ const RoomManipulatePage: React.FC = () => {
                   <DesktopTimePicker
                     defaultValue={dayjs().set("hour", 0).set("minute", 0)}
                     label="End Time"
+                    ampm={false}
                     onChange={(newValue) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -324,7 +323,7 @@ const RoomManipulatePage: React.FC = () => {
                     defaultValue={0}
                     label="เวลาขั้นต่ำในการจองห้อง"
                     className="w-full"
-                    name="bookingIntervalMinutes"
+                    name="booking_interval_minutes"
                     onChange={handleChange}
                   />
                   <div className="w-1/6">นาที</div>

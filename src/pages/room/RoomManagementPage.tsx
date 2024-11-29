@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-
-import BackPageContainer from "../../common/components/container/BackPageContainer";
-import Box from "../../common/components/container/Box";
+import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import { GetAllRooms } from "../../common/apis/room/queries";
 import { GetAllRoomServices } from "../../common/apis/room_service/queries";
 import { Room } from "../../types/room";
@@ -10,6 +8,8 @@ import RoomCardAdmin from "./components/RoomCardAdmin";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 import { ClientRouteKey } from "../../common/constants/keys";
+
+import BackPageContainer from "../../common/components/container/BackPageContainer";
 
 const RoomManagementPage: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -45,38 +45,46 @@ const RoomManagementPage: React.FC = () => {
       title={"จัดการห้อง"}
       description="เลือกการแสดงผลรายละเอียดสำหรับเลือก ในการสร้างหรือแก้ไขห้องต่างๆ"
     >
-      <Box>
-        <div className="flex flex-col">
-          <div className="flex items-center justify-between flex-grow-0 mb-4">
-            <p className="p-2 text-lg">อัพเดทข้อมูลห้อง</p>
-            <div>
-              <Link
-                className="flex flex-row gap-2 p-2 rounded-2xl text-maincolor bg-gray-50 cursor-pointer"
-                to={ClientRouteKey.RoomManipulate}
-              >
-                <PlusCircleIcon className="size-6" />
-                เพิ่มห้อง
-              </Link>
-            </div>
-          </div>
+      <div className="w-fit">
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={4}
+        >
+          <Typography variant="h6">อัพเดทข้อมูลห้อง</Typography>
+          <Button
+            component={Link}
+            to={ClientRouteKey.RoomManipulate}
+            variant="contained"
+            color="primary"
+            startIcon={<PlusCircleIcon className="h-5 w-5" />}
+          >
+            เพิ่มห้อง
+          </Button>
+        </Box>
 
-          {/* Loading or Room Cards */}
-          {loading ? (
-            <div className="text-center text-gray-500 mt-10">Loading...</div>
-          ) : rooms.length === 0 ? (
-            <div className="text-center text-gray-500 mt-10">ไม่มีห้องว่าง</div>
-          ) : (
-            <div className="flex flex-col gap-6">
-              {rooms.map((room) => {
-                // Filter room services based on the room ID
-                const services = roomServices
-                  .filter((service) => service.room_id === room.id)
-                  .map((service) => service.facility)
-                  .flat();
+        {/* Loading or Room Cards */}
+        {loading ? (
+          <Box display="flex" justifyContent="center" mt={10}>
+            <CircularProgress />
+          </Box>
+        ) : rooms.length === 0 ? (
+          <Typography variant="h6" color="textSecondary" align="center" mt={10}>
+            ไม่มีห้องในระบบ
+          </Typography>
+        ) : (
+          <Box display="flex" flexDirection="column" gap={4}>
+            {rooms.map((room) => {
+              // Filter room services based on the room ID
+              const services = roomServices
+                .filter((service) => service.room_id === room.id)
+                .map((service) => service.facility)
+                .flat();
 
-                return (
+              return (
+                <div key={room.id} className="w-fit ">
                   <RoomCardAdmin
-                    key={room.id}
                     name={room.name}
                     type={room.type}
                     location={room.location}
@@ -86,12 +94,12 @@ const RoomManagementPage: React.FC = () => {
                     requiresConfirmation={room.requires_confirmation}
                     isActive={room.activation}
                   />
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </Box>
+                </div>
+              );
+            })}
+          </Box>
+        )}
+      </div>
     </BackPageContainer>
   );
 };

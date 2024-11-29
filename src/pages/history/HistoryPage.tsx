@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import PageContainer from "../../common/components/container/PageContainer";
 import { Booking, BookingStatusList } from "../../types/booking";
 import {
   GetAllBooks,
@@ -23,6 +22,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import useAccountContext from "../../common/contexts/AccountContext";
 import RejectionHistoryModal from "./components/RejectionHistoryModal";
+import BackPageContainer from "../../common/components/container/BackPageContainer";
 
 dayjs.extend(utc);
 
@@ -98,15 +98,11 @@ const HistoryPage: React.FC = () => {
   }
 
   return (
-    <PageContainer>
-      <div className="flex flex-row gap-2 mb-4">
-        <img src="/imgs/history.svg" />
-        <Typography variant="h5" color="primary">
-          ประวัติการจองห้อง
-        </Typography>
-      </div>
-
-      <div className="p-4">
+    <BackPageContainer
+      description="ตารางประวัติการจองของคุณทั้งหมดที่มีอยู่ในระบบ"
+      title="ประวัติการจองของคุณ"
+    >
+      <div>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
@@ -233,7 +229,7 @@ const HistoryPage: React.FC = () => {
           )}
         </TableContainer>
       </div>
-    </PageContainer>
+    </BackPageContainer>
   );
 };
 
