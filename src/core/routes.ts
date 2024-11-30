@@ -6,6 +6,7 @@ import HistoryPage from "../pages/history/HistoryPage";
 import HomePage from "../pages/home/HomePage";
 import LoginPage from "../pages/login/LoginPage";
 import OAuthPage from "../pages/oauth/OAuthPage";
+import RoomEdit from "../pages/room/RoomEdit";
 import RoomManagementPage from "../pages/room/RoomManagementPage";
 import RoomManipulatePage from "../pages/room/RoomManipulate";
 import SettingPage from "../pages/setting/SettingPage";
@@ -45,8 +46,12 @@ const routes: Route[] = [
     component: withAuth(AuthKey.AdminAuth)(RoomManipulatePage),
   },
   {
+    path: ClientRouteKey.RoomUpdate,
+    component: withAuth(AuthKey.AdminAuth)(RoomEdit),
+  },
+  {
     path: ClientRouteKey.UserSetting,
-    component: withAuth(AuthKey.Both)(UserSettingPage),
+    component: withAuth(AuthKey.AdminAuth)(UserSettingPage),
   },
   {
     path: ClientRouteKey.Login,

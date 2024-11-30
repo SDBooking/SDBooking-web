@@ -24,12 +24,18 @@ import {
   FormLabel,
   SelectChangeEvent,
   colors,
+  Typography,
 } from "@mui/material";
 import useAccountContext from "../../common/contexts/AccountContext";
 import { Room } from "../../types/room";
 import { GetAllRooms } from "../../common/apis/room/queries";
 import BookingDetailsDialog from "./components/BookingDetailDialog";
-import { ApproveBook, RejectBook } from "../../common/apis/booking/manipulates";
+import {
+  ApproveBook,
+  DeleteBook,
+  DiscardBook,
+  RejectBook,
+} from "../../common/apis/booking/manipulates";
 
 dayjs.extend(utc);
 
@@ -100,6 +106,40 @@ const CalendarPage: React.FC = () => {
         setModalOpen(false);
       } catch (error) {
         console.error("Error approving booking:", error);
+      }
+    }
+  };
+
+  const handleOnDiscarded = async () => {
+    if (selectedBooking) {
+      try {
+        await DiscardBook(selectedBooking.id);
+        setBooks((prevBooks) =>
+          prevBooks.map((book) =>
+            book.id === selectedBooking.id
+              ? { ...book, status: "DISCARDED" }
+              : book
+          )
+        );
+        fetchData();
+        setModalOpen(false);
+      } catch (error) {
+        console.error("Error Discarding booking:", error);
+      }
+    }
+  };
+
+  const handleOnDeleted = async () => {
+    if (selectedBooking) {
+      try {
+        await DeleteBook(selectedBooking.id);
+        setBooks((prevBooks) =>
+          prevBooks.filter((book) => book.id !== selectedBooking.id)
+        );
+        fetchData();
+        setModalOpen(false);
+      } catch (error) {
+        console.error("Error deleting booking:", error);
       }
     }
   };
@@ -216,14 +256,14 @@ const CalendarPage: React.FC = () => {
   return (
     <PageContainer>
       <div className="flex flex-col p-4 overflow-y-auto">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row gap-2 mb-4">
           <img src="/imgs/calendar.svg" />
           <h1 className="text-maincolor text-xl">ปฎิทินการจองห้อง</h1>
         </div>
 
-        <p className="text-base my-4">
+        <Typography variant="body1" color="textSecondary" mb={4}>
           ปฎิทินการจองห้องที่แสดงข้อมูลการจองของระบบทั้งหมด
-        </p>
+        </Typography>
         <div className="flex flex-row items-center gap-4  bg-white p-6 rounded-2xl">
           <p className="text-base font-normal my-4 w-fit inline whitespace-nowrap px-2">
             เลือกแสดง
@@ -297,6 +337,8 @@ const CalendarPage: React.FC = () => {
           selectedBooking={selectedBooking}
           onApprove={handleOnApproved}
           onReject={handleOnRejected}
+          onDiscard={handleOnDiscarded}
+          onDeleted={handleOnDeleted}
         />
       )}
     </PageContainer>

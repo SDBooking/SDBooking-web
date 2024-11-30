@@ -5,7 +5,7 @@ import { GetAllRoomServices } from "../../common/apis/room_service/queries";
 import { Room } from "../../types/room";
 import { RoomServiceDTO } from "../../types/room_service";
 import RoomCardAdmin from "./components/RoomCardAdmin";
-import { PlusCircleIcon } from "@heroicons/react/24/solid";
+import { Cog8ToothIcon, PlusCircleIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 import { ClientRouteKey } from "../../common/constants/keys";
 
@@ -53,15 +53,26 @@ const RoomManagementPage: React.FC = () => {
           mb={4}
         >
           <Typography variant="h6">อัพเดทข้อมูลห้อง</Typography>
-          <Button
-            component={Link}
-            to={ClientRouteKey.RoomManipulate}
-            variant="contained"
-            color="primary"
-            startIcon={<PlusCircleIcon className="h-5 w-5" />}
-          >
-            เพิ่มห้อง
-          </Button>
+          <Box display="flex" gap={2}>
+            <Button
+              component={Link}
+              to={ClientRouteKey.RoomManipulate}
+              variant="contained"
+              color="primary"
+              startIcon={<PlusCircleIcon className="h-5 w-5" />}
+            >
+              เพิ่มห้อง
+            </Button>
+            <Button
+              component={Link}
+              to={ClientRouteKey.RoomUpdate}
+              variant="contained"
+              color="inherit"
+              startIcon={<Cog8ToothIcon className="h-5 w-5" />}
+            >
+              แก้ไขข้อมูลห้อง
+            </Button>
+          </Box>
         </Box>
 
         {/* Loading or Room Cards */}

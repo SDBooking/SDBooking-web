@@ -48,7 +48,7 @@ const BookPage: React.FC = () => {
         <Box display="flex" alignItems="center" mb={2}>
           <img src="/imgs/bookmark.svg" alt="Bookmark" className="h-6 w-6" />
           <Typography variant="h6" className="text-maincolor" ml={2}>
-            จองห้อง
+            <h1 className="text-maincolor text-xl">จองห้อง</h1>
           </Typography>
         </Box>
 

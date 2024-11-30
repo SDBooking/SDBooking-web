@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "./RoomCard.css";
 import {
   BuildingOfficeIcon,
-  Cog6ToothIcon,
   LockClosedIcon,
   MapPinIcon,
   UserIcon,
@@ -66,21 +65,20 @@ const RoomCardAdmin: React.FC<RoomCardProps> = ({
             </div>
           )}
         </div>
-        <div className="absolute right-4 bottom-4">
-          <Cog6ToothIcon className="w-6 h-6 text-gray-800 bg-gray-200 rounded-full p-0.5 cursor-pointer" />
-        </div>
       </div>
-      <RoomDetailModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        name={name}
-        type={type}
-        location={location}
-        capacity={capacity}
-        description={description}
-        services={services}
-        requiresConfirmation={requiresConfirmation}
-      />
+      {isModalOpen && (
+        <RoomDetailModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          name={name}
+          type={type}
+          location={location}
+          capacity={capacity}
+          description={description}
+          services={services}
+          requiresConfirmation={requiresConfirmation}
+        />
+      )}
     </div>
   );
 };

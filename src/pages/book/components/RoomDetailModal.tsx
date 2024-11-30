@@ -28,7 +28,11 @@ import {
   TimePicker,
 } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { Booking, BookingCreateModel } from "../../../types/booking";
+import {
+  Booking,
+  BookingCreateModel,
+  BookingStatusList,
+} from "../../../types/booking";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -99,9 +103,12 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const roomResponse = await GetBookByRoomId(id);
-        if (Array.isArray(roomResponse.result)) {
-          setBooks(roomResponse.result);
+        const bookResponse = await GetBookByRoomId(id);
+        if (Array.isArray(bookResponse.result)) {
+          const filteredBooks = bookResponse.result.filter(
+            (book) => book.status !== BookingStatusList[3]
+          );
+          setBooks(filteredBooks);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -250,7 +257,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
     // Format the dates correctly before sending them in the POST request
     const formattedFormData = {
       ...formData,
-      start_time: dayjs(formData.start_time).format(),
+      start_time: dayjs(formData.start_time).second(1).format(),
       end_time: dayjs(formData.end_time).format(),
       date: dayjs(formData.date).format(),
     };

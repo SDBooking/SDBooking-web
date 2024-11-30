@@ -26,3 +26,17 @@ export interface RoomModel {
   open_time?: string;
   close_time?: string;
 }
+
+export interface RoomModelUpdate {
+  id: number;
+  name: string;
+  type_id: number;
+  location_id: number;
+  capacity: number;
+  description?: string;
+  requires_confirmation: boolean;
+  activation: boolean;
+  booking_interval_minutes?: number;
+  open_time?: string;
+  close_time?: string;
+}

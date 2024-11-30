@@ -1,6 +1,6 @@
 import { coreApi } from "../../../core/connections";
 import { TResponse } from "../../../types";
-import { Room, RoomModel } from "../../../types/room";
+import { Room, RoomModel, RoomModelUpdate } from "../../../types/room";
 import { ApiRouteKey } from "../../constants/keys";
 
 export function CreateRoom(room: RoomModel): Promise<TResponse<Room>> {
@@ -14,7 +14,9 @@ export function CreateRoom(room: RoomModel): Promise<TResponse<Room>> {
   });
 }
 
-export function UpdateRoom(room: Room): Promise<TResponse<Room>> {
+export function UpdateRoom(
+  room: RoomModelUpdate
+): Promise<TResponse<RoomModelUpdate>> {
   return new Promise((resolve, reject) => {
     coreApi
       .put(`${ApiRouteKey.Room}/${room.id}`, room)

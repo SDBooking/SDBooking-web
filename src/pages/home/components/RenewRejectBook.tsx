@@ -19,6 +19,7 @@ import {
   BookingUpdateModel,
   Booking,
   BookingUpdateDTOModel,
+  BookingStatusList,
 } from "../../../types/booking";
 import { GetBookByRoomId } from "../../../common/apis/booking/queries";
 import TimeCalendar from "../../book/components/TimeCalendar";
@@ -46,9 +47,12 @@ const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const roomResponse = await GetBookByRoomId(formData.room_id);
-        if (Array.isArray(roomResponse.result)) {
-          setBooks(roomResponse.result);
+        const bookResponse = await GetBookByRoomId(formData.room_id);
+        if (Array.isArray(bookResponse.result)) {
+          const filteredBooks = bookResponse.result.filter(
+            (book) => book.status !== BookingStatusList[3]
+          );
+          setBooks(filteredBooks);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -79,7 +83,8 @@ const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
     return books
       .filter((book) => {
         const sameDay = dayjs(book.date).isSame(newDate, "day");
-        return sameDay;
+        const bookStatus = book.status !== BookingStatusList[2];
+        return sameDay && bookStatus;
       })
       .map((book) => {
         const bookStartTime = dayjs(book.start_time).utc();
@@ -128,7 +133,7 @@ const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
     value: dayjs.Dayjs | null
   ) => {
     if (value) {
-      const updatedTime = value.tz("Asia/Bangkok");
+      const updatedTime = value.utc();
 
       if (
         field === "start_time" &&
@@ -166,10 +171,10 @@ const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
 
   const handleDateChange = (date: dayjs.Dayjs | null) => {
     if (date) {
-      const newDate = date.tz("Asia/Bangkok");
+      const newDate = date.utc();
       setFormData((prevFormData) => ({
         ...prevFormData,
-        date: newDate.second(0).toDate(),
+        date: newDate.toDate(),
         start_time: newDate
           .hour(dayjs(prevFormData.start_time).hour())
           .minute(dayjs(prevFormData.start_time).minute())
@@ -196,7 +201,7 @@ const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
       ...formData,
       confirmed_by: null,
       status: "PENDING",
-      start_time: dayjs(formData.start_time).utc().format(),
+      start_time: dayjs(formData.start_time).second(1).utc().format(),
       end_time: dayjs(formData.end_time).utc().format(),
       date: dayjs(formData.date).utc().format(),
     };

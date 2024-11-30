@@ -129,9 +129,10 @@ const HomePage: React.FC = () => {
   return (
     <PageContainer>
       <div className="p-4">
-        <Typography variant="h5" gutterBottom className="p-4" color="primary">
-          รายการจองของคุณ
-        </Typography>
+        <div className="p-4">
+          <h1 className="text-maincolor text-xl">รายการจองของคุณ</h1>
+        </div>
+
         <TableContainer
           component={Paper}
           style={{ overflowX: "auto" }}

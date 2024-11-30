@@ -26,6 +26,7 @@ export const enum ClientRouteKey {
   Setting = "/setting",
   RoomManagement = "/room-management",
   RoomManipulate = "/room-management/manipulate",
+  RoomUpdate = "/room-management/update",
   UserSetting = "/user-setting",
 }
 

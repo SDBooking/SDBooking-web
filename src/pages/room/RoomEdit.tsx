@@ -26,20 +26,34 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DesktopTimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
-import { CreateRoom } from "../../common/apis/room/manipulates";
-import { RoomModel } from "../../types/room";
+import { UpdateRoom } from "../../common/apis/room/manipulates";
+import { RoomModelUpdate } from "../../types/room";
 import toast from "react-hot-toast";
-import { RoomServiceCreateModel } from "../../types/room_service";
-import { CreateRoomService } from "../../common/apis/room_service/manipulates";
+import {
+  RoomServiceCreateModel,
+  RoomServiceModel,
+} from "../../types/room_service";
+import {
+  CreateRoomService,
+  DeleteRoomService,
+} from "../../common/apis/room_service/manipulates";
+import { GetRoomsModel } from "../../common/apis/room/queries";
+import { GetRoomServicesModel } from "../../common/apis/room_service/queries";
 
-const RoomManipulatePage: React.FC = () => {
+const RoomEdit: React.FC = () => {
   const [open, setOpen] = React.useState(true);
-  const [requireConfirmation, setRequireConfirmation] = React.useState(false);
-
+  const [requireConfirmation, setRequireConfirmation] = useState(false);
+  const [rooms, setRooms] = useState<RoomModelUpdate[]>([]);
   const [roomTypes, setRoomTypes] = useState<RoomTypeDTO[]>([]);
   const [roomLocations, setRoomLocations] = useState<RoomLocationDTO[]>([]);
   const [roomFacilities, setRoomFacilities] = useState<RoomFacilityDTO[]>([]);
-  const [formData, setFormData] = useState<RoomModel>({
+  const [roomServices, setRoomServices] = useState<RoomServiceModel[]>([]);
+  const [filteredRoomServices, setFilteredRoomServices] = useState<
+    RoomServiceModel[]
+  >([]);
+  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
+  const [formData, setFormData] = useState<RoomModelUpdate>({
+    id: 0,
     name: "",
     type_id: 1,
     location_id: 1,
@@ -62,26 +76,71 @@ const RoomManipulatePage: React.FC = () => {
     const fetchData = async () => {
       try {
         const [
+          roomsResponse,
           roomTypesResponse,
           roomLocationsResponse,
           roomFacilitiesResponse,
+          roomServicesResponse,
         ] = await Promise.all([
+          GetRoomsModel(),
           GetAllRoomTypes(),
           GetAllRoomLocations(),
           GetAllRoomFacilities(),
+          GetRoomServicesModel(),
         ]);
 
         if (
           !roomTypesResponse.result ||
           !roomLocationsResponse.result ||
-          !roomFacilitiesResponse.result
+          !roomFacilitiesResponse.result ||
+          !roomsResponse.result ||
+          !roomServicesResponse.result
         ) {
           throw new Error("Failed to fetch data");
         }
-
+        const roomsData = Array.isArray(roomsResponse.result)
+          ? roomsResponse.result
+          : [];
+        setRooms(roomsData);
         setRoomTypes(roomTypesResponse.result);
         setRoomLocations(roomLocationsResponse.result);
         setRoomFacilities(roomFacilitiesResponse.result);
+        setRoomServices(
+          Array.isArray(roomServicesResponse.result)
+            ? roomServicesResponse.result
+            : []
+        );
+
+        if (roomsData.length > 0) {
+          const firstRoom = roomsData[0];
+          setSelectedRoomId(firstRoom.id);
+          setFormData({
+            id: firstRoom.id,
+            name: firstRoom.name,
+            type_id: firstRoom.type_id,
+            location_id: firstRoom.location_id,
+            capacity: firstRoom.capacity,
+            description: firstRoom.description,
+            requires_confirmation: firstRoom.requires_confirmation,
+            activation: firstRoom.activation,
+            booking_interval_minutes: firstRoom.booking_interval_minutes,
+            open_time: firstRoom.open_time,
+            close_time: firstRoom.close_time,
+          });
+          setRequireConfirmation(firstRoom.requires_confirmation);
+          const initialRoomServices = Array.isArray(roomServicesResponse.result)
+            ? roomServicesResponse.result.filter(
+                (service: RoomServiceModel) => service.room_id === firstRoom.id
+              )
+            : [];
+          setFilteredRoomServices(initialRoomServices);
+          setFormFacilities(
+            initialRoomServices.map((service) => ({
+              facility_id: service.facility_id,
+              room_id: service.room_id,
+            }))
+          );
+        }
       } catch (error) {
         console.error("Failed to fetch data:", error);
       }
@@ -112,30 +171,43 @@ const RoomManipulatePage: React.FC = () => {
     }
 
     try {
-      const createdRoom = await CreateRoom({
+      const createdRoom = await UpdateRoom({
         ...formData,
         booking_interval_minutes: Number(formData.booking_interval_minutes),
       }); // Call API to create room
       if (createdRoom.result) {
         const roomId = createdRoom.result.id; // Get the newly created room's ID
-        console.log("Room created successfully with ID:", roomId);
-        console.log("New Room:", createdRoom.result);
+        console.log("Room Updated successfully with ID:", roomId);
+        console.log("Updated Room is :", createdRoom.result);
         // Use roomId to link facilities with the room
+        for (const facility of filteredRoomServices) {
+          if (
+            !formFacilities.some((f) => f.facility_id === facility.facility_id)
+          ) {
+            await DeleteRoomService(facility.id);
+          }
+        }
         for (const facility of formFacilities) {
-          await CreateRoomService({
-            facility_id: facility.facility_id,
-            room_id: roomId,
-          });
+          if (
+            !filteredRoomServices.some(
+              (f) => f.facility_id === facility.facility_id
+            )
+          ) {
+            await CreateRoomService({
+              facility_id: facility.facility_id,
+              room_id: roomId,
+            });
+          }
         }
 
-        toast.success("Room created successfully");
-        console.log("Room created successfully with ID:", roomId);
+        toast.success("Room Updated successfully");
+        console.log("Room Updated successfully with ID:", roomId);
       } else {
         throw new Error("Failed to create room: result is undefined");
       }
     } catch (error) {
-      toast.error("Failed to create");
-      console.error("Failed to create room:", error);
+      toast.error("Failed to Update");
+      console.error("Failed to Update room:", error);
     }
   };
 
@@ -155,8 +227,8 @@ const RoomManipulatePage: React.FC = () => {
 
   const handleSelectChange = (event: SelectChangeEvent<number>) => {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name as string]: value as string }));
-    setErrors((prev) => ({ ...prev, [name as string]: "" }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleCheckboxChange = (
@@ -166,7 +238,10 @@ const RoomManipulatePage: React.FC = () => {
     const { value } = event.target;
     setFormFacilities((prev) => {
       if (checked) {
-        return [...prev, { facility_id: Number(value), room_id: 0 }];
+        return [
+          ...prev,
+          { facility_id: Number(value), room_id: selectedRoomId! },
+        ];
       } else {
         return prev.filter(
           (facility) => facility.facility_id !== Number(value)
@@ -175,21 +250,70 @@ const RoomManipulatePage: React.FC = () => {
     });
   };
 
-  // console.log(formData);
-  // console.log(formFacilities);
+  const handleRoomSelectChange = (event: SelectChangeEvent<number>) => {
+    const roomId = event.target.value as number;
+    setSelectedRoomId(roomId);
+    const selectedRoom = rooms.find((room) => room.id === roomId);
+    if (selectedRoom) {
+      setFormData({
+        id: selectedRoom.id,
+        name: selectedRoom.name,
+        type_id: selectedRoom.type_id,
+        location_id: selectedRoom.location_id,
+        capacity: selectedRoom.capacity,
+        description: selectedRoom.description,
+        requires_confirmation: selectedRoom.requires_confirmation,
+        activation: selectedRoom.activation,
+        booking_interval_minutes: selectedRoom.booking_interval_minutes,
+        open_time: selectedRoom.open_time,
+        close_time: selectedRoom.close_time,
+      });
+      setRequireConfirmation(selectedRoom.requires_confirmation);
+      const selectedRoomServices = roomServices.filter(
+        (service) => service.room_id === roomId
+      );
+      setFilteredRoomServices(selectedRoomServices);
+      setFormFacilities(
+        selectedRoomServices.map((service) => ({
+          facility_id: service.facility_id,
+          room_id: service.room_id,
+        }))
+      );
+    }
+  };
+
+  console.log("Form Data:", formData);
+  console.log("Room Services:", filteredRoomServices);
+  console.log("Form Facilities:", formFacilities);
 
   return (
     <BackPageContainer
-      title={"สร้างห้องใหม่"}
-      description="เลือกและกรอกรายละเอียดที่ต้องการแสดงให้ครบถ้วน"
+      title={"แก้ไขห้อง"}
+      description="เลือกห้องที่ต้องการแก้ไขและกรอกรายละเอียดที่ต้องการแสดงให้ครบถ้วน"
     >
       <div className="p-8 bg-white rounded-xl shadow-md w-4/5">
         {open && (
           <Alert severity="info" onClose={handleClose}>
-            โปรดกรอกรายละเอียดของห้องที่ต้องการสร้างให้ครบถ้วนก่อนที่จะกดยืนยันการสร้าง
+            โปรดกรอกรายละเอียดของห้องที่ต้องการแก้ไขให้ครบถ้วนก่อนที่จะกดยืนยันการแก้ไข
           </Alert>
         )}
         <div className="flex flex-col items-center mb-4 w-full p-4">
+          <FormControl size="small" variant="filled" fullWidth>
+            <InputLabel id="select-room-label">เลือกห้อง</InputLabel>
+            <Select
+              labelId="select-room-label"
+              id="select-room"
+              value={selectedRoomId || ""}
+              onChange={handleRoomSelectChange}
+              className="w-full"
+            >
+              {rooms.map((room) => (
+                <MenuItem key={room.id} value={room.id}>
+                  {room.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <div className="flex flex-col items-center my-8 gap-6 w-full">
             <TextField
               label="ชื่อห้อง"
@@ -198,6 +322,7 @@ const RoomManipulatePage: React.FC = () => {
               className="w-1/2"
               name="name"
               onChange={handleChange}
+              value={formData.name}
               error={!!errors.name}
               helperText={errors.name}
             />
@@ -209,6 +334,7 @@ const RoomManipulatePage: React.FC = () => {
               className="w-2/3"
               name="description"
               onChange={handleChange}
+              value={formData.description}
               error={!!errors.description}
               helperText={errors.description}
             />
@@ -248,14 +374,16 @@ const RoomManipulatePage: React.FC = () => {
                 </Select>
               </FormControl>
               <FormControl size="small" variant="standard" fullWidth>
-                <InputLabel id="select-label">สถานที่</InputLabel>
+                <InputLabel id="select-location-label" size="small">
+                  สถานที่
+                </InputLabel>
                 <Select
-                  labelId="select-label"
-                  id="select-demo"
+                  labelId="select-location-label"
+                  id="select-location"
                   label="สถานที่"
                   name="location_id"
-                  onChange={handleSelectChange}
                   value={formData.location_id}
+                  onChange={handleSelectChange}
                   className="w-full"
                 >
                   {roomLocations.map((data) => (
@@ -290,6 +418,9 @@ const RoomManipulatePage: React.FC = () => {
                         <Checkbox
                           value={facility.id}
                           onChange={handleCheckboxChange}
+                          checked={formFacilities.some(
+                            (f) => f.facility_id === facility.id
+                          )}
                         />
                       }
                       label={facility.name}
@@ -314,6 +445,7 @@ const RoomManipulatePage: React.FC = () => {
                         open_time: newValue?.format("HH:mm") || "",
                       }))
                     }
+                    value={dayjs(formData.open_time, "HH:mm")}
                   />
                   <DesktopTimePicker
                     defaultValue={dayjs().set("hour", 0).set("minute", 0)}
@@ -325,6 +457,7 @@ const RoomManipulatePage: React.FC = () => {
                         close_time: newValue?.format("HH:mm") || "",
                       }))
                     }
+                    value={dayjs(formData.close_time, "HH:mm")}
                   />
                 </div>
                 <div className="flex flex-row items-center gap-4">
@@ -365,7 +498,7 @@ const RoomManipulatePage: React.FC = () => {
             className="mt-16 rounded-full p-2 px-12 bg-gradient-to-r from-[#FFC163] via-[#FD7427] to-[#E54A5F] text-white"
             onClick={handleCreateRoom}
           >
-            ยืนยันการสร้าง
+            ยืนยันการแก้ไข
           </button>
         </div>
       </div>
@@ -373,4 +506,4 @@ const RoomManipulatePage: React.FC = () => {
   );
 };
 
-export default RoomManipulatePage;
+export default RoomEdit;

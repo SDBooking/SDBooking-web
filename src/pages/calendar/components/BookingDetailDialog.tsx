@@ -14,6 +14,7 @@ import {
 import { Booking } from "../../../types/booking";
 import { ClockIcon, DateRangeIcon } from "@mui/x-date-pickers";
 import useAccountContext from "../../../common/contexts/AccountContext";
+import { TrashIcon } from "@heroicons/react/24/solid";
 
 interface BookingDetailsDialogProps {
   isOpen: boolean;
@@ -21,6 +22,8 @@ interface BookingDetailsDialogProps {
   selectedBooking: Booking;
   onApprove: () => void;
   onReject: (reason: string) => void;
+  onDiscard: () => void;
+  onDeleted?: () => void;
 }
 
 const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
@@ -29,6 +32,8 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
   selectedBooking,
   onApprove,
   onReject,
+  onDiscard,
+  onDeleted,
 }) => {
   const [isRejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
@@ -186,23 +191,69 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
           </Box>
         </DialogContent>
         <DialogActions>
+          {selectedBooking.status === "APPROVED" && accountData?.isAdmin && (
+            <Box display="flex" justifyContent="space-between" width="100%">
+              <Button
+                onClick={onDeleted}
+                color="error"
+                variant="contained"
+                startIcon={<TrashIcon className="size-4" />}
+              >
+                ลบ
+              </Button>
+            </Box>
+          )}
+          {selectedBooking.status === "PENDING" && (
+            <>
+              <Box display="flex" justifyContent="space-between" width="100%">
+                {(selectedBooking.account_id ===
+                  accountData?.userData.cmuitaccount ||
+                  accountData?.isAdmin) && (
+                  <Button
+                    onClick={onDeleted}
+                    color="error"
+                    variant="contained"
+                    startIcon={<TrashIcon className="size-4" />}
+                  >
+                    ลบ
+                  </Button>
+                )}
+
+                {accountData?.isAdmin && (
+                  <Box display="flex" gap={1} justifyContent="center">
+                    <Box display="flex" gap={1} justifyItems="center">
+                      <Button
+                        onClick={() => setRejectModalOpen(true)}
+                        color="error"
+                        variant="contained"
+                      >
+                        ตีกลับ
+                      </Button>
+
+                      <Button
+                        onClick={onDiscard}
+                        color="error"
+                        variant="contained"
+                      >
+                        ไม่อนุมัติ
+                      </Button>
+                    </Box>
+
+                    <Button
+                      onClick={onApprove}
+                      color="success"
+                      variant="contained"
+                    >
+                      อนุมัติ
+                    </Button>
+                  </Box>
+                )}
+              </Box>
+            </>
+          )}
           <Button onClick={onClose} color="primary" variant="contained">
             ปิด
           </Button>
-          {selectedBooking.status === "PENDING" && accountData?.isAdmin && (
-            <>
-              <Button
-                onClick={() => setRejectModalOpen(true)}
-                color="error"
-                variant="contained"
-              >
-                ตีกลับ
-              </Button>
-              <Button onClick={onApprove} color="success" variant="contained">
-                อนุมัติ
-              </Button>
-            </>
-          )}
         </DialogActions>
       </Dialog>
 
