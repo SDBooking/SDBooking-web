@@ -31,6 +31,8 @@ interface ResubmitBookingModalProps {
   onClose: () => void;
   BookingFormData: BookingUpdateModel;
   booking_interval_minutes: number;
+  open_time: string;
+  close_time: string;
 }
 
 const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
@@ -38,6 +40,8 @@ const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
   onClose,
   BookingFormData,
   booking_interval_minutes,
+  open_time,
+  close_time,
 }) => {
   const [books, setBooks] = useState<Booking[]>([]);
   const [timeError, setTimeError] = useState<string>("");
@@ -245,6 +249,12 @@ const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
                     onChange={(time) => handleTimeChange("start_time", time)}
                     onError={() => errors.start_time}
                     ampm={false}
+                    minTime={dayjs(
+                      `${dayjs().format("YYYY-MM-DD")}T${open_time}`
+                    ).tz("Asia/Bangkok")}
+                    maxTime={dayjs(
+                      `${dayjs().format("YYYY-MM-DD")}T${close_time}`
+                    ).tz("Asia/Bangkok")}
                   />
                   <TimePicker
                     label="เวลาที่สิ้นสุด"
@@ -255,6 +265,12 @@ const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
                     onChange={(time) => handleTimeChange("end_time", time)}
                     onError={() => errors.end_time}
                     ampm={false}
+                    minTime={dayjs(
+                      `${dayjs().format("YYYY-MM-DD")}T${open_time}`
+                    ).tz("Asia/Bangkok")}
+                    maxTime={dayjs(
+                      `${dayjs().format("YYYY-MM-DD")}T${close_time}`
+                    ).tz("Asia/Bangkok")}
                   />
                 </div>
                 <TextField

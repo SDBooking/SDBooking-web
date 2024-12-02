@@ -5,6 +5,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getLogout } from "../../apis/logout";
 import { ClientRouteKey, LocalStorageKey } from "../../constants/keys";
 import { UserIcon } from "@heroicons/react/24/solid";
+import { Divider } from "@mui/material";
 
 const Navbar: React.FC = () => {
   const { setAccountData } = useAccountContext();
@@ -86,6 +87,14 @@ const Navbar: React.FC = () => {
         ></div>
         {renderNavHeader(ClientRouteKey.Home, "/imgs/icon.svg", "")}
         <div className="my-4"></div>
+        <Divider className="w-full mx-auto my-4" />
+        <div className="my-4"></div>
+        {renderNavItem(
+          ClientRouteKey.Home,
+          "/imgs/titleicon.svg",
+          "รายการของคุณ"
+        )}
+
         {renderNavItem(ClientRouteKey.Book, "/imgs/bookmark.svg", "จองห้อง")}
         {renderNavItem(
           ClientRouteKey.Calendar,

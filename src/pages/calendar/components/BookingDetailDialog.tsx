@@ -10,6 +10,7 @@ import {
   Box,
   Grid,
   TextField,
+  DialogContentText,
 } from "@mui/material";
 import { Booking } from "../../../types/booking";
 import { ClockIcon, DateRangeIcon } from "@mui/x-date-pickers";
@@ -37,6 +38,9 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
 }) => {
   const [isRejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
+  const [confirmApproveOpen, setConfirmApproveOpen] = useState(false);
   const { accountData } = useAccountContext();
 
   const getStatusColor = (status: string) => {
@@ -54,6 +58,15 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
     setRejectModalOpen(false);
     setRejectReason("");
   };
+
+  const handleOpenConfirmDelete = () => setConfirmDeleteOpen(true);
+  const handleCloseConfirmDelete = () => setConfirmDeleteOpen(false);
+
+  const handleOpenConfirmDiscard = () => setConfirmDiscardOpen(true);
+  const handleCloseConfirmDiscard = () => setConfirmDiscardOpen(false);
+
+  const handleOpenConfirmApprove = () => setConfirmApproveOpen(true);
+  const handleCloseConfirmApprove = () => setConfirmApproveOpen(false);
 
   return (
     <>
@@ -191,18 +204,20 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
           </Box>
         </DialogContent>
         <DialogActions>
-          {selectedBooking.status === "APPROVED" && accountData?.isAdmin && (
-            <Box display="flex" justifyContent="space-between" width="100%">
-              <Button
-                onClick={onDeleted}
-                color="error"
-                variant="contained"
-                startIcon={<TrashIcon className="size-4" />}
-              >
-                ลบ
-              </Button>
-            </Box>
-          )}
+          {(selectedBooking.status === "APPROVED" ||
+            selectedBooking.status === "DISCARDED") &&
+            accountData?.isAdmin && (
+              <Box display="flex" justifyContent="space-between" width="100%">
+                <Button
+                  onClick={handleOpenConfirmDelete}
+                  color="error"
+                  variant="contained"
+                  startIcon={<TrashIcon className="size-4" />}
+                >
+                  ลบ
+                </Button>
+              </Box>
+            )}
           {selectedBooking.status === "PENDING" && (
             <>
               <Box display="flex" justifyContent="space-between" width="100%">
@@ -210,7 +225,7 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
                   accountData?.userData.cmuitaccount ||
                   accountData?.isAdmin) && (
                   <Button
-                    onClick={onDeleted}
+                    onClick={handleOpenConfirmDelete}
                     color="error"
                     variant="contained"
                     startIcon={<TrashIcon className="size-4" />}
@@ -224,14 +239,14 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
                     <Box display="flex" gap={1} justifyItems="center">
                       <Button
                         onClick={() => setRejectModalOpen(true)}
-                        color="error"
+                        color="warning"
                         variant="contained"
                       >
                         ตีกลับ
                       </Button>
 
                       <Button
-                        onClick={onDiscard}
+                        onClick={handleOpenConfirmDiscard}
                         color="error"
                         variant="contained"
                       >
@@ -240,7 +255,7 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
                     </Box>
 
                     <Button
-                      onClick={onApprove}
+                      onClick={handleOpenConfirmApprove}
                       color="success"
                       variant="contained"
                     >
@@ -257,21 +272,131 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
         </DialogActions>
       </Dialog>
 
+      <Dialog
+        open={confirmDeleteOpen}
+        onClose={handleCloseConfirmDelete}
+        aria-labelledby="confirm-delete-title"
+        aria-describedby="confirm-delete-description"
+      >
+        <DialogTitle id="confirm-delete-title">
+          {"ยืนยันที่จะลบการจอง"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="confirm-delete-description">
+            คุณแน่ใจหรือไม่ที่จะลบการจองนี้?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleCloseConfirmDelete}
+            color="error"
+            variant="contained"
+          >
+            ยกเลิก
+          </Button>
+          <Button
+            onClick={() => {
+              onDeleted && onDeleted();
+              handleCloseConfirmDelete();
+            }}
+            color="success"
+            variant="contained"
+            autoFocus
+          >
+            ตกลง
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={confirmDiscardOpen}
+        onClose={handleCloseConfirmDiscard}
+        aria-labelledby="confirm-discard-title"
+        aria-describedby="confirm-discard-description"
+      >
+        <DialogTitle id="confirm-discard-title">
+          {"ยืนยันที่จะไม่อนุมัติการจอง"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="confirm-discard-description">
+            คุณแน่ใจหรือไม่ที่จะไม่อนุมัติการจองนี้?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleCloseConfirmDiscard}
+            color="error"
+            variant="contained"
+          >
+            ยกเลิก
+          </Button>
+          <Button
+            onClick={() => {
+              onDiscard();
+              handleCloseConfirmDiscard();
+            }}
+            color="success"
+            variant="contained"
+            autoFocus
+          >
+            ตกลง
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={confirmApproveOpen}
+        onClose={handleCloseConfirmApprove}
+        aria-labelledby="confirm-approve-title"
+        aria-describedby="confirm-approve-description"
+      >
+        <DialogTitle id="confirm-approve-title">
+          {"ยืนยันที่จะอนุมัติการจอง"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="confirm-approve-description">
+            คุณแน่ใจหรือไม่ที่จะอนุมัติการจองนี้?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleCloseConfirmApprove}
+            color="error"
+            variant="contained"
+          >
+            ยกเลิก
+          </Button>
+          <Button
+            onClick={() => {
+              onApprove();
+              handleCloseConfirmApprove();
+            }}
+            color="success"
+            variant="contained"
+            autoFocus
+          >
+            ตกลง
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {selectedBooking && isRejectModalOpen && (
         <Dialog
           open={isRejectModalOpen}
           onClose={() => setRejectModalOpen(false)}
           fullWidth
-          maxWidth="sm"
+          maxWidth="xs"
         >
-          <DialogTitle>Reason for Rejection</DialogTitle>
+          <DialogTitle>กรุณาระบุเหตุผลการตีกลับ</DialogTitle>
           <DialogContent>
             <TextField
               autoFocus
               margin="dense"
-              label="Rejection Reason"
+              label="เหตุผลการตีกลับ"
               type="text"
               fullWidth
+              multiline
+              rows={4}
               variant="outlined"
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}

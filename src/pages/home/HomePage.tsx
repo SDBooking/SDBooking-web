@@ -377,6 +377,14 @@ const HomePage: React.FC = () => {
               rooms?.find((room) => room.id === selectedBooking?.room_id)
                 ?.booking_interval_minutes ?? 0
             }
+            open_time={
+              rooms?.find((room) => room.id === selectedBooking?.room_id)
+                ?.open_time ?? "00:00:00"
+            }
+            close_time={
+              rooms?.find((room) => room.id === selectedBooking?.room_id)
+                ?.close_time ?? "00:00:00"
+            }
           />
         )}
 

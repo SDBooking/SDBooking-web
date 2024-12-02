@@ -73,7 +73,7 @@ function App() {
         <Toaster />
         {visible && <Popup />}
         <FixedLayer>
-          <DebugPanel isDisplayed={!IS_PRODUCTION_MODE} routes={routes} />
+          <DebugPanel isDisplayed={false} routes={routes} />
         </FixedLayer>
         <ReactFlowProvider>
           {status === "loading" ? null : status === "success" ? (

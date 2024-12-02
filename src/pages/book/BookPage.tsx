@@ -47,9 +47,9 @@ const BookPage: React.FC = () => {
         {/* Page Header */}
         <Box display="flex" alignItems="center" mb={2}>
           <img src="/imgs/bookmark.svg" alt="Bookmark" className="h-6 w-6" />
-          <Typography variant="h6" className="text-maincolor" ml={2}>
+          <div className="m-2">
             <h1 className="text-maincolor text-xl">จองห้อง</h1>
-          </Typography>
+          </div>
         </Box>
 
         {/* Description */}
@@ -63,7 +63,12 @@ const BookPage: React.FC = () => {
             <CircularProgress />
           </Box>
         ) : rooms.length === 0 ? (
-          <Typography variant="h6" color="textSecondary" align="center" mt={10}>
+          <Typography
+            variant="body1"
+            color="textSecondary"
+            align="center"
+            mt={10}
+          >
             ไม่มีห้องว่าง
           </Typography>
         ) : (

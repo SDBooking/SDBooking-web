@@ -13,6 +13,7 @@ import {
   Container,
   FormHelperText,
   CircularProgress,
+  DialogContentText,
 } from "@mui/material";
 import { Room } from "../../../types/room";
 import {
@@ -70,6 +71,8 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   requires_confirmation,
   images,
   booking_interval_minutes,
+  open_time,
+  close_time,
 }) => {
   const { accountData } = useAccountContext();
 
@@ -80,9 +83,15 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   const [formData, setFormData] = useState<BookingCreateModel>({
     room_id: id,
     account_id: accountData?.userData.cmuitaccount,
-    start_time: dayjs().tz("Asia/Bangkok").minute(0).second(0).toDate(),
+    start_time: dayjs()
+      .tz("Asia/Bangkok")
+      .hour(parseInt(open_time as string, 10) || 0)
+      .minute(0)
+      .second(0)
+      .toDate(),
     end_time: dayjs()
       .tz("Asia/Bangkok")
+      .hour(parseInt(open_time as string, 10) || 0)
       .minute(0)
       .second(0)
       .add(booking_interval_minutes || 10, "minute")
@@ -99,24 +108,25 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [timeError, setTimeError] = useState<string>("");
+  const [openConfirmModal, setOpenConfirmModal] = useState(false);
+
+  const fetchBooks = async () => {
+    try {
+      const bookResponse = await GetBookByRoomId(id);
+      if (Array.isArray(bookResponse.result)) {
+        const filteredBooks = bookResponse.result.filter(
+          (book) => book.status !== BookingStatusList[3]
+        );
+        setBooks(filteredBooks);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const bookResponse = await GetBookByRoomId(id);
-        if (Array.isArray(bookResponse.result)) {
-          const filteredBooks = bookResponse.result.filter(
-            (book) => book.status !== BookingStatusList[3]
-          );
-          setBooks(filteredBooks);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBooks();
   }, [id]);
 
@@ -278,8 +288,20 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
       console.error("Error creating booking", error);
       toast.error("Error creating booking");
     }
+    fetchBooks();
+  };
 
-    onClose();
+  const handleOpenConfirmModal = () => {
+    setOpenConfirmModal(true);
+  };
+
+  const handleCloseConfirmModal = () => {
+    setOpenConfirmModal(false);
+  };
+
+  const handleConfirmBooking = () => {
+    handleCreateBookSubmit();
+    setOpenConfirmModal(false);
   };
 
   if (loading) {
@@ -437,6 +459,12 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                       onChange={(time) => handleTimeChange("start_time", time)}
                       onError={() => errors.start_time}
                       ampm={false}
+                      minTime={dayjs(
+                        `${dayjs().format("YYYY-MM-DD")}T${open_time}`
+                      ).tz("Asia/Bangkok")}
+                      maxTime={dayjs(
+                        `${dayjs().format("YYYY-MM-DD")}T${close_time}`
+                      ).tz("Asia/Bangkok")}
                     />
                     <TimePicker
                       label="เวลาที่สิ้นสุด"
@@ -447,6 +475,12 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                       onChange={(time) => handleTimeChange("end_time", time)}
                       onError={() => errors.end_time}
                       ampm={false}
+                      minTime={dayjs(
+                        `${dayjs().format("YYYY-MM-DD")}T${open_time}`
+                      ).tz("Asia/Bangkok")}
+                      maxTime={dayjs(
+                        `${dayjs().format("YYYY-MM-DD")}T${close_time}`
+                      ).tz("Asia/Bangkok")}
                     />
                     <FormHelperText
                       className="flex w-fit whitespace-nowrap items-center justify-center"
@@ -495,7 +529,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
           ปิด
         </Button>
         <Button
-          onClick={handleCreateBookSubmit}
+          onClick={handleOpenConfirmModal}
           color="success"
           variant="contained"
           disabled={!!timeError} // Disable if there's a time error
@@ -507,6 +541,31 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
             {timeError}
           </Typography>
         )}
+        <Dialog open={openConfirmModal} onClose={handleCloseConfirmModal}>
+          <DialogTitle>ยืนยืนการจองห้อง</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              โปรดตรวจสอบและกรอกข้อมูลการจองให้ครบถ้วนก่อนยืนยัน
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleCloseConfirmModal}
+              color="error"
+              variant="contained"
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              onClick={handleConfirmBooking}
+              color="success"
+              variant="contained"
+              autoFocus
+            >
+              ยืนยัน
+            </Button>
+          </DialogActions>
+        </Dialog>
       </DialogActions>
     </Dialog>
   );
