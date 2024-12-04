@@ -12,6 +12,7 @@ export const enum ApiRouteKey {
   RoomType = "/room_type",
   RoomLocation = "/room_location",
   RoomFacility = "/room_facility",
+  RoomAuthorization = "/room_authorization",
   Account = "/account",
 }
 

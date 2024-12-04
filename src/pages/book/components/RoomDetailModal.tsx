@@ -14,6 +14,7 @@ import {
   FormHelperText,
   CircularProgress,
   DialogContentText,
+  Grid,
 } from "@mui/material";
 import { Room } from "../../../types/room";
 import {
@@ -258,12 +259,6 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   }, [formData.date, formData.start_time, formData.end_time, books]);
 
   const handleCreateBookSubmit = async () => {
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length > 0 || timeError) {
-      setErrors(validationErrors);
-      return;
-    }
-
     // Format the dates correctly before sending them in the POST request
     const formattedFormData = {
       ...formData,
@@ -288,10 +283,15 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
       console.error("Error creating booking", error);
       toast.error("Error creating booking");
     }
-    fetchBooks();
+    fetchBooks;
   };
 
   const handleOpenConfirmModal = () => {
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0 || timeError) {
+      setErrors(validationErrors);
+      return;
+    }
     setOpenConfirmModal(true);
   };
 
@@ -547,6 +547,72 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
             <DialogContentText>
               โปรดตรวจสอบและกรอกข้อมูลการจองให้ครบถ้วนก่อนยืนยัน
             </DialogContentText>
+            <Box className="p-6">
+              <Grid container spacing={1}>
+                <Grid item xs={4}>
+                  <Typography variant="body1">
+                    <strong>ชื่อผู้จอง</strong>
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body1">{formData.account_id}</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body1">
+                    <strong>เบอร์ติดต่อ</strong>
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body1">{formData.tel}</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body1">
+                    <strong>หัวข้อการจอง</strong>
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body1">{formData.title}</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body1">
+                    <strong>เหตุผลการจอง</strong>
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body1">{formData.reason}</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body1">
+                    <strong>วันที่จอง</strong>
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body1">
+                    {dayjs(formData.date).utc().format("YYYY-MM-DD")}
+                  </Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body1">
+                    <strong>เวลาเริ่ม</strong>
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body1">
+                    {dayjs(formData.start_time).utc().format("HH:mm:ss")}
+                  </Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body1">
+                    <strong>เวลาสิ้นสุด</strong>
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body1">
+                    {dayjs(formData.end_time).utc().format("HH:mm:ss")}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Box>
           </DialogContent>
           <DialogActions>
             <Button

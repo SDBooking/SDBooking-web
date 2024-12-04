@@ -8,10 +8,13 @@ import {
 } from "@heroicons/react/24/solid";
 import RoomDetailModal from "./RoomDetailModal";
 import { Room } from "../../../types/room";
+import { Role } from "../../../types";
+import useAccountContext from "../../../common/contexts/AccountContext";
 
 interface RoomCardProps extends Room {
   services: string[];
   images: string[];
+  role: Role[];
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({
@@ -28,14 +31,25 @@ const RoomCard: React.FC<RoomCardProps> = ({
   close_time,
   booking_interval_minutes,
   images,
+  role,
 }) => {
   const [isModalOpen, setModalOpen] = useState(false);
+  const { accountData } = useAccountContext();
 
   const handleModalOpen = () => setModalOpen(true);
   const handleModalClose = () => setModalOpen(false);
-
+  console.log(role);
   return (
-    <div className={`room-card ${activation ? "" : "inactive"}`}>
+    <div
+      className={`room-card ${
+        (accountData?.userData.role &&
+          role.includes(accountData.userData.role) &&
+          activation) ||
+        accountData?.isAdmin
+          ? ""
+          : "inactive"
+      }`}
+    >
       <img className="room-image" src="/imgs/Mockroom.png" alt="Room" />
       <div className="room-details px-4">
         <h2>{name}</h2>
@@ -55,7 +69,12 @@ const RoomCard: React.FC<RoomCardProps> = ({
           <button
             className="my-2 bg-white border-[#FFEFE0] border-2 text-maincolor hover:bg-gradient-to-r from-transparent to-[#ffc121] hover:border-[#FD7427]"
             onClick={handleModalOpen}
-            disabled={!activation}
+            disabled={
+              (!activation ||
+                !accountData ||
+                !role.includes(accountData.userData.role)) &&
+              !accountData?.isAdmin
+            }
           >
             ดูรายละเอียด
           </button>

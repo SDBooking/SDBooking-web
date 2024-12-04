@@ -13,6 +13,7 @@ import {
 import { Booking } from "../../../types/booking";
 import { ClockIcon, DateRangeIcon } from "@mui/x-date-pickers";
 import useAccountContext from "../../../common/contexts/AccountContext";
+import { getStatusInThai } from "../../home/scripts/StatusMapping";
 
 interface BookingDetailsViewDialogProps {
   isOpen: boolean;
@@ -139,7 +140,17 @@ const BookingDetailsViewDialog: React.FC<BookingDetailsViewDialogProps> = ({
                 variant="body1"
                 style={{ color: getStatusColor(selectedBooking.status) }}
               >
-                {selectedBooking.status}
+                {getStatusInThai(selectedBooking.status)}
+              </Typography>
+            </Grid>
+            <Grid item xs={4}>
+              <Typography variant="body1">
+                <strong>ยืนยันโดย</strong>
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="body1">
+                {selectedBooking.confirmed_by || "No confirmation"}
               </Typography>
             </Grid>
             {selectedBooking.reject_historys &&
@@ -147,14 +158,14 @@ const BookingDetailsViewDialog: React.FC<BookingDetailsViewDialogProps> = ({
                 <>
                   <Grid item xs={12}>
                     <Typography variant="h6" className="text-gray-400">
-                      Reject Reasons
+                      เหตุผลที่ไม่อนุมัติ
                     </Typography>
                   </Grid>
                   {selectedBooking.reject_historys.map((reject, index) => (
                     <React.Fragment key={index}>
                       <Grid item xs={4}>
                         <Typography variant="body1">
-                          <strong>Reason {index + 1}</strong>
+                          <strong>เหตุผล {index + 1}</strong>
                         </Typography>
                       </Grid>
                       <Grid item xs={6}>

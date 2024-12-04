@@ -101,11 +101,6 @@ const Navbar: React.FC = () => {
           "/imgs/calendar.svg",
           "ปฎิทินการจองห้อง"
         )}
-        {renderNavItem(
-          ClientRouteKey.History,
-          "/imgs/history.svg",
-          "ประวัติการจองห้อง"
-        )}
         {accountData?.isAdmin &&
           renderNavItem(
             ClientRouteKey.Setting,

@@ -30,12 +30,16 @@ import useAccountContext from "../../common/contexts/AccountContext";
 import { Room } from "../../types/room";
 import { GetAllRooms } from "../../common/apis/room/queries";
 import BookingDetailsDialog from "./components/BookingDetailDialog";
+import ListViewCalendar from "./components/ListViewCalendar";
 import {
   ApproveBook,
   DeleteBook,
   DiscardBook,
   RejectBook,
 } from "../../common/apis/booking/manipulates";
+import tippy from "tippy.js";
+import "tippy.js/dist/tippy.css";
+import { getStatusInThai } from "../home/scripts/StatusMapping";
 
 dayjs.extend(utc);
 
@@ -167,6 +171,11 @@ const CalendarPage: React.FC = () => {
     }
   };
 
+  const handleEventClick = (info: any) => {
+    setSelectedBooking(info.event.extendedProps.booking);
+    setModalOpen(true);
+  };
+
   useEffect(() => {
     if (calendarRef.current) {
       const filteredBooks = books.filter((book) => {
@@ -216,9 +225,24 @@ const CalendarPage: React.FC = () => {
         editable: false,
         dayMaxEvents: 5, // allow "more" link when too many events
         events,
-        eventClick: (info) => {
-          setSelectedBooking(info.event.extendedProps.booking);
-          setModalOpen(true);
+        eventClick: handleEventClick,
+        eventTimeFormat: {
+          hour: "2-digit",
+          minute: "2-digit",
+          meridiem: false,
+        },
+        eventMouseEnter: (info) => {
+          tippy(info.el, {
+            content: info.event.title,
+            placement: "top",
+            theme: "light",
+          });
+        },
+        eventMouseLeave: (info) => {
+          const tip = (info.el as HTMLElement & { _tippy?: any })._tippy;
+          if (tip) {
+            tip.destroy();
+          }
         },
       });
       calendar.render();
@@ -306,7 +330,7 @@ const CalendarPage: React.FC = () => {
                       color="primary"
                     />
                   }
-                  label={status}
+                  label={getStatusInThai(status)}
                 />
               ))}
             </FormGroup>
@@ -323,11 +347,21 @@ const CalendarPage: React.FC = () => {
             label="การจองของฉัน"
           />
         </div>
-        <div
-          ref={calendarRef}
-          id="calendar"
-          className="bg-white p-10 rounded-b-2xl"
-        />
+        {accountData?.isAdmin ? (
+          <div className="flex flex-row h-screen justify-between bg-white p-10">
+            <div ref={calendarRef} className="rounded-b-2xl w-3/5" />
+
+            <ListViewCalendar
+              bookings={books}
+              onEventClick={handleEventClick}
+            />
+          </div>
+        ) : (
+          <div
+            ref={calendarRef}
+            className="rounded-b-2xl p-10 bg-white h-screen"
+          />
+        )}
       </div>
 
       {selectedBooking && isModalOpen && (

@@ -16,6 +16,7 @@ import { Booking } from "../../../types/booking";
 import { ClockIcon, DateRangeIcon } from "@mui/x-date-pickers";
 import useAccountContext from "../../../common/contexts/AccountContext";
 import { TrashIcon } from "@heroicons/react/24/solid";
+import { getStatusInThai } from "../../home/scripts/StatusMapping";
 
 interface BookingDetailsDialogProps {
   isOpen: boolean;
@@ -173,7 +174,7 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
                   variant="body1"
                   style={{ color: getStatusColor(selectedBooking.status) }}
                 >
-                  {selectedBooking.status}
+                  {getStatusInThai(selectedBooking.status)}
                 </Typography>
               </Grid>
               {selectedBooking.reject_historys &&
@@ -181,14 +182,14 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
                   <>
                     <Grid item xs={12}>
                       <Typography variant="h6" className="text-gray-400">
-                        Reject Reasons
+                        เหตุผลที่ไม่อนุมัติ
                       </Typography>
                     </Grid>
                     {selectedBooking.reject_historys.map((reject, index) => (
                       <React.Fragment key={index}>
                         <Grid item xs={4}>
                           <Typography variant="body1">
-                            <strong>Reason {index + 1}</strong>
+                            <strong>เหตุผล {index + 1}</strong>
                           </Typography>
                         </Grid>
                         <Grid item xs={6}>
@@ -204,56 +205,31 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
           </Box>
         </DialogContent>
         <DialogActions>
-          {(selectedBooking.status === "APPROVED" ||
-            selectedBooking.status === "DISCARDED") &&
-            accountData?.isAdmin && (
-              <Box display="flex" justifyContent="space-between" width="100%">
-                <Button
-                  onClick={handleOpenConfirmDelete}
-                  color="error"
-                  variant="contained"
-                  startIcon={<TrashIcon className="size-4" />}
-                >
-                  ลบ
-                </Button>
-              </Box>
-            )}
+          {selectedBooking.account_id ===
+            accountData?.userData.cmuitaccount && (
+            <Box display="flex" justifyContent="space-between" width="100%">
+              <Button
+                onClick={handleOpenConfirmDelete}
+                color="error"
+                variant="contained"
+                startIcon={<TrashIcon className="size-4" />}
+              >
+                ลบ
+              </Button>
+            </Box>
+          )}
           {selectedBooking.status === "PENDING" && (
             <>
-              <Box display="flex" justifyContent="space-between" width="100%">
-                {(selectedBooking.account_id ===
-                  accountData?.userData.cmuitaccount ||
-                  accountData?.isAdmin) && (
-                  <Button
-                    onClick={handleOpenConfirmDelete}
-                    color="error"
-                    variant="contained"
-                    startIcon={<TrashIcon className="size-4" />}
-                  >
-                    ลบ
-                  </Button>
-                )}
-
+              <Box display="flex" justifyContent="flex-end" width="100%">
                 {accountData?.isAdmin && (
-                  <Box display="flex" gap={1} justifyContent="center">
-                    <Box display="flex" gap={1} justifyItems="center">
-                      <Button
-                        onClick={() => setRejectModalOpen(true)}
-                        color="warning"
-                        variant="contained"
-                      >
-                        ตีกลับ
-                      </Button>
-
-                      <Button
-                        onClick={handleOpenConfirmDiscard}
-                        color="error"
-                        variant="contained"
-                      >
-                        ไม่อนุมัติ
-                      </Button>
-                    </Box>
-
+                  <Box display="flex" gap={1}>
+                    <Button
+                      onClick={handleOpenConfirmDiscard}
+                      color="error"
+                      variant="contained"
+                    >
+                      ไม่อนุมัติ
+                    </Button>
                     <Button
                       onClick={handleOpenConfirmApprove}
                       color="success"
@@ -323,6 +299,13 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
+          <Button
+            onClick={() => setRejectModalOpen(true)}
+            color="warning"
+            variant="contained"
+          >
+            ตีกลับ
+          </Button>
           <Button
             onClick={handleCloseConfirmDiscard}
             color="error"

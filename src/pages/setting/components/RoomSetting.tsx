@@ -354,173 +354,179 @@ const RoomFilter: React.FC = () => {
 
       {/* Room Types */}
       <Box mb={4}>
-        <Typography variant="h6" color="primary" gutterBottom>
-          ประเภทห้อง
-        </Typography>
-        {roomTypes.map((type, index) => (
-          <Paper
-            key={index}
-            elevation={1}
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              p: 2,
-              mb: 1,
+        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h6" color="primary" gutterBottom>
+            ประเภทห้อง
+          </Typography>
+          {roomTypes.map((type, index) => (
+            <Paper
+              key={index}
+              elevation={1}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                p: 2,
+                mb: 1,
+              }}
+            >
+              <Typography>{type.name}</Typography>
+              <Box>
+                <IconButton
+                  onClick={() =>
+                    handleEditRoomType({
+                      id: type.id,
+                      name: type.name,
+                    })
+                  }
+                >
+                  <Cog6ToothIcon className="h-4 w-4" />
+                </IconButton>
+                <IconButton
+                  onClick={() => {
+                    setDeleteTarget({ index, type: "roomType" });
+                    setDeleteModalOpen(true);
+                  }}
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </IconButton>
+              </Box>
+            </Paper>
+          ))}
+          <TextField
+            placeholder="เพิ่มประเภทห้อง"
+            size="small"
+            fullWidth
+            margin="normal"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleAddRoomType(
+                  (e.target as HTMLInputElement).value,
+                  roomTypes,
+                  setRoomTypes
+                );
+                (e.target as HTMLInputElement).value = "";
+              }
             }}
-          >
-            <Typography>{type.name}</Typography>
-            <Box>
-              <IconButton
-                onClick={() =>
-                  handleEditRoomType({
-                    id: type.id,
-                    name: type.name,
-                  })
-                }
-              >
-                <Cog6ToothIcon className="h-4 w-4" />
-              </IconButton>
-              <IconButton
-                onClick={() => {
-                  setDeleteTarget({ index, type: "roomType" });
-                  setDeleteModalOpen(true);
-                }}
-              >
-                <TrashIcon className="h-4 w-4" />
-              </IconButton>
-            </Box>
-          </Paper>
-        ))}
-        <TextField
-          placeholder="เพิ่มประเภทห้อง"
-          size="small"
-          fullWidth
-          margin="normal"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleAddRoomType(
-                (e.target as HTMLInputElement).value,
-                roomTypes,
-                setRoomTypes
-              );
-              (e.target as HTMLInputElement).value = "";
-            }
-          }}
-        />
+          />
+        </Paper>
       </Box>
 
       {/* Room Locations */}
       <Box mb={4}>
-        <Typography variant="h6" color="primary" gutterBottom>
-          สถานที่
-        </Typography>
-        {roomLocations.map((type, index) => (
-          <Paper
-            key={index}
-            elevation={1}
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              p: 2,
-              mb: 1,
+        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h6" color="primary" gutterBottom>
+            สถานที่
+          </Typography>
+          {roomLocations.map((type, index) => (
+            <Paper
+              key={index}
+              elevation={1}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                p: 2,
+                mb: 1,
+              }}
+            >
+              <Typography>{type.name}</Typography>
+              <Box>
+                <IconButton
+                  onClick={() =>
+                    handleEditRoomLocation({
+                      id: type.id,
+                      name: type.name,
+                    })
+                  }
+                >
+                  <Cog6ToothIcon className="h-4 w-4" />
+                </IconButton>
+                <IconButton
+                  onClick={() => {
+                    setDeleteTarget({ index, type: "roomLocation" });
+                    setDeleteModalOpen(true);
+                  }}
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </IconButton>
+              </Box>
+            </Paper>
+          ))}
+          <TextField
+            placeholder="เพิ่มสถานที่"
+            size="small"
+            fullWidth
+            margin="normal"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleAddRoomLocation(
+                  (e.target as HTMLInputElement).value,
+                  roomLocations,
+                  setRoomLocations
+                );
+                (e.target as HTMLInputElement).value = "";
+              }
             }}
-          >
-            <Typography>{type.name}</Typography>
-            <Box>
-              <IconButton
-                onClick={() =>
-                  handleEditRoomLocation({
-                    id: type.id,
-                    name: type.name,
-                  })
-                }
-              >
-                <Cog6ToothIcon className="h-4 w-4" />
-              </IconButton>
-              <IconButton
-                onClick={() => {
-                  setDeleteTarget({ index, type: "roomLocation" });
-                  setDeleteModalOpen(true);
-                }}
-              >
-                <TrashIcon className="h-4 w-4" />
-              </IconButton>
-            </Box>
-          </Paper>
-        ))}
-        <TextField
-          placeholder="เพิ่มสถานที่"
-          size="small"
-          fullWidth
-          margin="normal"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleAddRoomLocation(
-                (e.target as HTMLInputElement).value,
-                roomLocations,
-                setRoomLocations
-              );
-              (e.target as HTMLInputElement).value = "";
-            }
-          }}
-        />
+          />
+        </Paper>
       </Box>
 
       {/* Room Facilities */}
       <Box mb={4}>
-        <Typography variant="h6" color="primary" gutterBottom>
-          สิ่งอำนวยความสะดวก (Room Services)
-        </Typography>
-        {roomFacilities.map((type, index) => (
-          <Paper
-            key={index}
-            elevation={1}
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              p: 2,
-              mb: 1,
+        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h6" color="primary" gutterBottom>
+            สิ่งอำนวยความสะดวก (Room Services)
+          </Typography>
+          {roomFacilities.map((type, index) => (
+            <Paper
+              key={index}
+              elevation={1}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                p: 2,
+                mb: 1,
+              }}
+            >
+              <Typography>{type.name}</Typography>
+              <Box>
+                <IconButton
+                  onClick={() =>
+                    handleEditRoomFacility({
+                      id: type.id,
+                      name: type.name,
+                    })
+                  }
+                >
+                  <Cog6ToothIcon className="h-4 w-4" />
+                </IconButton>
+                <IconButton
+                  onClick={() => {
+                    setDeleteTarget({ index, type: "roomFacility" });
+                    setDeleteModalOpen(true);
+                  }}
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </IconButton>
+              </Box>
+            </Paper>
+          ))}
+          <TextField
+            placeholder="เพิ่มสิ่งอำนวยความสะดวก"
+            size="small"
+            fullWidth
+            margin="normal"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleAddRoomFacility(
+                  (e.target as HTMLInputElement).value,
+                  roomFacilities,
+                  setRoomFacilities
+                );
+                (e.target as HTMLInputElement).value = "";
+              }
             }}
-          >
-            <Typography>{type.name}</Typography>
-            <Box>
-              <IconButton
-                onClick={() =>
-                  handleEditRoomFacility({
-                    id: type.id,
-                    name: type.name,
-                  })
-                }
-              >
-                <Cog6ToothIcon className="h-4 w-4" />
-              </IconButton>
-              <IconButton
-                onClick={() => {
-                  setDeleteTarget({ index, type: "roomFacility" });
-                  setDeleteModalOpen(true);
-                }}
-              >
-                <TrashIcon className="h-4 w-4" />
-              </IconButton>
-            </Box>
-          </Paper>
-        ))}
-        <TextField
-          placeholder="เพิ่มสิ่งอำนวยความสะดวก"
-          size="small"
-          fullWidth
-          margin="normal"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleAddRoomFacility(
-                (e.target as HTMLInputElement).value,
-                roomFacilities,
-                setRoomFacilities
-              );
-              (e.target as HTMLInputElement).value = "";
-            }
-          }}
-        />
+          />
+        </Paper>
       </Box>
 
       {/* Confirmation Modal */}

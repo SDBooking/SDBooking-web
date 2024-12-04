@@ -31,11 +31,13 @@ import { RoomModel } from "../../types/room";
 import toast from "react-hot-toast";
 import { RoomServiceCreateModel } from "../../types/room_service";
 import { CreateRoomService } from "../../common/apis/room_service/manipulates";
+import { RoomAuthorizationCreateModel } from "../../types/room_authorization";
+import { CreateRoomAuthorization } from "../../common/apis/room_authorization/manipulates";
+import { Role } from "../../types";
 
 const RoomManipulatePage: React.FC = () => {
   const [open, setOpen] = React.useState(true);
   const [requireConfirmation, setRequireConfirmation] = React.useState(false);
-
   const [roomTypes, setRoomTypes] = useState<RoomTypeDTO[]>([]);
   const [roomLocations, setRoomLocations] = useState<RoomLocationDTO[]>([]);
   const [roomFacilities, setRoomFacilities] = useState<RoomFacilityDTO[]>([]);
@@ -55,6 +57,13 @@ const RoomManipulatePage: React.FC = () => {
   const [formFacilities, setFormFacilities] = useState<
     RoomServiceCreateModel[]
   >([]);
+  const [formAuthorizations, setFormAuthorizations] = useState<
+    RoomAuthorizationCreateModel[]
+  >([
+    { room_id: 0, role: "STUDENT", is_allowed: false },
+    { room_id: 0, role: "EMPLOYEE", is_allowed: false },
+    { room_id: 0, role: "ADMIN", is_allowed: false },
+  ]);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -128,6 +137,14 @@ const RoomManipulatePage: React.FC = () => {
           });
         }
 
+        // Use roomId to link authorizations with the room
+        for (const authorization of formAuthorizations) {
+          await CreateRoomAuthorization({
+            ...authorization,
+            room_id: roomId,
+          });
+        }
+
         toast.success("Room created successfully");
         console.log("Room created successfully with ID:", roomId);
       } else {
@@ -175,8 +192,33 @@ const RoomManipulatePage: React.FC = () => {
     });
   };
 
-  // console.log(formData);
-  // console.log(formFacilities);
+  const handleAuthorizationChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    role: Role
+  ) => {
+    const { checked } = event.target;
+    setFormAuthorizations((prev) => {
+      const existingAuth = prev.find((auth) => auth.role === role);
+      if (existingAuth) {
+        return prev.map((auth) =>
+          auth.role === role ? { ...auth, is_allowed: checked } : auth
+        );
+      } else {
+        return [
+          ...prev,
+          {
+            room_id: 0,
+            role,
+            is_allowed: checked,
+          },
+        ];
+      }
+    });
+  };
+
+  console.log("Form Data:", formData);
+  console.log("Form Facilities:", formFacilities);
+  console.log("Form Authorizations:", formAuthorizations);
 
   return (
     <BackPageContainer
@@ -359,6 +401,24 @@ const RoomManipulatePage: React.FC = () => {
                 }
                 label="ต้องขออนุมัติก่อนใช้งานห้อง"
               />
+              <FormControl>
+                <FormLabel>
+                  <div className="text-sm">การอนุญาต (Authorizations)</div>
+                </FormLabel>
+                <FormGroup>
+                  {(["STUDENT", "EMPLOYEE", "ADMIN"] as Role[]).map((role) => (
+                    <FormControlLabel
+                      key={role}
+                      control={
+                        <Checkbox
+                          onChange={(e) => handleAuthorizationChange(e, role)}
+                        />
+                      }
+                      label={role}
+                    />
+                  ))}
+                </FormGroup>
+              </FormControl>
             </div>
           </div>
           <button

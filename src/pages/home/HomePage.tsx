@@ -17,16 +17,15 @@ import {
   Paper,
   Button,
   colors,
-  Typography,
-  Tooltip,
 } from "@mui/material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import useAccountContext from "../../common/contexts/AccountContext";
 import ResubmitBookingModal from "./components/RenewRejectBook";
-import RejectionHistoryModal from "../history/components/RejectionHistoryModal";
+import BookingDetailsViewDialog from "../calendar/components/BookingDetailViewDialog";
 import { Room } from "../../types/room";
 import { GetAllRooms } from "../../common/apis/room/queries";
+import { getStatusInThai } from "./scripts/StatusMapping";
 
 dayjs.extend(utc);
 
@@ -37,12 +36,10 @@ const HomePage: React.FC = () => {
   const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [orderBy, setOrderBy] = useState<keyof Booking>("id");
   const [isResubmitModalOpen, setResubmitModalOpen] = useState<boolean>(false);
-  const [selectedBooking, setSelectedBooking] =
-    useState<BookingUpdateModel | null>(null);
-  const [selectedRejectHistory, setSelectedRejectHistory] = useState<
-    { reason: string }[] | null
-  >(null);
-  const [isModalOpen, setModalOpen] = useState<boolean>(false);
+  const [selectedBooking] = useState<BookingUpdateModel | null>(null);
+  const [isDetailsDialogOpen, setDetailsDialogOpen] = useState<boolean>(false); // State for details dialog
+  const [selectedBookingDetails, setSelectedBookingDetails] =
+    useState<Booking | null>(null); // State for selected booking details
   const { accountData } = useAccountContext();
 
   const fetchData = async () => {
@@ -112,14 +109,14 @@ const HomePage: React.FC = () => {
     }
   });
 
-  const handleOpenModal = (rejectHistory: { reason: string }[]) => {
-    setSelectedRejectHistory(rejectHistory);
-    setModalOpen(true);
+  const handleOpenDetailsDialog = (booking: Booking) => {
+    setSelectedBookingDetails(booking);
+    setDetailsDialogOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
-    setSelectedRejectHistory(null);
+  const handleCloseDetailsDialog = () => {
+    setDetailsDialogOpen(false);
+    setSelectedBookingDetails(null);
   };
 
   if (loading) {
@@ -161,38 +158,11 @@ const HomePage: React.FC = () => {
                 </TableCell>
                 <TableCell>
                   <TableSortLabel
-                    active={orderBy === "account_name"}
-                    direction={orderBy === "account_name" ? order : "asc"}
-                    onClick={() => handleRequestSort("account_name")}
-                  >
-                    Account Name
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
                     active={orderBy === "title"}
                     direction={orderBy === "title" ? order : "asc"}
                     onClick={() => handleRequestSort("title")}
                   >
                     Title
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "reason"}
-                    direction={orderBy === "reason" ? order : "asc"}
-                    onClick={() => handleRequestSort("reason")}
-                  >
-                    Reason
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "tel"}
-                    direction={orderBy === "tel" ? order : "asc"}
-                    onClick={() => handleRequestSort("tel")}
-                  >
-                    Contact
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
@@ -222,11 +192,10 @@ const HomePage: React.FC = () => {
                     End Time
                   </TableSortLabel>
                 </TableCell>
-                <TableCell>Confirmed By</TableCell>{" "}
                 <TableCell
                   style={{
                     position: "sticky",
-                    right: 245,
+                    right: 125,
                     background: "white",
                     padding: 20,
                   }}
@@ -242,18 +211,18 @@ const HomePage: React.FC = () => {
                 <TableCell
                   style={{
                     position: "sticky",
-                    right: 125,
+                    right: 0,
                     background: "white",
                     padding: 20,
                   }}
                 >
-                  Reject Reasons
+                  Booking Details
                 </TableCell>
-                <TableCell
+                {/* <TableCell
                   style={{ position: "sticky", right: 0, background: "white" }}
                 >
                   Actions
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -261,14 +230,8 @@ const HomePage: React.FC = () => {
                 <TableRow key={book.id}>
                   <TableCell>{book.id}</TableCell>
                   <TableCell>{book.room_name}</TableCell>
-                  <TableCell>{book.account_name}</TableCell>
                   <TableCell>{book.title}</TableCell>
-                  <TableCell>
-                    <Tooltip title={book.reason}>
-                      <Typography noWrap>{book.reason}</Typography>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell>{book.tel}</TableCell>
+
                   <TableCell>
                     {dayjs(book.date).utc().format("YYYY-MM-DD")}
                   </TableCell>
@@ -279,7 +242,6 @@ const HomePage: React.FC = () => {
                     {dayjs(book.end_time).utc().format("HH:mm:ss")}
                   </TableCell>
 
-                  <TableCell>{book.confirmed_by}</TableCell>
                   <TableCell
                     style={{
                       color:
@@ -291,35 +253,33 @@ const HomePage: React.FC = () => {
                           ? "#E54444"
                           : colors.grey[500], // Default color for the fourth status
                       position: "sticky",
-                      right: 245,
-                      background: "white",
-                      padding: 20,
-                    }}
-                  >
-                    {book.status}
-                  </TableCell>
-                  <TableCell
-                    style={{
-                      position: "sticky",
                       right: 125,
                       background: "white",
                       padding: 20,
                     }}
                   >
-                    {book.reject_historys && (
+                    {getStatusInThai(book.status)}
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      position: "sticky",
+                      right: 0,
+                      background: "white",
+                      padding: 20,
+                    }}
+                  >
+                    {book && (
                       <Button
                         variant="contained"
                         color="primary"
-                        onClick={() =>
-                          handleOpenModal(book.reject_historys || [])
-                        }
-                        disabled={book.reject_historys?.length === 0}
+                        onClick={() => handleOpenDetailsDialog(book)}
+                        disabled={!book}
                       >
                         Details
                       </Button>
                     )}
                   </TableCell>
-                  <TableCell
+                  {/* <TableCell
                     style={{
                       position: "sticky",
                       right: 0,
@@ -358,7 +318,7 @@ const HomePage: React.FC = () => {
                         Resubmit
                       </Button>
                     )}
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>
@@ -388,11 +348,11 @@ const HomePage: React.FC = () => {
           />
         )}
 
-        {selectedRejectHistory && (
-          <RejectionHistoryModal
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
-            rejectHistory={selectedRejectHistory}
+        {selectedBookingDetails && (
+          <BookingDetailsViewDialog
+            isOpen={isDetailsDialogOpen}
+            onClose={handleCloseDetailsDialog}
+            selectedBooking={selectedBookingDetails}
           />
         )}
       </div>

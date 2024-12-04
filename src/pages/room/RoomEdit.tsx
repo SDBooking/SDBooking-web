@@ -39,6 +39,10 @@ import {
 } from "../../common/apis/room_service/manipulates";
 import { GetRoomsModel } from "../../common/apis/room/queries";
 import { GetRoomServicesModel } from "../../common/apis/room_service/queries";
+import { RoomAuthorizationModel } from "../../types/room_authorization";
+import { SaveRoomAuthorization } from "../../common/apis/room_authorization/manipulates";
+import { GetAllRoomAuthorizations } from "../../common/apis/room_authorization/queries";
+import { Role } from "../../types";
 
 const RoomEdit: React.FC = () => {
   const [open, setOpen] = React.useState(true);
@@ -48,6 +52,9 @@ const RoomEdit: React.FC = () => {
   const [roomLocations, setRoomLocations] = useState<RoomLocationDTO[]>([]);
   const [roomFacilities, setRoomFacilities] = useState<RoomFacilityDTO[]>([]);
   const [roomServices, setRoomServices] = useState<RoomServiceModel[]>([]);
+  const [roomAuthorities, setRoomAuthorities] = useState<
+    RoomAuthorizationModel[]
+  >([]);
   const [filteredRoomServices, setFilteredRoomServices] = useState<
     RoomServiceModel[]
   >([]);
@@ -69,6 +76,9 @@ const RoomEdit: React.FC = () => {
   const [formFacilities, setFormFacilities] = useState<
     RoomServiceCreateModel[]
   >([]);
+  const [formAuthorizations, setFormAuthorizations] = useState<
+    RoomAuthorizationModel[]
+  >([]);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -81,12 +91,14 @@ const RoomEdit: React.FC = () => {
           roomLocationsResponse,
           roomFacilitiesResponse,
           roomServicesResponse,
+          roomAuthoritiesResponse,
         ] = await Promise.all([
           GetRoomsModel(),
           GetAllRoomTypes(),
           GetAllRoomLocations(),
           GetAllRoomFacilities(),
           GetRoomServicesModel(),
+          GetAllRoomAuthorizations(),
         ]);
 
         if (
@@ -94,7 +106,8 @@ const RoomEdit: React.FC = () => {
           !roomLocationsResponse.result ||
           !roomFacilitiesResponse.result ||
           !roomsResponse.result ||
-          !roomServicesResponse.result
+          !roomServicesResponse.result ||
+          !roomAuthoritiesResponse.result
         ) {
           throw new Error("Failed to fetch data");
         }
@@ -108,6 +121,11 @@ const RoomEdit: React.FC = () => {
         setRoomServices(
           Array.isArray(roomServicesResponse.result)
             ? roomServicesResponse.result
+            : []
+        );
+        setRoomAuthorities(
+          Array.isArray(roomAuthoritiesResponse.result)
+            ? roomAuthoritiesResponse.result
             : []
         );
 
@@ -140,6 +158,14 @@ const RoomEdit: React.FC = () => {
               room_id: service.room_id,
             }))
           );
+          const initialRoomAuthorities = Array.isArray(
+            roomAuthoritiesResponse.result
+          )
+            ? roomAuthoritiesResponse.result.filter(
+                (auth: RoomAuthorizationModel) => auth.room_id === firstRoom.id
+              )
+            : [];
+          setFormAuthorizations(initialRoomAuthorities);
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -200,6 +226,13 @@ const RoomEdit: React.FC = () => {
           }
         }
 
+        // Use roomId to link authorizations with the room
+        for (const authorization of formAuthorizations) {
+          {
+            await SaveRoomAuthorization(authorization);
+          }
+        }
+
         toast.success("Room Updated successfully");
         console.log("Room Updated successfully with ID:", roomId);
       } else {
@@ -250,6 +283,34 @@ const RoomEdit: React.FC = () => {
     });
   };
 
+  const handleAuthorizationChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    role: Role
+  ) => {
+    const { checked } = event.target;
+    setFormAuthorizations((prev) => {
+      const existingAuth = prev.find((auth) => auth.role === role);
+      if (existingAuth) {
+        return prev.map((auth) =>
+          auth.role === role ? { ...auth, is_allowed: checked } : auth
+        );
+      } else {
+        const roomAuth = roomAuthorities.find(
+          (auth) => auth.room_id === selectedRoomId && auth.role === role
+        );
+        return [
+          ...prev,
+          {
+            id: roomAuth?.id ?? 0,
+            room_id: selectedRoomId!,
+            role,
+            is_allowed: checked,
+          },
+        ];
+      }
+    });
+  };
+
   const handleRoomSelectChange = (event: SelectChangeEvent<number>) => {
     const roomId = event.target.value as number;
     setSelectedRoomId(roomId);
@@ -279,12 +340,17 @@ const RoomEdit: React.FC = () => {
           room_id: service.room_id,
         }))
       );
+      const selectedRoomAuthorities = roomAuthorities.filter(
+        (auth) => auth.room_id === roomId
+      );
+      setFormAuthorizations(selectedRoomAuthorities);
     }
   };
 
   console.log("Form Data:", formData);
   console.log("Room Services:", filteredRoomServices);
   console.log("Form Facilities:", formFacilities);
+  console.log("Form Authorizations:", formAuthorizations);
 
   return (
     <BackPageContainer
@@ -492,6 +558,29 @@ const RoomEdit: React.FC = () => {
                 }
                 label="ต้องขออนุมัติก่อนใช้งานห้อง"
               />
+              <FormControl>
+                <FormLabel>
+                  <div className="text-sm">การอนุญาต (Authorizations)</div>
+                </FormLabel>
+                <FormGroup>
+                  {["STUDENT", "EMPLOYEE", "ADMIN"].map((role) => (
+                    <FormControlLabel
+                      key={role}
+                      control={
+                        <Checkbox
+                          checked={formAuthorizations.some(
+                            (auth) => auth.role === role && auth.is_allowed
+                          )}
+                          onChange={(e) =>
+                            handleAuthorizationChange(e, role as Role)
+                          }
+                        />
+                      }
+                      label={role}
+                    />
+                  ))}
+                </FormGroup>
+              </FormControl>
             </div>
           </div>
           <button

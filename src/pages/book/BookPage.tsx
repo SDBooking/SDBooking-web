@@ -6,10 +6,15 @@ import { GetAllRooms } from "../../common/apis/room/queries";
 import { Room } from "../../types/room";
 import { RoomServiceDTO } from "../../types/room_service";
 import { GetAllRoomServices } from "../../common/apis/room_service/queries";
+import { RoomAuthorizationModel } from "../../types/room_authorization";
+import { GetAllRoomAuthorizations } from "../../common/apis/room_authorization/queries";
 
 const BookPage: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [roomServices, setRoomServices] = useState<RoomServiceDTO[]>([]);
+  const [roomAuthorities, setRoomAuthorities] = useState<
+    RoomAuthorizationModel[]
+  >([]);
   const [loading, setLoading] = useState<boolean>(true);
   const images = [
     "/imgs/Mockroom.png",
@@ -37,7 +42,18 @@ const BookPage: React.FC = () => {
         setLoading(false);
       }
     };
+    const fetchRoomAuthorities = async () => {
+      try {
+        const response = await GetAllRoomAuthorizations();
+        if (Array.isArray(response.result)) {
+          setRoomAuthorities(response.result);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
+    fetchRoomAuthorities();
     fetchRooms();
   }, []);
 
@@ -96,6 +112,11 @@ const BookPage: React.FC = () => {
                     activation={room.activation}
                     id={room.id}
                     images={images}
+                    role={roomAuthorities
+                      .filter(
+                        (auth) => auth.room_id === room.id && auth.is_allowed
+                      )
+                      .map((auth) => auth.role)}
                   />
                 </Grid>
               );

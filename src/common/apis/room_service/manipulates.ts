@@ -32,6 +32,19 @@ export function UpdateRoomService(
   });
 }
 
+export function SaveRoomService(
+  RoomService: RoomServiceModel
+): Promise<TResponseOK<RoomServiceModel>> {
+  return new Promise((resolve, reject) => {
+    coreApi
+      .put(`${ApiRouteKey.RoomService}/${RoomService.room_id}`, RoomService)
+      .then((res) => {
+        resolve(res.data);
+      })
+      .catch(reject);
+  });
+}
+
 export function DeleteRoomService(
   id: number
 ): Promise<TResponseOK<RoomServiceModel>> {
