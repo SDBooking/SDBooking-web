@@ -247,7 +247,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
       );
 
       if (!available.every((val) => val)) {
-        setTimeError("The selected time slot is not available.");
+        setTimeError("เวลาที่ท่านเลือกถูกจองไปแล้ว กรุณาเลือกเวลาอื่น");
       } else {
         setTimeError("");
       }
@@ -283,7 +283,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
       console.error("Error creating booking", error);
       toast.error("Error creating booking");
     }
-    fetchBooks;
+    fetchBooks();
   };
 
   const handleOpenConfirmModal = () => {
@@ -588,7 +588,9 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body1">
-                    {dayjs(formData.date).utc().format("YYYY-MM-DD")}
+                    {dayjs(formData.date)
+                      .tz("Asia/Bangkok")
+                      .format("DD/MM/YYYY")}
                   </Typography>
                 </Grid>
                 <Grid item xs={4}>
@@ -598,7 +600,9 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body1">
-                    {dayjs(formData.start_time).utc().format("HH:mm:ss")}
+                    {dayjs(formData.start_time)
+                      .tz("Asia/Bangkok")
+                      .format("HH:mm:ss")}
                   </Typography>
                 </Grid>
                 <Grid item xs={4}>
@@ -608,7 +612,9 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body1">
-                    {dayjs(formData.end_time).utc().format("HH:mm:ss")}
+                    {dayjs(formData.end_time)
+                      .tz("Asia/Bangkok")
+                      .format("HH:mm:ss")}
                   </Typography>
                 </Grid>
               </Grid>

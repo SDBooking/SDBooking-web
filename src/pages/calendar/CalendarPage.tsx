@@ -99,13 +99,7 @@ const CalendarPage: React.FC = () => {
         } else {
           console.error("User account is undefined");
         }
-        setBooks((prevBooks) =>
-          prevBooks.map((book) =>
-            book.id === selectedBooking.id
-              ? { ...book, status: "APPROVED" }
-              : book
-          )
-        );
+
         fetchData();
         setModalOpen(false);
       } catch (error) {
@@ -118,13 +112,7 @@ const CalendarPage: React.FC = () => {
     if (selectedBooking) {
       try {
         await DiscardBook(selectedBooking.id);
-        setBooks((prevBooks) =>
-          prevBooks.map((book) =>
-            book.id === selectedBooking.id
-              ? { ...book, status: "DISCARDED" }
-              : book
-          )
-        );
+
         fetchData();
         setModalOpen(false);
       } catch (error) {
@@ -137,9 +125,7 @@ const CalendarPage: React.FC = () => {
     if (selectedBooking) {
       try {
         await DeleteBook(selectedBooking.id);
-        setBooks((prevBooks) =>
-          prevBooks.filter((book) => book.id !== selectedBooking.id)
-        );
+
         fetchData();
         setModalOpen(false);
       } catch (error) {
@@ -319,20 +305,22 @@ const CalendarPage: React.FC = () => {
               สถานะการจอง
             </FormLabel>
             <FormGroup row>
-              {BookingStatusList.map((status, index) => (
-                <FormControlLabel
-                  key={index}
-                  control={
-                    <Checkbox
-                      checked={selectedStatuses.includes(status)}
-                      onChange={handleStatusChange}
-                      value={status}
-                      color="primary"
-                    />
-                  }
-                  label={getStatusInThai(status)}
-                />
-              ))}
+              {BookingStatusList.filter((status) => status !== "REJECTED").map(
+                (status, index) => (
+                  <FormControlLabel
+                    key={index}
+                    control={
+                      <Checkbox
+                        checked={selectedStatuses.includes(status)}
+                        onChange={handleStatusChange}
+                        value={status}
+                        color="primary"
+                      />
+                    }
+                    label={getStatusInThai(status)}
+                  />
+                )
+              )}
             </FormGroup>
           </FormControl>
           <FormControlLabel

@@ -37,7 +37,6 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
   onDiscard,
   onDeleted,
 }) => {
-  const [isRejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
@@ -56,7 +55,6 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
 
   const handleReject = () => {
     onReject(rejectReason);
-    setRejectModalOpen(false);
     setRejectReason("");
   };
 
@@ -289,6 +287,8 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
         onClose={handleCloseConfirmDiscard}
         aria-labelledby="confirm-discard-title"
         aria-describedby="confirm-discard-description"
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle id="confirm-discard-title">
           {"ยืนยันที่จะไม่อนุมัติการจอง"}
@@ -297,15 +297,22 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
           <DialogContentText id="confirm-discard-description">
             คุณแน่ใจหรือไม่ที่จะไม่อนุมัติการจองนี้?
           </DialogContentText>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="เหตุผลการไม่อนุมัติ (ถ้ามี)"
+              type="text"
+              fullWidth
+              multiline
+              rows={4}
+              variant="outlined"
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+            />
+          </DialogContent>
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => setRejectModalOpen(true)}
-            color="warning"
-            variant="contained"
-          >
-            ตีกลับ
-          </Button>
           <Button
             onClick={handleCloseConfirmDiscard}
             color="error"
@@ -315,7 +322,11 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
           </Button>
           <Button
             onClick={() => {
-              onDiscard();
+              if (rejectReason.length > 0) {
+                handleReject();
+              } else {
+                onDiscard();
+              }
               handleCloseConfirmDiscard();
             }}
             color="success"
@@ -362,43 +373,6 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
-
-      {selectedBooking && isRejectModalOpen && (
-        <Dialog
-          open={isRejectModalOpen}
-          onClose={() => setRejectModalOpen(false)}
-          fullWidth
-          maxWidth="xs"
-        >
-          <DialogTitle>กรุณาระบุเหตุผลการตีกลับ</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="เหตุผลการตีกลับ"
-              type="text"
-              fullWidth
-              multiline
-              rows={4}
-              variant="outlined"
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={() => setRejectModalOpen(false)}
-              color="error"
-              variant="contained"
-            >
-              ยกเลิก
-            </Button>
-            <Button onClick={handleReject} color="success" variant="contained">
-              ตกลง
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
     </>
   );
 };
