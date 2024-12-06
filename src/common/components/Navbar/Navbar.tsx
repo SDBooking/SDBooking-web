@@ -1,5 +1,5 @@
 import useAccountContext from "../../contexts/AccountContext";
-import "./Navbar.css";
+import "./Navbar_style.css";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getLogout } from "../../apis/logout";
