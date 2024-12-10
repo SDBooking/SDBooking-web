@@ -11,9 +11,11 @@ import {
   Grid,
   TextField,
   DialogContentText,
+  IconButton,
 } from "@mui/material";
 import { Booking } from "../../../types/booking";
 import { ClockIcon, DateRangeIcon } from "@mui/x-date-pickers";
+import CloseIcon from "@mui/icons-material/Close";
 import useAccountContext from "../../../common/contexts/AccountContext";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import { getStatusInThai } from "../../home/scripts/StatusMapping";
@@ -70,7 +72,14 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
   return (
     <>
       <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogTitle className="text-center">ข้อมูลการจอง</DialogTitle>
+        <DialogTitle className="text-center">
+          ข้อมูลการจอง
+          <div className="absolute right-4 top-3 ">
+            <IconButton onClick={onClose} color="warning" className="size-10">
+              <CloseIcon />
+            </IconButton>
+          </div>
+        </DialogTitle>
         <DialogContent dividers>
           <Typography variant="h6" className="text-center text-maincolor">
             {selectedBooking.room_name}
@@ -240,9 +249,6 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
               </Box>
             </>
           )}
-          <Button onClick={onClose} color="primary" variant="contained">
-            ปิด
-          </Button>
         </DialogActions>
       </Dialog>
 

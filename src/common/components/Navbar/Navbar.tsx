@@ -91,7 +91,7 @@ const Navbar: React.FC = () => {
         <div className="my-4"></div>
         {renderNavItem(
           ClientRouteKey.Home,
-          "/imgs/titleicon.svg",
+          "/imgs/mailbox.svg",
           "รายการของคุณ"
         )}
 

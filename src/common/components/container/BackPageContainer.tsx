@@ -16,7 +16,7 @@ const BackPageContainer: React.FC<PageContainerProps> = ({
   const navigate = useNavigate();
   return (
     <>
-      <div className="w-[85vw] overflow-y-auto main-content p-10">
+      <div className="w-[85vw] overflow-y-auto main-content p-10 relative z-20">
         <div className="px-6 py-4 flex items-center gap-6">
           <ArrowLeftIcon
             className="cursor-pointer size-10 rounded-full text-maincolor p-1"
@@ -31,8 +31,13 @@ const BackPageContainer: React.FC<PageContainerProps> = ({
         <div className="ml-16 px-6 rounded-t-xl flex items-center ">
           <span className="text-sm">{description}</span>
         </div>
-        <div className="m-10">{children}</div>
+        <div className="m-10 z-5">{children}</div>
       </div>
+      <img
+        src="/imgs/circledecor.svg"
+        alt="Circle Decoration"
+        className="fixed bottom-0 right-0 z-10 w-1/4"
+      />
     </>
   );
 };

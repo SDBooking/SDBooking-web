@@ -10,22 +10,25 @@ import {
   ImageList,
   ImageListItem,
   Box,
-  Container,
   FormHelperText,
   CircularProgress,
-  DialogContentText,
   Grid,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { Room } from "../../../types/room";
 import {
   BuildingOfficeIcon,
   CheckCircleIcon,
+  ExclamationCircleIcon,
   LockClosedIcon,
   MapPinIcon,
   UserIcon,
 } from "@heroicons/react/24/solid";
 import {
+  ClockIcon,
   DatePicker,
+  DateRangeIcon,
   LocalizationProvider,
   TimePicker,
 } from "@mui/x-date-pickers";
@@ -323,24 +326,16 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
 
   return (
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogTitle className="text-center">{name}</DialogTitle>
+      <DialogTitle className="text-center">
+        {name}{" "}
+        <div className="absolute right-4 top-3 ">
+          <IconButton onClick={onClose} color="warning" className="size-10">
+            <CloseIcon />
+          </IconButton>
+        </div>
+      </DialogTitle>
+
       <DialogContent dividers>
-        <Box className="text-start my-4">
-          <Container
-            className="flex justify-start p-4 bg-gray-100 rounded-xl shadow-md"
-            maxWidth="sm"
-            style={{
-              wordWrap: "break-word",
-              whiteSpace: "pre-wrap",
-              overflowWrap: "break-word",
-              wordBreak: "break-word",
-            }}
-          >
-            <Typography variant="body1" color="textPrimary">
-              {description}
-            </Typography>
-          </Container>
-        </Box>
         <div className="flex flex-col gap-2 px-4">
           <div className="flex flex-row p-16 gap-8 ">
             <div className="w-2/3 text-center items-center justify-center">
@@ -417,6 +412,16 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                   </ul>
                 </div>
               )}
+              <Typography component="div" variant="body2" color="textSecondary">
+                <div className="bg-[#FAFAFA] flex flex-row w-full items-center gap-4 p-2 rounded-2xl">
+                  <ExclamationCircleIcon className="w-6 h-6 text-maincolor bg-[#FFE7D0] rounded-full p-0.5" />
+                  <div className="flex flex-col">
+                    <div className="text-black">รายละเอียด</div>
+                    <div className="text-maincolor">{description}</div>
+                  </div>
+                </div>
+              </Typography>
+
               {requires_confirmation && (
                 <Typography
                   component="div"
@@ -525,33 +530,96 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
         </div>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="error" variant="contained">
-          ปิด
-        </Button>
-        <Button
-          onClick={handleOpenConfirmModal}
-          color="success"
-          variant="contained"
-          disabled={!!timeError} // Disable if there's a time error
-        >
-          ยืนยันการจอง
-        </Button>
         {timeError && (
           <Typography color="error" variant="body2">
             {timeError}
           </Typography>
         )}
-        <Dialog open={openConfirmModal} onClose={handleCloseConfirmModal}>
-          <DialogTitle>ยืนยืนการจองห้อง</DialogTitle>
+
+        <Button
+          onClick={handleOpenConfirmModal}
+          color="primary"
+          variant="contained"
+          disabled={!!timeError} // Disable if there's a time error
+        >
+          สร้างการจอง
+        </Button>
+
+        <Dialog
+          open={openConfirmModal}
+          onClose={handleCloseConfirmModal}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle
+            className="flex text-center items-center justify-center"
+            style={{
+              background:
+                "linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 181, 147, 0.35) 75%, rgba(255, 89, 103, 0.35) 100%)",
+            }}
+          >
+            <img src="/imgs/questionMark.svg" className="my-2"></img>
+          </DialogTitle>
+          <DialogContent dividers>
+            <div className="flex flex-col gap-4 my-2">
+              <Typography variant="h6" className="text-center text-maincolor">
+                ยืนยันการจองห้อง
+              </Typography>
+              <Typography
+                variant="body2"
+                className="text-center text-[#33302E]"
+              >
+                กรุณาตรวจสอบความถูกต้องของข้อมูล หากยืนยันการจองแล้ว
+                รายการการจองของท่านจะแสดงในปฎิทินการจองห้องและประวัติการจอง
+              </Typography>
+            </div>
+          </DialogContent>
           <DialogContent>
-            <DialogContentText>
-              โปรดตรวจสอบและกรอกข้อมูลการจองให้ครบถ้วนก่อนยืนยัน
-            </DialogContentText>
-            <Box className="p-6">
+            <Typography variant="h6" className="text-center text-maincolor">
+              {name}
+            </Typography>
+            <Box
+              display="flex"
+              flexDirection="row"
+              gap={2}
+              justifyContent="center"
+              p={2}
+            >
+              <Typography
+                variant="body2"
+                style={{
+                  backgroundColor: "#FFF1DA",
+                  padding: "6px 12px",
+                  borderRadius: "20px",
+                  fontWeight: 400,
+                  fontSize: "0.875rem",
+                }}
+                className="text-maincolor"
+              >
+                <DateRangeIcon style={{ marginRight: "8px" }} />
+                {dayjs(formData.date).format("YYYY-MM-DD")}
+              </Typography>
+              <Typography
+                variant="body2"
+                style={{
+                  backgroundColor: "#FFF1DA",
+                  padding: "6px 12px",
+                  borderRadius: "20px",
+                  fontWeight: 400,
+                  fontSize: "0.875rem",
+                }}
+                className="text-maincolor"
+              >
+                <ClockIcon style={{ marginRight: "8px" }} />
+                {dayjs(formData.start_time).format("HH:mm")} -{" "}
+                {dayjs(formData.end_time).format("HH:mm")}
+              </Typography>
+            </Box>
+            <Box className="p-10">
               <Grid container spacing={1}>
                 <Grid item xs={4}>
                   <Typography variant="body1">
-                    <strong>ชื่อผู้จอง</strong>
+                    <strong>บัญชีผู้จอง</strong>
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -581,46 +649,10 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                 <Grid item xs={6}>
                   <Typography variant="body1">{formData.reason}</Typography>
                 </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body1">
-                    <strong>วันที่จอง</strong>
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body1">
-                    {dayjs(formData.date)
-                      .tz("Asia/Bangkok")
-                      .format("DD/MM/YYYY")}
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body1">
-                    <strong>เวลาเริ่ม</strong>
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body1">
-                    {dayjs(formData.start_time)
-                      .tz("Asia/Bangkok")
-                      .format("HH:mm:ss")}
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body1">
-                    <strong>เวลาสิ้นสุด</strong>
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body1">
-                    {dayjs(formData.end_time)
-                      .tz("Asia/Bangkok")
-                      .format("HH:mm:ss")}
-                  </Typography>
-                </Grid>
               </Grid>
             </Box>
           </DialogContent>
-          <DialogActions>
+          <DialogActions style={{ justifyContent: "center", gap: "10px" }}>
             <Button
               onClick={handleCloseConfirmModal}
               color="error"

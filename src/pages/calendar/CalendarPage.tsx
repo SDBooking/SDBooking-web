@@ -25,6 +25,8 @@ import {
   SelectChangeEvent,
   colors,
   Typography,
+  Collapse,
+  IconButton,
 } from "@mui/material";
 import useAccountContext from "../../common/contexts/AccountContext";
 import { Room } from "../../types/room";
@@ -54,6 +56,7 @@ const CalendarPage: React.FC = () => {
   const [selectedRoom, setSelectedRoom] = useState<string | "">("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const { accountData } = useAccountContext();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const fetchData = async () => {
     const fetchBooks = async () => {
@@ -162,6 +165,10 @@ const CalendarPage: React.FC = () => {
     setModalOpen(true);
   };
 
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   useEffect(() => {
     if (calendarRef.current) {
       const filteredBooks = books.filter((book) => {
@@ -234,6 +241,13 @@ const CalendarPage: React.FC = () => {
       calendar.render();
     }
   }, [books, isMyBooking, selectedRoom, selectedStatuses]);
+
+  useEffect(() => {
+    if (calendarRef.current) {
+      const resizeEvent = new Event("resize");
+      window.dispatchEvent(resizeEvent);
+    }
+  }, [isCollapsed]);
 
   const handleCloseModal = () => {
     setModalOpen(false);
@@ -336,13 +350,41 @@ const CalendarPage: React.FC = () => {
           />
         </div>
         {accountData?.isAdmin ? (
-          <div className="flex flex-row h-screen justify-between bg-white p-10">
-            <div ref={calendarRef} className="rounded-b-2xl w-3/5" />
-
-            <ListViewCalendar
-              bookings={books}
-              onEventClick={handleEventClick}
-            />
+          <div className="flex flex-row h-screen bg-white p-10">
+            <>
+              <div
+                ref={calendarRef}
+                style={{
+                  width: isCollapsed ? "100%" : "60%",
+                }}
+                className="rounded-b-2xl"
+              />
+              <IconButton
+                onClick={toggleCollapse}
+                color="info"
+                className="absolute right-5 top-1/2 transform -translate-y-1/2 size-10 z-10"
+                style={{
+                  borderRadius: "50%",
+                  backgroundColor: "#fff",
+                  boxShadow: "2px 4px 4px rgba(0, 0, 0, 0.25)",
+                }}
+              >
+                {isCollapsed ? "<" : ">"}
+              </IconButton>
+            </>
+            <div
+              style={{
+                width: isCollapsed ? "0" : "40%",
+              }}
+              className="flex flex-col"
+            >
+              <Collapse in={!isCollapsed} className="flex-grow">
+                <ListViewCalendar
+                  bookings={books}
+                  onEventClick={handleEventClick}
+                />
+              </Collapse>
+            </div>
           </div>
         ) : (
           <div

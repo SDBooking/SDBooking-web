@@ -27,4 +27,6 @@ env/.env.local
 env/.env.dev
 env/.env.prod
 
+*.tar
+
 tsconfig.*.tsbuildinfo
