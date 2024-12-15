@@ -130,7 +130,11 @@ const HomePage: React.FC = () => {
           <h1 className="text-maincolor text-xl">รายการจองของคุณ</h1>
         </div>
 
-        <TableContainer component={Paper} className="overflow-x-auto h-full">
+        {/* Desktop Table */}
+        <TableContainer
+          component={Paper}
+          className="overflow-x-auto h-full hidden md:block"
+        >
           <Table stickyHeader>
             <TableHead>
               <TableRow>
@@ -140,7 +144,7 @@ const HomePage: React.FC = () => {
                     direction={orderBy === "id" ? order : "asc"}
                     onClick={() => handleRequestSort("id")}
                   >
-                    Booking ID
+                    รหัสการจองห้อง
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
@@ -149,7 +153,7 @@ const HomePage: React.FC = () => {
                     direction={orderBy === "room_name" ? order : "asc"}
                     onClick={() => handleRequestSort("room_name")}
                   >
-                    Room Name
+                    ชื่อห้อง
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
@@ -158,7 +162,7 @@ const HomePage: React.FC = () => {
                     direction={orderBy === "title" ? order : "asc"}
                     onClick={() => handleRequestSort("title")}
                   >
-                    Title
+                    หัวข้อการจอง
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
@@ -167,7 +171,7 @@ const HomePage: React.FC = () => {
                     direction={orderBy === "date" ? order : "asc"}
                     onClick={() => handleRequestSort("date")}
                   >
-                    Date
+                    วัน
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
@@ -176,7 +180,7 @@ const HomePage: React.FC = () => {
                     direction={orderBy === "start_time" ? order : "asc"}
                     onClick={() => handleRequestSort("start_time")}
                   >
-                    Time
+                    เวลา
                   </TableSortLabel>
                 </TableCell>
                 <TableCell className="sticky right-32 bg-white p-5">
@@ -185,11 +189,11 @@ const HomePage: React.FC = () => {
                     direction={orderBy === "status" ? order : "asc"}
                     onClick={() => handleRequestSort("status")}
                   >
-                    Status
+                    สถานะการจอง
                   </TableSortLabel>
                 </TableCell>
                 <TableCell className="sticky right-0 bg-white p-5">
-                  Booking Details
+                  รายละเอียดการจอง
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -199,18 +203,14 @@ const HomePage: React.FC = () => {
                   <TableCell>{book.id}</TableCell>
                   <TableCell>{book.room_name}</TableCell>
                   <TableCell>{book.title}</TableCell>
-
                   <TableCell>
                     {dayjs(book.date).utc().format("YYYY-MM-DD")}
                   </TableCell>
-                  <TableCell>
-                    {`${dayjs(book.start_time)
-                      .utc()
-                      .format("HH:mm:ss")} - ${dayjs(book.end_time)
-                      .utc()
-                      .format("HH:mm:ss")}`}
-                  </TableCell>
-
+                  <TableCell>{`${dayjs(book.start_time)
+                    .utc()
+                    .format("HH:mm")} - ${dayjs(book.end_time)
+                    .utc()
+                    .format("HH:mm")}`}</TableCell>
                   <TableCell
                     className="sticky right-32 bg-white p-5"
                     style={{
@@ -237,6 +237,74 @@ const HomePage: React.FC = () => {
                         Details
                       </Button>
                     )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* Mobile Table */}
+        <TableContainer
+          component={Paper}
+          className="overflow-x-auto h-full md:hidden"
+        >
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>รหัสการจองห้อง</TableCell>
+                <TableCell>รายการจองของคุณ</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {sortedBooks.map((book) => (
+                <TableRow key={book.id}>
+                  <TableCell>{book.id}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span>
+                        <strong>ชื่อห้อง:</strong> {book.room_name}
+                      </span>
+                      <span>
+                        <strong>หัวข้อการจอง:</strong> {book.title}
+                      </span>
+                      <span>
+                        <strong>วัน:</strong>{" "}
+                        {dayjs(book.date).utc().format("YYYY-MM-DD")}
+                      </span>
+                      <span>
+                        <strong>เวลา:</strong>{" "}
+                        {`${dayjs(book.start_time)
+                          .utc()
+                          .format("HH:mm")} - ${dayjs(book.end_time)
+                          .utc()
+                          .format("HH:mm")}`}
+                      </span>
+                      <span
+                        style={{
+                          color:
+                            book.status === BookingStatusList[0]
+                              ? "#F3A51D"
+                              : book.status === BookingStatusList[1]
+                              ? "#5FA13F"
+                              : book.status === BookingStatusList[2]
+                              ? "#E54444"
+                              : colors.grey[500], // Default color for the fourth status
+                        }}
+                      >
+                        <strong>สถานะการจอง:</strong>{" "}
+                        {getStatusInThai(book.status)}
+                      </span>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleOpenDetailsDialog(book)}
+                        disabled={!book}
+                        className="mt-2"
+                      >
+                        Details
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

@@ -37,7 +37,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
 
   const handleModalOpen = () => setModalOpen(true);
   const handleModalClose = () => setModalOpen(false);
-  console.log(role);
+
   return (
     <div
       className={`w-full max-w-3xl h-auto md:h-64 shadow-lg bg-white rounded-3xl relative flex flex-col md:flex-row p-4 gap-4 ${
@@ -74,12 +74,6 @@ const RoomCard: React.FC<RoomCardProps> = ({
           <button
             className="my-2 bg-white border-orange-100 border-2 text-maincolor hover:bg-gradient-to-r from-transparent to-yellow-400 hover:border-orange-500"
             onClick={handleModalOpen}
-            disabled={
-              (!activation ||
-                !accountData ||
-                !role.includes(accountData.userData.role)) &&
-              !accountData?.isAdmin
-            }
           >
             ดูรายละเอียด
           </button>
@@ -108,6 +102,11 @@ const RoomCard: React.FC<RoomCardProps> = ({
           close_time={close_time || "23:59"}
           booking_interval_minutes={booking_interval_minutes}
           images={images}
+          isActive={
+            accountData?.userData.role
+              ? role.includes(accountData.userData.role)
+              : false
+          }
         />
       )}
     </div>

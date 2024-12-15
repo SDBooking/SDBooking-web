@@ -61,8 +61,8 @@ const RoomManagementPage: React.FC = () => {
     fetchRooms();
   }, []);
 
-  console.log("Rooms:", rooms);
-  console.log("Room Services:", roomServices);
+  // console.log("Rooms:", rooms);
+  // console.log("Room Services:", roomServices);
 
   return (
     <BackPageContainer

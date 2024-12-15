@@ -161,7 +161,7 @@ function Navbar({ isMobile }: NavbarProps) {
         </>
       ) : (
         <nav
-          className="bg-white text-white sticky flex flex-col left-0 h-auto w-64 z-40 p-4 border-r overflow-y-hidden"
+          className="bg-white text-white relative flex flex-col left-0 h-auto w-64 z-40 p-4 border-r overflow-hidden"
           role="navigation"
           aria-label="Main Navigation"
         >

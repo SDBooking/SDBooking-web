@@ -210,7 +210,7 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
                 variant="contained"
                 startIcon={<TrashIcon className="size-4" />}
               >
-                ลบ
+                ยกเลิกการจอง
               </Button>
             </Box>
           )}

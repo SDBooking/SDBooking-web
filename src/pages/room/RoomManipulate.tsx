@@ -127,8 +127,8 @@ const RoomManipulatePage: React.FC = () => {
       }); // Call API to create room
       if (createdRoom.result) {
         const roomId = createdRoom.result.id; // Get the newly created room's ID
-        console.log("Room created successfully with ID:", roomId);
-        console.log("New Room:", createdRoom.result);
+        // console.log("Room created successfully with ID:", roomId);
+        // console.log("New Room:", createdRoom.result);
         // Use roomId to link facilities with the room
         for (const facility of formFacilities) {
           await CreateRoomService({
@@ -146,7 +146,7 @@ const RoomManipulatePage: React.FC = () => {
         }
 
         toast.success("Room created successfully");
-        console.log("Room created successfully with ID:", roomId);
+        // console.log("Room created successfully with ID:", roomId);
       } else {
         throw new Error("Failed to create room: result is undefined");
       }
@@ -216,9 +216,9 @@ const RoomManipulatePage: React.FC = () => {
     });
   };
 
-  console.log("Form Data:", formData);
-  console.log("Form Facilities:", formFacilities);
-  console.log("Form Authorizations:", formAuthorizations);
+  // console.log("Form Data:", formData);
+  // console.log("Form Facilities:", formFacilities);
+  // console.log("Form Authorizations:", formAuthorizations);
 
   return (
     <BackPageContainer

@@ -191,7 +191,7 @@ const CalendarPage: React.FC = () => {
       });
 
       const events = filteredBooks.map((book) => ({
-        title: book.room_name + " - " + book.title,
+        title: book.room_name + " - " + book.account_name + " - " + book.title,
         start: dayjs(book.start_time).utc().format(),
         end: dayjs(book.end_time).utc().format(),
         extendedProps: { booking: book },
@@ -279,7 +279,7 @@ const CalendarPage: React.FC = () => {
 
   return (
     <PageContainer>
-      <div className="flex flex-col p-4 overflow-y-auto">
+      <div className="flex flex-col p-4 overflow-y-auto bg-white rounded-2xl">
         <div className="flex flex-row gap-2 mb-4">
           <img src="/imgs/calendar.svg" alt="Calendar" />
           <h1 className="text-maincolor text-xl">ปฎิทินการจองห้อง</h1>
@@ -350,7 +350,7 @@ const CalendarPage: React.FC = () => {
           />
         </div>
         {accountData?.isAdmin ? (
-          <div className="flex flex-col md:flex-row h-screen bg-white p-4 md:p-10">
+          <div className="flex flex-col md:flex-row h-screen bg-white rounded-2xl p-4 md:p-10">
             <div
               ref={calendarRef}
               style={{

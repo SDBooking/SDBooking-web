@@ -60,6 +60,7 @@ interface RoomDetailModalProps extends Room {
   onClose: () => void;
   services?: string[];
   images?: string[];
+  isActive?: boolean;
 }
 
 const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
@@ -77,6 +78,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   booking_interval_minutes,
   open_time,
   close_time,
+  isActive,
 }) => {
   const { accountData } = useAccountContext();
 
@@ -152,9 +154,17 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
         field === "start_time" &&
         updatedTime.isAfter(dayjs(formData.end_time))
       ) {
+        setFormData((prev) => ({
+          ...prev,
+          start_time: updatedTime.toDate(),
+          end_time: updatedTime
+            .add(booking_interval_minutes || 10, "minute")
+            .toDate(),
+        }));
         setErrors((prevErrors) => ({
           ...prevErrors,
-          start_time: "Start time cannot be greater than end time",
+          start_time: "",
+          end_time: "",
         }));
         return;
       }
@@ -327,7 +337,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   return (
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="lg">
       <DialogTitle className="text-center">
-        {name}{" "}
+        {name}
         <div className="absolute right-4 top-3">
           <IconButton onClick={onClose} color="warning" className="size-10">
             <CloseIcon />
@@ -421,256 +431,270 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                   </div>
                 </div>
               </Typography>
-
-              {requires_confirmation && (
-                <Typography
-                  component="div"
-                  variant="caption"
-                  color="error"
-                  className="absolute top-0 right-4"
-                >
-                  <div className="flex flex-row confirmation-required bg-[#E54A5F] text-xs gap-2 text-white p-1 px-2 rounded-xl w-fit my-4">
-                    <LockClosedIcon className="size-4" />
-                    <span>ต้องขออนุมัติก่อนใช้งาน</span>
-                  </div>
-                </Typography>
-              )}
             </div>
           </div>
           <div className="my-2 text-center flex flex-row items-center justify-center gap-4">
-            <div className="border w-2/5 border-[#FD7427]" />
-            <div className="text-maincolor">กรอกข้อมูลการจอง</div>
-            <div className="border w-2/5 border-[#FD7427]" />
+            {isActive ? (
+              <>
+                <div className="border w-2/5 border-[#FD7427]" />
+                <div className="text-maincolor">กรอกข้อมูลการจอง</div>
+                <div className="border w-2/5 border-[#FD7427]" />
+              </>
+            ) : (
+              <>
+                <div className="border w-2/5 border-[#FD7427]" />
+                <div className="text-maincolor">ปฎิทินการจองของห้อง</div>
+                <div className="border w-2/5 border-[#FD7427]" />
+              </>
+            )}
           </div>
           <div className="flex flex-col lg:flex-row  m-4 lg:m-10">
-            <div className="flex w-full lg:w-3/5 lg:p-0 justify-center items-center overflow-x-auto border-1">
+            <div
+              className={`flex w-full ${
+                isActive ? "lg:w-3/5" : "w-full"
+              } lg:p-0 justify-center items-center overflow-x-auto border-1`}
+            >
               <TimeCalendar bookings={books} />
             </div>
-            <div className="flex w-full lg:w-2/5 justify-center items-baseline">
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <div className="flex flex-col gap-4 w-full p-4 lg:w-3/4 lg:p-0 justify-end">
-                  <DatePicker
-                    className="w-full"
-                    value={dayjs(formData.date).tz("Asia/Bangkok")}
-                    onChange={handleDateChange}
-                  />
-                  <div className="flex flex-col lg:flex-row gap-2">
-                    <TimePicker
-                      label="เวลาที่เริ่มใช้ห้อง"
-                      timeSteps={{
-                        minutes: booking_interval_minutes,
-                      }}
-                      value={dayjs(formData.start_time).tz("Asia/Bangkok")}
-                      onChange={(time) => handleTimeChange("start_time", time)}
-                      onError={() => errors.start_time}
-                      ampm={false}
-                      minTime={dayjs(
-                        `${dayjs().format("YYYY-MM-DD")}T${open_time}`
-                      ).tz("Asia/Bangkok")}
-                      maxTime={dayjs(
-                        `${dayjs().format("YYYY-MM-DD")}T${close_time}`
-                      ).tz("Asia/Bangkok")}
+            {isActive && (
+              <div className="flex w-full lg:w-2/5 justify-center items-baseline">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <div className="flex flex-col gap-4 w-full p-4 lg:w-3/4 lg:p-0 justify-end">
+                    <DatePicker
+                      className="w-full"
+                      value={dayjs(formData.date).tz("Asia/Bangkok")}
+                      onChange={handleDateChange}
                     />
-                    <TimePicker
-                      label="เวลาที่สิ้นสุด"
-                      timeSteps={{
-                        minutes: booking_interval_minutes,
-                      }}
-                      value={dayjs(formData.end_time).tz("Asia/Bangkok")}
-                      onChange={(time) => handleTimeChange("end_time", time)}
-                      onError={() => errors.end_time}
-                      ampm={false}
-                      minTime={dayjs(
-                        `${dayjs().format("YYYY-MM-DD")}T${open_time}`
-                      ).tz("Asia/Bangkok")}
-                      maxTime={dayjs(
-                        `${dayjs().format("YYYY-MM-DD")}T${close_time}`
-                      ).tz("Asia/Bangkok")}
+                    <div className="flex flex-col lg:flex-row gap-2">
+                      <TimePicker
+                        label="เวลาที่เริ่มใช้ห้อง"
+                        timeSteps={{
+                          minutes: booking_interval_minutes,
+                        }}
+                        value={dayjs(formData.start_time).tz("Asia/Bangkok")}
+                        onChange={(time) =>
+                          handleTimeChange("start_time", time)
+                        }
+                        onError={() => errors.start_time}
+                        ampm={false}
+                        minTime={dayjs(
+                          `${dayjs().format("YYYY-MM-DD")}T${open_time}`
+                        ).tz("Asia/Bangkok")}
+                        maxTime={dayjs(
+                          `${dayjs().format("YYYY-MM-DD")}T${close_time}`
+                        ).tz("Asia/Bangkok")}
+                      />
+                      <TimePicker
+                        label="เวลาที่สิ้นสุด"
+                        timeSteps={{
+                          minutes: booking_interval_minutes,
+                        }}
+                        value={dayjs(formData.end_time).tz("Asia/Bangkok")}
+                        onChange={(time) => handleTimeChange("end_time", time)}
+                        onError={() => errors.end_time}
+                        ampm={false}
+                        minTime={dayjs(formData.start_time).tz("Asia/Bangkok")}
+                        maxTime={dayjs(
+                          `${dayjs().format("YYYY-MM-DD")}T${close_time}`
+                        ).tz("Asia/Bangkok")}
+                      />
+                    </div>
+                    <FormHelperText
+                      className="flex w-fit whitespace-nowrap items-center justify-center"
+                      error={!!errors.end_time || !!errors.start_time}
+                    >
+                      ขั้นต่ำ {booking_interval_minutes} นาที
+                    </FormHelperText>
+                    <TextField
+                      label="หัวที่ใช้จะใช้ห้อง"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleChange}
+                      error={!!errors.title}
+                      helperText={errors.title}
+                    />
+                    <TextField
+                      label="เบอร์ติดต่อ"
+                      name="tel"
+                      type="tel"
+                      inputMode="tel"
+                      value={formData.tel}
+                      onChange={handleChange}
+                      error={!!errors.tel}
+                      helperText={
+                        errors.tel || "ระบุเบอร์ติดต่อเพื่อติดต่อกลับ"
+                      }
+                    />
+                    <TextField
+                      id="outlined-multiline-static"
+                      label="เหตุผล"
+                      multiline
+                      rows={4}
+                      name="reason"
+                      value={formData.reason}
+                      onChange={handleChange}
+                      error={!!errors.reason}
+                      helperText={
+                        errors.reason || "ระบุเหตุผลที่ต้องการจองห้อง"
+                      }
                     />
                   </div>
-                  <FormHelperText
-                    className="flex w-fit whitespace-nowrap items-center justify-center"
-                    error={!!errors.end_time || !!errors.start_time}
-                  >
-                    ขั้นต่ำ {booking_interval_minutes} นาที
-                  </FormHelperText>
-                  <TextField
-                    label="หัวที่ใช้จะใช้ห้อง"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    error={!!errors.title}
-                    helperText={errors.title}
-                  />
-                  <TextField
-                    label="เบอร์ติดต่อ"
-                    name="tel"
-                    type="tel"
-                    inputMode="tel"
-                    value={formData.tel}
-                    onChange={handleChange}
-                    error={!!errors.tel}
-                    helperText={errors.tel || "ระบุเบอร์ติดต่อเพื่อติดต่อกลับ"}
-                  />
-                  <TextField
-                    id="outlined-multiline-static"
-                    label="เหตุผล"
-                    multiline
-                    rows={4}
-                    name="reason"
-                    value={formData.reason}
-                    onChange={handleChange}
-                    error={!!errors.reason}
-                    helperText={errors.reason || "ระบุเหตุผลที่ต้องการจองห้อง"}
-                  />
-                </div>
-              </LocalizationProvider>
-            </div>
+                </LocalizationProvider>
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>
-      <DialogActions>
-        {timeError && (
-          <Typography color="error" variant="body2">
-            {timeError}
-          </Typography>
-        )}
-
-        <Button
-          onClick={handleOpenConfirmModal}
-          color="primary"
-          variant="contained"
-          disabled={!!timeError} // Disable if there's a time error
-        >
-          สร้างการจอง
-        </Button>
-
-        <Dialog
-          open={openConfirmModal}
-          onClose={handleCloseConfirmModal}
-          fullWidth
-          maxWidth="sm"
-        >
-          <DialogTitle
-            className="flex text-center items-center justify-center"
-            style={{
-              background:
-                "linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 181, 147, 0.35) 75%, rgba(255, 89, 103, 0.35) 100%)",
-            }}
-          >
-            <img src="/imgs/questionMark.svg" className="my-2"></img>
-          </DialogTitle>
-          <DialogContent dividers>
-            <div className="flex flex-col gap-4 my-2">
-              <Typography variant="h6" className="text-center text-maincolor">
-                ยืนยันการจองห้อง
-              </Typography>
-              <Typography
-                variant="body2"
-                className="text-center text-[#33302E]"
-              >
-                กรุณาตรวจสอบความถูกต้องของข้อมูล หากยืนยันการจองแล้ว
-                รายการการจองของท่านจะแสดงในปฎิทินการจองห้องและประวัติการจอง
-              </Typography>
-            </div>
-          </DialogContent>
-          <DialogContent>
-            <Typography variant="h6" className="text-center text-maincolor">
-              {name}
+      {isActive && (
+        <DialogActions>
+          {timeError && (
+            <Typography color="error" variant="body2">
+              {timeError}
             </Typography>
-            <Box
-              display="flex"
-              flexDirection="row"
-              gap={2}
-              justifyContent="center"
-              p={2}
+          )}
+          {requires_confirmation && (
+            <div className="flex flex-row confirmation-required bg-[#E54A5F] text-xs gap-2 text-white p-1 px-2 rounded-xl w-fit">
+              <LockClosedIcon className="size-4" />
+              <span>ต้องขออนุมัติก่อนใช้งาน</span>
+            </div>
+          )}
+
+          <Button
+            onClick={handleOpenConfirmModal}
+            color="primary"
+            variant="contained"
+            disabled={!!timeError} // Disable if there's a time error
+          >
+            สร้างการจอง
+          </Button>
+        </DialogActions>
+      )}
+
+      <Dialog
+        open={openConfirmModal}
+        onClose={handleCloseConfirmModal}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle
+          className="flex text-center items-center justify-center"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 181, 147, 0.35) 75%, rgba(255, 89, 103, 0.35) 100%)",
+          }}
+        >
+          <img src="/imgs/questionMark.svg" className="my-2"></img>
+        </DialogTitle>
+        <DialogContent dividers>
+          <div className="flex flex-col gap-4 my-2">
+            <Typography variant="h6" className="text-center text-maincolor">
+              ยืนยันการจองห้อง
+            </Typography>
+            <Typography variant="body2" className="text-center text-[#33302E]">
+              กรุณาตรวจสอบความถูกต้องของข้อมูล หากยืนยันการจองแล้ว
+              รายการการจองของท่านจะแสดงในปฎิทินการจองห้องและประวัติการจอง
+            </Typography>
+            <div className="absolute right-4 top-3">
+              <IconButton
+                onClick={handleCloseConfirmModal}
+                color="warning"
+                className="size-10"
+              >
+                <CloseIcon />
+              </IconButton>
+            </div>
+          </div>
+        </DialogContent>
+        <DialogContent>
+          <Typography variant="h6" className="text-center text-maincolor">
+            {name}
+          </Typography>
+          <Box
+            display="flex"
+            flexDirection="row"
+            gap={2}
+            justifyContent="center"
+            p={2}
+          >
+            <Typography
+              variant="body2"
+              style={{
+                backgroundColor: "#FFF1DA",
+                padding: "6px 12px",
+                borderRadius: "20px",
+                fontWeight: 400,
+                fontSize: "0.875rem",
+              }}
+              className="text-maincolor"
             >
-              <Typography
-                variant="body2"
-                style={{
-                  backgroundColor: "#FFF1DA",
-                  padding: "6px 12px",
-                  borderRadius: "20px",
-                  fontWeight: 400,
-                  fontSize: "0.875rem",
-                }}
-                className="text-maincolor"
-              >
-                <DateRangeIcon style={{ marginRight: "8px" }} />
-                {dayjs(formData.date).format("YYYY-MM-DD")}
-              </Typography>
-              <Typography
-                variant="body2"
-                style={{
-                  backgroundColor: "#FFF1DA",
-                  padding: "6px 12px",
-                  borderRadius: "20px",
-                  fontWeight: 400,
-                  fontSize: "0.875rem",
-                }}
-                className="text-maincolor"
-              >
-                <ClockIcon style={{ marginRight: "8px" }} />
-                {dayjs(formData.start_time).format("HH:mm")} -{" "}
-                {dayjs(formData.end_time).format("HH:mm")}
-              </Typography>
-            </Box>
-            <Box className="p-10">
-              <Grid container spacing={1}>
-                <Grid item xs={4}>
-                  <Typography variant="body1">
-                    <strong>บัญชีผู้จอง</strong>
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body1">{formData.account_id}</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body1">
-                    <strong>เบอร์ติดต่อ</strong>
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body1">{formData.tel}</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body1">
-                    <strong>หัวข้อการจอง</strong>
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body1">{formData.title}</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body1">
-                    <strong>เหตุผลการจอง</strong>
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body1">{formData.reason}</Typography>
-                </Grid>
+              <DateRangeIcon style={{ marginRight: "8px" }} />
+              {dayjs(formData.date).format("YYYY-MM-DD")}
+            </Typography>
+            <Typography
+              variant="body2"
+              style={{
+                backgroundColor: "#FFF1DA",
+                padding: "6px 12px",
+                borderRadius: "20px",
+                fontWeight: 400,
+                fontSize: "0.875rem",
+              }}
+              className="text-maincolor"
+            >
+              <ClockIcon style={{ marginRight: "8px" }} />
+              {dayjs(formData.start_time).format("HH:mm")} -{" "}
+              {dayjs(formData.end_time).format("HH:mm")}
+            </Typography>
+          </Box>
+          <Box className="p-10">
+            <Grid container spacing={1}>
+              <Grid item xs={4}>
+                <Typography variant="body1">
+                  <strong>บัญชีผู้จอง</strong>
+                </Typography>
               </Grid>
-            </Box>
-          </DialogContent>
-          <DialogActions style={{ justifyContent: "center", gap: "10px" }}>
-            <Button
-              onClick={handleCloseConfirmModal}
-              color="error"
-              variant="contained"
-            >
-              ยกเลิก
-            </Button>
-            <Button
-              onClick={handleConfirmBooking}
-              color="success"
-              variant="contained"
-              autoFocus
-            >
-              ยืนยัน
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </DialogActions>
+              <Grid item xs={6}>
+                <Typography variant="body1">{formData.account_id}</Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="body1">
+                  <strong>เบอร์ติดต่อ</strong>
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="body1">{formData.tel}</Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="body1">
+                  <strong>หัวข้อการจอง</strong>
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="body1">{formData.title}</Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="body1">
+                  <strong>เหตุผลการจอง</strong>
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="body1">{formData.reason}</Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        </DialogContent>
+
+        <DialogActions style={{ justifyContent: "center", gap: "10px" }}>
+          <Button
+            onClick={handleConfirmBooking}
+            color="success"
+            variant="contained"
+            autoFocus
+          >
+            ยืนยัน
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 };

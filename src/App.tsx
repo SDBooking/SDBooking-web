@@ -39,14 +39,8 @@ const theme = createTheme({
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setAccountData, accountData } = useAccountContext();
+  const { setAccountData } = useAccountContext();
   const { visible } = usePopupContext();
-
-  useEffect(() => {
-    if (accountData) {
-      console.log(accountData);
-    }
-  }, [accountData]);
 
   const { status } = useQuery("init", initData, {
     staleTime: Infinity,
