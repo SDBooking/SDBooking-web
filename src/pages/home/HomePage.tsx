@@ -130,11 +130,7 @@ const HomePage: React.FC = () => {
           <h1 className="text-maincolor text-xl">รายการจองของคุณ</h1>
         </div>
 
-        <TableContainer
-          component={Paper}
-          style={{ overflowX: "auto" }}
-          className="h-full"
-        >
+        <TableContainer component={Paper} className="overflow-x-auto h-full">
           <Table stickyHeader>
             <TableHead>
               <TableRow>
@@ -180,26 +176,10 @@ const HomePage: React.FC = () => {
                     direction={orderBy === "start_time" ? order : "asc"}
                     onClick={() => handleRequestSort("start_time")}
                   >
-                    Start Time
+                    Time
                   </TableSortLabel>
                 </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "end_time"}
-                    direction={orderBy === "end_time" ? order : "asc"}
-                    onClick={() => handleRequestSort("end_time")}
-                  >
-                    End Time
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell
-                  style={{
-                    position: "sticky",
-                    right: 125,
-                    background: "white",
-                    padding: 20,
-                  }}
-                >
+                <TableCell className="sticky right-32 bg-white p-5">
                   <TableSortLabel
                     active={orderBy === "status"}
                     direction={orderBy === "status" ? order : "asc"}
@@ -208,21 +188,9 @@ const HomePage: React.FC = () => {
                     Status
                   </TableSortLabel>
                 </TableCell>
-                <TableCell
-                  style={{
-                    position: "sticky",
-                    right: 0,
-                    background: "white",
-                    padding: 20,
-                  }}
-                >
+                <TableCell className="sticky right-0 bg-white p-5">
                   Booking Details
                 </TableCell>
-                {/* <TableCell
-                  style={{ position: "sticky", right: 0, background: "white" }}
-                >
-                  Actions
-                </TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -236,13 +204,15 @@ const HomePage: React.FC = () => {
                     {dayjs(book.date).utc().format("YYYY-MM-DD")}
                   </TableCell>
                   <TableCell>
-                    {dayjs(book.start_time).utc().format("HH:mm:ss")}
-                  </TableCell>
-                  <TableCell>
-                    {dayjs(book.end_time).utc().format("HH:mm:ss")}
+                    {`${dayjs(book.start_time)
+                      .utc()
+                      .format("HH:mm:ss")} - ${dayjs(book.end_time)
+                      .utc()
+                      .format("HH:mm:ss")}`}
                   </TableCell>
 
                   <TableCell
+                    className="sticky right-32 bg-white p-5"
                     style={{
                       color:
                         book.status === BookingStatusList[0]
@@ -252,22 +222,11 @@ const HomePage: React.FC = () => {
                           : book.status === BookingStatusList[2]
                           ? "#E54444"
                           : colors.grey[500], // Default color for the fourth status
-                      position: "sticky",
-                      right: 125,
-                      background: "white",
-                      padding: 20,
                     }}
                   >
                     {getStatusInThai(book.status)}
                   </TableCell>
-                  <TableCell
-                    style={{
-                      position: "sticky",
-                      right: 0,
-                      background: "white",
-                      padding: 20,
-                    }}
-                  >
+                  <TableCell className="sticky right-0 bg-white p-5">
                     {book && (
                       <Button
                         variant="contained"
@@ -279,46 +238,6 @@ const HomePage: React.FC = () => {
                       </Button>
                     )}
                   </TableCell>
-                  {/* <TableCell
-                    style={{
-                      position: "sticky",
-                      right: 0,
-                      background: "white",
-                    }}
-                  >
-                    {book.status === "REJECTED" ? (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => {
-                          setSelectedBooking({
-                            ...book,
-                            confirmed_by:
-                              accountData?.userData.cmuitaccount ?? null,
-                          });
-                          setResubmitModalOpen(true);
-                        }}
-                      >
-                        Resubmit
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => {
-                          setSelectedBooking({
-                            ...book,
-                            confirmed_by:
-                              accountData?.userData.cmuitaccount ?? null,
-                          });
-                          setResubmitModalOpen(true);
-                        }}
-                        disabled={true}
-                      >
-                        Resubmit
-                      </Button>
-                    )}
-                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>

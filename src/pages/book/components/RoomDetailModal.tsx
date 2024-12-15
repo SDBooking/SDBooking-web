@@ -328,7 +328,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="lg">
       <DialogTitle className="text-center">
         {name}{" "}
-        <div className="absolute right-4 top-3 ">
+        <div className="absolute right-4 top-3">
           <IconButton onClick={onClose} color="warning" className="size-10">
             <CloseIcon />
           </IconButton>
@@ -337,8 +337,8 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
 
       <DialogContent dividers>
         <div className="flex flex-col gap-2 px-4">
-          <div className="flex flex-row p-16 gap-8 ">
-            <div className="w-2/3 text-center items-center justify-center">
+          <div className="flex flex-col lg:flex-row p-4 lg:p-16 gap-4 lg:gap-8">
+            <div className="w-full lg:w-2/3 text-center items-center justify-center">
               {images && images.length > 0 ? (
                 <ImageList variant="quilted" cols={3} gap={4}>
                   {images.map((image, index) => (
@@ -358,7 +358,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 w-full lg:w-1/3">
               <Typography component="div" variant="body1" color="textSecondary">
                 <div className="bg-[#FAFAFA] flex flex-row w-full items-center gap-4 p-2 rounded-2xl">
                   <BuildingOfficeIcon className="w-6 h-6 text-maincolor bg-[#FFE7D0] rounded-full p-0.5" />
@@ -442,19 +442,19 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
             <div className="text-maincolor">กรอกข้อมูลการจอง</div>
             <div className="border w-2/5 border-[#FD7427]" />
           </div>
-          <div className="flex flex-row m-10">
-            <div className="flex w-3/5 justify-center items-center">
+          <div className="flex flex-col lg:flex-row  m-4 lg:m-10">
+            <div className="flex w-full lg:w-3/5 lg:p-0 justify-center items-center overflow-x-auto border-1">
               <TimeCalendar bookings={books} />
             </div>
-            <div className="flex w-2/5 justify-center items-baseline">
+            <div className="flex w-full lg:w-2/5 justify-center items-baseline">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <div className="flex flex-col gap-4 w-3/4 justify-end">
+                <div className="flex flex-col gap-4 w-full p-4 lg:w-3/4 lg:p-0 justify-end">
                   <DatePicker
                     className="w-full"
                     value={dayjs(formData.date).tz("Asia/Bangkok")}
                     onChange={handleDateChange}
                   />
-                  <div className="flex flex-row gap-2">
+                  <div className="flex flex-col lg:flex-row gap-2">
                     <TimePicker
                       label="เวลาที่เริ่มใช้ห้อง"
                       timeSteps={{
@@ -487,13 +487,13 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                         `${dayjs().format("YYYY-MM-DD")}T${close_time}`
                       ).tz("Asia/Bangkok")}
                     />
-                    <FormHelperText
-                      className="flex w-fit whitespace-nowrap items-center justify-center"
-                      error={!!errors.end_time || !!errors.start_time}
-                    >
-                      ขั้นต่ำ {booking_interval_minutes} นาที
-                    </FormHelperText>
                   </div>
+                  <FormHelperText
+                    className="flex w-fit whitespace-nowrap items-center justify-center"
+                    error={!!errors.end_time || !!errors.start_time}
+                  >
+                    ขั้นต่ำ {booking_interval_minutes} นาที
+                  </FormHelperText>
                   <TextField
                     label="หัวที่ใช้จะใช้ห้อง"
                     name="title"

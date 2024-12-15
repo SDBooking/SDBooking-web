@@ -10,11 +10,7 @@ const SettingPage: React.FC = () => {
       title={"ตั้งค่าระบบ"}
       description="เลือกการแสดงผลรายละเอียดสำหรับเลือก ในการสร้างหรือแก้ไขห้องต่างๆ"
     >
-      <div className="w-3/4">
-        <div className="flex flex-col">
-          <RoomFilter />
-        </div>
-      </div>
+      <RoomFilter />
     </BackPageContainer>
   );
 };

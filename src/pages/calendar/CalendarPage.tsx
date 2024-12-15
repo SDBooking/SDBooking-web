@@ -281,18 +281,18 @@ const CalendarPage: React.FC = () => {
     <PageContainer>
       <div className="flex flex-col p-4 overflow-y-auto">
         <div className="flex flex-row gap-2 mb-4">
-          <img src="/imgs/calendar.svg" />
+          <img src="/imgs/calendar.svg" alt="Calendar" />
           <h1 className="text-maincolor text-xl">ปฎิทินการจองห้อง</h1>
         </div>
 
         <Typography variant="body1" color="textSecondary" mb={4}>
           ปฎิทินการจองห้องที่แสดงข้อมูลการจองของระบบทั้งหมด
         </Typography>
-        <div className="flex flex-row items-center gap-4  bg-white p-6 rounded-2xl">
+        <div className="flex flex-col md:flex-row items-center gap-4 bg-white p-6 rounded-2xl">
           <p className="text-base font-normal my-4 w-fit inline whitespace-nowrap px-2">
             เลือกแสดง
           </p>
-          <FormControl variant="outlined" className="w-1/3">
+          <FormControl variant="outlined" className="w-full md:w-1/3">
             <InputLabel id="room-select-label">ห้องประชุม</InputLabel>
             <Select
               labelId="room-select-label"
@@ -313,7 +313,7 @@ const CalendarPage: React.FC = () => {
           <FormControl
             component="fieldset"
             variant="outlined"
-            className="w-1/2 items-center justify-center"
+            className="w-full md:w-1/2 items-center justify-center"
           >
             <FormLabel component="legend" className="text-center">
               สถานะการจอง
@@ -350,33 +350,30 @@ const CalendarPage: React.FC = () => {
           />
         </div>
         {accountData?.isAdmin ? (
-          <div className="flex flex-row h-screen bg-white p-10">
-            <>
-              <div
-                ref={calendarRef}
-                style={{
-                  width: isCollapsed ? "100%" : "60%",
-                }}
-                className="rounded-b-2xl"
-              />
-              <IconButton
-                onClick={toggleCollapse}
-                color="info"
-                className="absolute right-5 top-1/2 transform -translate-y-1/2 size-10 z-10"
-                style={{
-                  borderRadius: "50%",
-                  backgroundColor: "#fff",
-                  boxShadow: "2px 4px 4px rgba(0, 0, 0, 0.25)",
-                }}
-              >
-                {isCollapsed ? "<" : ">"}
-              </IconButton>
-            </>
+          <div className="flex flex-col md:flex-row h-screen bg-white p-4 md:p-10">
             <div
+              ref={calendarRef}
               style={{
-                width: isCollapsed ? "0" : "40%",
+                width: isCollapsed ? "100%" : "60%",
               }}
-              className="flex flex-col"
+              className="rounded-b-2xl"
+            />
+            <IconButton
+              onClick={toggleCollapse}
+              color="info"
+              className="absolute right-5 top-1/2 transform -translate-y-1/2 size-10 z-10"
+              style={{
+                borderRadius: "50%",
+                backgroundColor: "#fff",
+                boxShadow: "2px 4px 4px rgba(0, 0, 0, 0.25)",
+              }}
+            >
+              {isCollapsed ? "<" : ">"}
+            </IconButton>
+            <div
+              className={`flex flex-col ${
+                isCollapsed ? "hidden" : "w-full md:w-2/5"
+              }`}
             >
               <Collapse in={!isCollapsed} className="flex-grow">
                 <ListViewCalendar
@@ -389,7 +386,7 @@ const CalendarPage: React.FC = () => {
         ) : (
           <div
             ref={calendarRef}
-            className="rounded-b-2xl p-10 bg-white h-screen"
+            className="rounded-b-2xl p-4 md:p-10 bg-white h-screen"
           />
         )}
       </div>

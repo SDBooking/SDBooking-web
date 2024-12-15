@@ -56,6 +56,9 @@ const TimeCalendar: React.FC<TimeCalendarProps> = ({ bookings }) => {
           setSelectedBooking(info.event.extendedProps.booking);
           setModalOpen(true);
         },
+        windowResize: () => {
+          calendar.updateSize();
+        },
       });
       calendar.render();
     }
@@ -68,7 +71,11 @@ const TimeCalendar: React.FC<TimeCalendarProps> = ({ bookings }) => {
 
   return (
     <>
-      <div ref={calendarRef} id="time-calendar" className="text-sm" />
+      <div
+        ref={calendarRef}
+        id="time-calendar"
+        className="text-sm w-full h-full"
+      />
       {selectedBooking && (
         <BookingDetailsViewDialog
           isOpen={isModalOpen}

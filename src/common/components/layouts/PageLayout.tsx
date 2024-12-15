@@ -35,9 +35,8 @@ function PageLayout({
 
 const StyledLayout = styled.div`
   display: flex;
-  position: relative;
-  margin: 0 auto;
-  width: 100%;
+  flex-flow: column;
+  min-width: 100vw;
   min-height: 100vh;
   background-color: #dddddd;
 

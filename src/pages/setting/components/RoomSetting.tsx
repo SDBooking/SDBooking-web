@@ -46,6 +46,7 @@ import { RoomServiceDTO } from "../../../types/room_service";
 import { usePopupContext } from "../../../common/contexts/PopupContext";
 import RoomEditor from "./RoomEditor";
 import { renameDTO } from "./RoomEditor";
+import { Container } from "../../../common/components/container/Container";
 
 const RoomFilter: React.FC = () => {
   const { setChildren, setVisible } = usePopupContext();
@@ -269,7 +270,7 @@ const RoomFilter: React.FC = () => {
   };
 
   return (
-    <Box p={4}>
+    <Container>
       {/* Info Box */}
       <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
         <Typography variant="h5" gutterBottom className="text-center">
@@ -547,7 +548,7 @@ const RoomFilter: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Container>
   );
 };
 

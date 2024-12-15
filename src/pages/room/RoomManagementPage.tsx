@@ -4,17 +4,30 @@ import { GetAllRooms } from "../../common/apis/room/queries";
 import { GetAllRoomServices } from "../../common/apis/room_service/queries";
 import { Room } from "../../types/room";
 import { RoomServiceDTO } from "../../types/room_service";
-import RoomCardAdmin from "./components/RoomCardAdmin";
 import { Cog8ToothIcon, PlusCircleIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 import { ClientRouteKey } from "../../common/constants/keys";
 
 import BackPageContainer from "../../common/components/container/BackPageContainer";
+import RoomCard from "../book/components/RoomCard";
+import { RoomAuthorizationModel } from "../../types/room_authorization";
+import { GetAllRoomAuthorizations } from "../../common/apis/room_authorization/queries";
 
 const RoomManagementPage: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [roomServices, setRoomServices] = useState<RoomServiceDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [roomAuthorities, setRoomAuthorities] = useState<
+    RoomAuthorizationModel[]
+  >([]);
+  const images = [
+    "/imgs/Mockroom.png",
+    "/imgs/Mockroom.png",
+    "/imgs/Mockroom.png",
+    "/imgs/Mockroom.png",
+    "/imgs/Mockroom.png",
+    "/imgs/Mockroom.png",
+  ];
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -33,7 +46,18 @@ const RoomManagementPage: React.FC = () => {
         setLoading(false);
       }
     };
+    const fetchRoomAuthorities = async () => {
+      try {
+        const response = await GetAllRoomAuthorizations();
+        if (Array.isArray(response.result)) {
+          setRoomAuthorities(response.result);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
+    fetchRoomAuthorities();
     fetchRooms();
   }, []);
 
@@ -95,15 +119,25 @@ const RoomManagementPage: React.FC = () => {
 
               return (
                 <div key={room.id} className="w-fit ">
-                  <RoomCardAdmin
+                  <RoomCard
                     name={room.name}
                     type={room.type}
                     location={room.location}
                     capacity={room.capacity}
                     services={services}
                     description={room.description || "No description provided."}
-                    requiresConfirmation={room.requires_confirmation}
-                    isActive={room.activation}
+                    requires_confirmation={room.requires_confirmation}
+                    booking_interval_minutes={room.booking_interval_minutes}
+                    open_time={room.open_time}
+                    close_time={room.close_time}
+                    activation={room.activation}
+                    id={room.id}
+                    images={images}
+                    role={roomAuthorities
+                      .filter(
+                        (auth) => auth.room_id === room.id && auth.is_allowed
+                      )
+                      .map((auth) => auth.role)}
                   />
                 </div>
               );

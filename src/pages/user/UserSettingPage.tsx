@@ -1,20 +1,16 @@
 import React from "react";
-
 import BackPageContainer from "../../common/components/container/BackPageContainer";
-import Box from "../../common/components/container/Box";
 import AccountBox from "./components/AccountBox";
 
 const UserSettingPage: React.FC = () => {
   return (
     <BackPageContainer
-      title={"ตั้งค่าระบบ"}
+      title={"จัดการผู้ใช้"}
       description="เลือกการแสดงผลรายละเอียดสำหรับเลือก ในการสร้างหรือแก้ไขห้องต่างๆ"
     >
-      <Box>
-        <div className="flex flex-col">
-          <AccountBox />
-        </div>
-      </Box>
+      <div className="max-w-[1240px]">
+        <AccountBox />
+      </div>
     </BackPageContainer>
   );
 };

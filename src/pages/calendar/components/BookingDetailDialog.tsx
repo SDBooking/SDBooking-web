@@ -74,7 +74,7 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
       <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
         <DialogTitle className="text-center">
           ข้อมูลการจอง
-          <div className="absolute right-4 top-3 ">
+          <div className="absolute right-4 top-3">
             <IconButton onClick={onClose} color="warning" className="size-10">
               <CloseIcon />
             </IconButton>
@@ -90,93 +90,82 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
             gap={2}
             justifyContent="center"
             p={2}
+            className="flex-wrap"
           >
             <Typography
               variant="body2"
-              style={{
-                backgroundColor: "#FFF1DA",
-                padding: "6px 12px",
-                borderRadius: "20px",
-                fontWeight: 400,
-                fontSize: "0.875rem",
-              }}
-              className="text-maincolor"
+              className="bg-[#FFF1DA] p-2 rounded-full font-normal text-sm text-maincolor flex items-center"
             >
-              <DateRangeIcon style={{ marginRight: "8px" }} />
+              <DateRangeIcon className="mr-2" />
               {dayjs(selectedBooking.date).utc().format("YYYY-MM-DD")}
             </Typography>
             <Typography
               variant="body2"
-              style={{
-                backgroundColor: "#FFF1DA",
-                padding: "6px 12px",
-                borderRadius: "20px",
-                fontWeight: 400,
-                fontSize: "0.875rem",
-              }}
-              className="text-maincolor"
+              className="bg-[#FFF1DA] p-2 rounded-full font-normal text-sm text-maincolor flex items-center"
             >
-              <ClockIcon style={{ marginRight: "8px" }} />
+              <ClockIcon className="mr-2" />
               {dayjs(selectedBooking.start_time).utc().format("HH:mm")} -{" "}
               {dayjs(selectedBooking.end_time).utc().format("HH:mm")}
             </Typography>
           </Box>
           <Box className="p-6">
             <Grid container spacing={1}>
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Typography variant="body1">
                   <strong>รหัสการจองห้อง</strong>
                 </Typography>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={8}>
                 <Typography variant="body1">{selectedBooking.id}</Typography>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Typography variant="body1">
                   <strong>ชื่อผู้จอง</strong>
                 </Typography>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={8}>
                 <Typography variant="body1">
                   {selectedBooking.account_name}
                 </Typography>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Typography variant="body1">
                   <strong>หัวข้อการจอง</strong>
                 </Typography>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={8}>
                 <Typography variant="body1">{selectedBooking.title}</Typography>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <Typography variant="body1">
                   <strong>เหตุผลการจอง</strong>
                 </Typography>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={8}>
                 <Typography variant="body1">
                   {selectedBooking.reason}
                 </Typography>
               </Grid>
-              <Grid item xs={4}>
-                {accountData?.isAdmin && (
-                  <Typography variant="body1">
-                    <strong>เบอร์โทรติดต่อ</strong>
-                  </Typography>
-                )}
-              </Grid>
-              <Grid item xs={6}>
-                {accountData?.isAdmin && (
-                  <Typography variant="body1">{selectedBooking.tel}</Typography>
-                )}
-              </Grid>
-              <Grid item xs={4}>
+              {accountData?.isAdmin && (
+                <>
+                  <Grid item xs={12} sm={4}>
+                    <Typography variant="body1">
+                      <strong>เบอร์โทรติดต่อ</strong>
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={8}>
+                    <Typography variant="body1">
+                      {selectedBooking.tel}
+                    </Typography>
+                  </Grid>
+                </>
+              )}
+              <Grid item xs={12} sm={4}>
                 <Typography variant="body1">
                   <strong>สถานะการจอง</strong>
                 </Typography>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={8}>
                 <Typography
                   variant="body1"
                   style={{ color: getStatusColor(selectedBooking.status) }}
@@ -194,12 +183,12 @@ const BookingDetailsDialog: React.FC<BookingDetailsDialogProps> = ({
                     </Grid>
                     {selectedBooking.reject_historys.map((reject, index) => (
                       <React.Fragment key={index}>
-                        <Grid item xs={4}>
+                        <Grid item xs={12} sm={4}>
                           <Typography variant="body1">
                             <strong>เหตุผล {index + 1}</strong>
                           </Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} sm={8}>
                           <Typography variant="body1">
                             {reject.reason || "No reason provided"}
                           </Typography>

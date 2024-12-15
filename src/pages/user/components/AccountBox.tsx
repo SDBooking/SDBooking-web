@@ -117,35 +117,52 @@ const AccountBox: React.FC = () => {
   }
 
   return (
-    <Box sx={{ padding: 2 }}>
+    <div className="min-w-full p-4">
       <Typography variant="body1" gutterBottom className="p-2">
         บัญชีผู้ใช้ทั้งหมดในระบบ
       </Typography>
       {accountData && accountData.length > 0 ? (
         <Grid container spacing={2}>
           {accountData.map((account, index) => (
-            <Grid item xs={6} md={6} key={account.cmuitaccount || index}>
-              <Paper elevation={3} sx={{ padding: 2 }}>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+              key={account.cmuitaccount || index}
+            >
+              <Paper elevation={3} className="p-4">
+                <Box className="flex flex-col gap-2">
+                  <Typography
+                    variant="body2"
+                    className="font-semibold truncate"
+                    title={account.cmuitaccount}
+                  >
                     {account.cmuitaccount}
                   </Typography>
-                  <Typography variant="body2">
+                  <Typography
+                    variant="body2"
+                    className="truncate"
+                    title={`${account.firstname} ${account.lastname}`}
+                  >
                     {account.firstname} {account.lastname}
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{
-                      fontWeight: "bold",
-                      color:
-                        account.role === "ADMIN"
-                          ? "red"
-                          : account.role === "EMPLOYEE"
-                          ? "blue"
-                          : "green",
-                    }}
+                    className={`font-bold truncate ${
+                      account.role === "ADMIN"
+                        ? "text-red-500"
+                        : account.role === "EMPLOYEE"
+                        ? "text-blue-500"
+                        : "text-green-500"
+                    }`}
+                    title={
+                      account.role === "STUDENT"
+                        ? "APPROVED STUDENT"
+                        : account.role
+                    }
                   >
-                    {account.role == "STUDENT"
+                    {account.role === "STUDENT"
                       ? "APPROVED STUDENT"
                       : account.role}
                   </Typography>
@@ -157,7 +174,7 @@ const AccountBox: React.FC = () => {
                         e.target.value as Role
                       )
                     }
-                    sx={{ marginTop: 1 }}
+                    className="mt-2"
                   >
                     <MenuItem value="ADMIN">ADMIN</MenuItem>
                     <MenuItem value="EMPLOYEE">EMPLOYEE</MenuItem>
@@ -167,7 +184,7 @@ const AccountBox: React.FC = () => {
                     variant="contained"
                     color="primary"
                     onClick={() => handleOpenDialog(account.cmuitaccount)}
-                    sx={{ marginTop: 1 }}
+                    className="mt-2"
                   >
                     Update
                   </Button>
@@ -177,7 +194,7 @@ const AccountBox: React.FC = () => {
           ))}
         </Grid>
       ) : (
-        <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
+        <Paper elevation={3} className="p-4 mt-4">
           <Typography>No account found</Typography>
         </Paper>
       )}
@@ -188,13 +205,27 @@ const AccountBox: React.FC = () => {
       {studentRequestData && studentRequestData.length > 0 ? (
         <Grid container spacing={2}>
           {studentRequestData.map((account, index) => (
-            <Grid item xs={6} md={6} key={account.cmuitaccount || index}>
-              <Paper elevation={3} sx={{ padding: 2 }}>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+              key={account.cmuitaccount || index}
+            >
+              <Paper elevation={3} className="p-4">
+                <Box className="flex flex-col gap-2">
+                  <Typography
+                    variant="body2"
+                    className="font-semibold truncate"
+                    title={account.cmuitaccount}
+                  >
                     {account.cmuitaccount}
                   </Typography>
-                  <Typography variant="body2">
+                  <Typography
+                    variant="body2"
+                    className="truncate"
+                    title={`${account.firstname} ${account.lastname}`}
+                  >
                     {account.firstname} {account.lastname}
                   </Typography>
                   <Typography variant="body2">
@@ -204,7 +235,7 @@ const AccountBox: React.FC = () => {
                     variant="contained"
                     color="success"
                     onClick={() => handleApproveStudent(account.cmuitaccount)}
-                    sx={{ marginTop: 1 }}
+                    className="mt-2"
                   >
                     Approve
                   </Button>
@@ -214,7 +245,7 @@ const AccountBox: React.FC = () => {
           ))}
         </Grid>
       ) : (
-        <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
+        <Paper elevation={3} className="p-4 mt-4">
           <Typography>No student requests found</Typography>
         </Paper>
       )}
@@ -254,7 +285,7 @@ const AccountBox: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </div>
   );
 };
 
