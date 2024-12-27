@@ -44,7 +44,7 @@ function withAuth(authType: AuthKey) {
 
       // for prod
       if (
-        authType === accountData?.userData.role ||
+        (authType === AuthKey.AdminAuth && accountData?.isAdmin) ||
         (authType === "Both" && accountData)
       ) {
         return (

@@ -33,7 +33,9 @@ const BackPageContainer: React.FC<PageContainerProps> = ({
         <div className="ml-12 sm:ml-16 px-4 sm:px-6 rounded-t-xl flex items-center">
           <span className="text-sm">{description}</span>
         </div>
-        <div className="m-4 sm:m-6 md:m-8 lg:m-10 z-5">{children}</div>
+        <div className="w-full overflow-y-auto p-4 sm:p-6 md:p-8 lg:p-10 z-20">
+          {children}
+        </div>
       </div>
       <img
         src="/imgs/circledecor.svg"

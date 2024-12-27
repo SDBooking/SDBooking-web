@@ -5,7 +5,6 @@ export interface Room {
   location: string;
   capacity: number;
   description?: string;
-  requires_confirmation: boolean;
   activation: boolean;
   booking_interval_minutes?: number;
   open_time?: string;
@@ -20,7 +19,6 @@ export interface RoomModel {
   location_id: number;
   capacity: number;
   description?: string;
-  requires_confirmation: boolean;
   activation: boolean;
   booking_interval_minutes?: number;
   open_time?: string;
@@ -34,7 +32,6 @@ export interface RoomModelUpdate {
   location_id: number;
   capacity: number;
   description?: string;
-  requires_confirmation: boolean;
   activation: boolean;
   booking_interval_minutes?: number;
   open_time?: string;

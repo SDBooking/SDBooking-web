@@ -40,13 +40,17 @@ import {
 import { GetRoomsModel } from "../../common/apis/room/queries";
 import { GetRoomServicesModel } from "../../common/apis/room_service/queries";
 import { RoomAuthorizationModel } from "../../types/room_authorization";
-import { SaveRoomAuthorization } from "../../common/apis/room_authorization/manipulates";
+import {
+  DeleteRoomAuthorization,
+  SaveRoomAuthorization,
+} from "../../common/apis/room_authorization/manipulates";
 import { GetAllRoomAuthorizations } from "../../common/apis/room_authorization/queries";
-import { Role } from "../../types";
+
+import { SystemRole } from "../../types/sys_role";
+import { GetAllSystemRoles } from "../../common/apis/system/system_role/queries";
 
 const RoomEdit: React.FC = () => {
   const [open, setOpen] = React.useState(true);
-  const [requireConfirmation, setRequireConfirmation] = useState(false);
   const [rooms, setRooms] = useState<RoomModelUpdate[]>([]);
   const [roomTypes, setRoomTypes] = useState<RoomTypeDTO[]>([]);
   const [roomLocations, setRoomLocations] = useState<RoomLocationDTO[]>([]);
@@ -66,13 +70,13 @@ const RoomEdit: React.FC = () => {
     location_id: 1,
     capacity: 0,
     description: "",
-    requires_confirmation: false,
     activation: true,
     booking_interval_minutes: 0,
     open_time: dayjs().set("hour", 0).set("minute", 0).format("HH:mm"),
     close_time: dayjs().set("hour", 0).set("minute", 0).format("HH:mm"),
   });
 
+  const [systemRoles, setSystemRoles] = useState<SystemRole[]>([]);
   const [formFacilities, setFormFacilities] = useState<
     RoomServiceCreateModel[]
   >([]);
@@ -81,97 +85,110 @@ const RoomEdit: React.FC = () => {
   >([]);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const fetchData = async () => {
+    try {
+      const [
+        roomsResponse,
+        roomTypesResponse,
+        roomLocationsResponse,
+        roomFacilitiesResponse,
+        roomServicesResponse,
+        roomAuthoritiesResponse,
+        systemRolesResponse,
+      ] = await Promise.all([
+        GetRoomsModel(),
+        GetAllRoomTypes(),
+        GetAllRoomLocations(),
+        GetAllRoomFacilities(),
+        GetRoomServicesModel(),
+        GetAllRoomAuthorizations(),
+        GetAllSystemRoles(),
+      ]);
+
+      if (
+        !roomTypesResponse.result ||
+        !roomLocationsResponse.result ||
+        !roomFacilitiesResponse.result ||
+        !roomsResponse.result ||
+        !roomServicesResponse.result ||
+        !roomAuthoritiesResponse.result ||
+        !systemRolesResponse.result
+      ) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const roomsData = Array.isArray(roomsResponse.result)
+        ? roomsResponse.result.sort((a, b) => a.id - b.id)
+        : [];
+      setRooms(roomsData);
+      setRoomTypes(roomTypesResponse.result);
+      setRoomLocations(roomLocationsResponse.result);
+      setRoomFacilities(roomFacilitiesResponse.result);
+      setRoomServices(
+        Array.isArray(roomServicesResponse.result)
+          ? roomServicesResponse.result
+          : []
+      );
+      setSystemRoles(
+        Array.isArray(systemRolesResponse.result)
+          ? systemRolesResponse.result
+          : []
+      );
+
+      setRoomAuthorities(
+        Array.isArray(roomAuthoritiesResponse.result)
+          ? roomAuthoritiesResponse.result
+          : []
+      );
+
+      if (roomsData.length > 0) {
+        const firstRoom = roomsData[0];
+        setSelectedRoomId(firstRoom.id);
+        setFormData({
+          id: firstRoom.id,
+          name: firstRoom.name,
+          type_id: firstRoom.type_id,
+          location_id: firstRoom.location_id,
+          capacity: firstRoom.capacity,
+          description: firstRoom.description,
+          activation: firstRoom.activation,
+          booking_interval_minutes: firstRoom.booking_interval_minutes,
+          open_time: firstRoom.open_time,
+          close_time: firstRoom.close_time,
+        });
+
+        const initialRoomServices = Array.isArray(roomServicesResponse.result)
+          ? roomServicesResponse.result.filter(
+              (service: RoomServiceModel) => service.room_id === firstRoom.id
+            )
+          : [];
+        setFilteredRoomServices(initialRoomServices);
+        setFormFacilities(
+          initialRoomServices.map((service) => ({
+            facility_id: service.facility_id,
+            room_id: service.room_id,
+          }))
+        );
+        const initialRoomAuthorities: RoomAuthorizationModel[] = Array.isArray(
+          roomAuthoritiesResponse.result
+        )
+          ? roomAuthoritiesResponse.result.filter(
+              (auth: RoomAuthorizationModel) => auth.room_id === firstRoom.id
+            )
+          : [];
+
+        setFormAuthorizations(initialRoomAuthorities);
+      }
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [
-          roomsResponse,
-          roomTypesResponse,
-          roomLocationsResponse,
-          roomFacilitiesResponse,
-          roomServicesResponse,
-          roomAuthoritiesResponse,
-        ] = await Promise.all([
-          GetRoomsModel(),
-          GetAllRoomTypes(),
-          GetAllRoomLocations(),
-          GetAllRoomFacilities(),
-          GetRoomServicesModel(),
-          GetAllRoomAuthorizations(),
-        ]);
+    fetchData();
+  }, []);
 
-        if (
-          !roomTypesResponse.result ||
-          !roomLocationsResponse.result ||
-          !roomFacilitiesResponse.result ||
-          !roomsResponse.result ||
-          !roomServicesResponse.result ||
-          !roomAuthoritiesResponse.result
-        ) {
-          throw new Error("Failed to fetch data");
-        }
-        const roomsData = Array.isArray(roomsResponse.result)
-          ? roomsResponse.result
-          : [];
-        setRooms(roomsData);
-        setRoomTypes(roomTypesResponse.result);
-        setRoomLocations(roomLocationsResponse.result);
-        setRoomFacilities(roomFacilitiesResponse.result);
-        setRoomServices(
-          Array.isArray(roomServicesResponse.result)
-            ? roomServicesResponse.result
-            : []
-        );
-        setRoomAuthorities(
-          Array.isArray(roomAuthoritiesResponse.result)
-            ? roomAuthoritiesResponse.result
-            : []
-        );
-
-        if (roomsData.length > 0) {
-          const firstRoom = roomsData[0];
-          setSelectedRoomId(firstRoom.id);
-          setFormData({
-            id: firstRoom.id,
-            name: firstRoom.name,
-            type_id: firstRoom.type_id,
-            location_id: firstRoom.location_id,
-            capacity: firstRoom.capacity,
-            description: firstRoom.description,
-            requires_confirmation: firstRoom.requires_confirmation,
-            activation: firstRoom.activation,
-            booking_interval_minutes: firstRoom.booking_interval_minutes,
-            open_time: firstRoom.open_time,
-            close_time: firstRoom.close_time,
-          });
-          setRequireConfirmation(firstRoom.requires_confirmation);
-          const initialRoomServices = Array.isArray(roomServicesResponse.result)
-            ? roomServicesResponse.result.filter(
-                (service: RoomServiceModel) => service.room_id === firstRoom.id
-              )
-            : [];
-          setFilteredRoomServices(initialRoomServices);
-          setFormFacilities(
-            initialRoomServices.map((service) => ({
-              facility_id: service.facility_id,
-              room_id: service.room_id,
-            }))
-          );
-          const initialRoomAuthorities = Array.isArray(
-            roomAuthoritiesResponse.result
-          )
-            ? roomAuthoritiesResponse.result.filter(
-                (auth: RoomAuthorizationModel) => auth.room_id === firstRoom.id
-              )
-            : [];
-          setFormAuthorizations(initialRoomAuthorities);
-        }
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      }
-    };
-
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -229,12 +246,15 @@ const RoomEdit: React.FC = () => {
         // Use roomId to link authorizations with the room
         for (const authorization of formAuthorizations) {
           {
-            await SaveRoomAuthorization(authorization);
+            await SaveRoomAuthorization({
+              ...authorization,
+              room_id: selectedRoomId!,
+            });
           }
         }
 
         toast.success("Room Updated successfully");
-        // console.log("Room Updated successfully with ID:", roomId);
+        fetchData();
       } else {
         throw new Error("Failed to create room: result is undefined");
       }
@@ -283,32 +303,45 @@ const RoomEdit: React.FC = () => {
     });
   };
 
-  const handleAuthorizationChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    role: Role
+  const handleCreateAuthorizationChange = async (
+    role_id: number,
+    checked: boolean
   ) => {
-    const { checked } = event.target;
-    setFormAuthorizations((prev) => {
-      const existingAuth = prev.find((auth) => auth.role === role);
-      if (existingAuth) {
-        return prev.map((auth) =>
-          auth.role === role ? { ...auth, is_allowed: checked } : auth
+    if (checked) {
+      setFormAuthorizations((prev) => [
+        ...prev,
+        {
+          room_id: selectedRoomId!,
+          role_id,
+          requires_confirmation: false,
+        },
+      ]);
+    } else {
+      const authorizationToDelete = formAuthorizations.find(
+        (auth) => auth.role_id === role_id
+      );
+      if (authorizationToDelete) {
+        if (authorizationToDelete && authorizationToDelete.id !== undefined) {
+          await DeleteRoomAuthorization(authorizationToDelete.id);
+        }
+        setFormAuthorizations((prev) =>
+          prev.filter((auth) => auth.role_id !== role_id)
         );
-      } else {
-        const roomAuth = roomAuthorities.find(
-          (auth) => auth.room_id === selectedRoomId && auth.role === role
-        );
-        return [
-          ...prev,
-          {
-            id: roomAuth?.id ?? 0,
-            room_id: selectedRoomId!,
-            role,
-            is_allowed: checked,
-          },
-        ];
       }
-    });
+    }
+  };
+
+  const handleAuthorizationChange = (role_id: number, checked: boolean) => {
+    setFormAuthorizations((prev) =>
+      prev.map((auth) =>
+        auth.role_id === role_id
+          ? {
+              ...auth,
+              requires_confirmation: checked,
+            }
+          : auth
+      )
+    );
   };
 
   const handleRoomSelectChange = (event: SelectChangeEvent<number>) => {
@@ -323,13 +356,12 @@ const RoomEdit: React.FC = () => {
         location_id: selectedRoom.location_id,
         capacity: selectedRoom.capacity,
         description: selectedRoom.description,
-        requires_confirmation: selectedRoom.requires_confirmation,
         activation: selectedRoom.activation,
         booking_interval_minutes: selectedRoom.booking_interval_minutes,
         open_time: selectedRoom.open_time,
         close_time: selectedRoom.close_time,
       });
-      setRequireConfirmation(selectedRoom.requires_confirmation);
+
       const selectedRoomServices = roomServices.filter(
         (service) => service.room_id === roomId
       );
@@ -351,13 +383,15 @@ const RoomEdit: React.FC = () => {
   // console.log("Room Services:", filteredRoomServices);
   // console.log("Form Facilities:", formFacilities);
   // console.log("Form Authorizations:", formAuthorizations);
+  console.log(formAuthorizations);
+  console.log(roomAuthorities);
 
   return (
     <BackPageContainer
       title={"แก้ไขห้อง"}
       description="เลือกห้องที่ต้องการแก้ไขและกรอกรายละเอียดที่ต้องการแสดงให้ครบถ้วน"
     >
-      <div className="p-8 bg-white rounded-xl shadow-md w-4/5">
+      <div className="p-4 sm:p-8 bg-white rounded-xl shadow-md w-full sm:w-4/5">
         {open && (
           <Alert severity="info" onClose={handleClose}>
             โปรดกรอกรายละเอียดของห้องที่ต้องการแก้ไขให้ครบถ้วนก่อนที่จะกดยืนยันการแก้ไข
@@ -385,7 +419,7 @@ const RoomEdit: React.FC = () => {
               label="ชื่อห้อง"
               variant="outlined"
               size="small"
-              className="w-1/2"
+              className="w-full sm:w-1/2"
               name="name"
               onChange={handleChange}
               value={formData.name}
@@ -397,7 +431,7 @@ const RoomEdit: React.FC = () => {
               label="รายละเอียดห้อง"
               multiline
               rows={3}
-              className="w-2/3"
+              className="w-full sm:w-2/3"
               name="description"
               onChange={handleChange}
               value={formData.description}
@@ -405,8 +439,8 @@ const RoomEdit: React.FC = () => {
               helperText={errors.description}
             />
           </div>
-          <div className="flex items-start justify-center gap-10 w-full h-full">
-            <div className="flex flex-col p-8 bg-white rounded-xl shadow-lg w-3/5 h-full">
+          <div className="flex flex-col lg:flex-row items-start justify-center gap-10 w-full h-full">
+            <div className="flex flex-col p-4 sm:p-8 bg-white rounded-xl shadow-lg w-full lg:w-3/5 h-full">
               <span>อัพโหลดภาพห้องที่ต้องการแสดง</span>
 
               <AttachImage
@@ -418,7 +452,7 @@ const RoomEdit: React.FC = () => {
                 Only support .jpg, .png and .svg and zip files
               </label>
             </div>
-            <div className="flex flex-col flex-grow-0 w-2/5 gap-6">
+            <div className="flex flex-col flex-grow-0 w-full lg:w-2/5 gap-6">
               <FormControl size="small" variant="standard" fullWidth>
                 <InputLabel id="select-label" size="small">
                   ประเภทห้อง
@@ -500,7 +534,7 @@ const RoomEdit: React.FC = () => {
                     ช่วงเวลาที่ห้องเปิดให้สามารถจองได้
                   </div>
                 </FormLabel>
-                <div className="flex flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <DesktopTimePicker
                     defaultValue={dayjs().set("hour", 0).set("minute", 0)}
                     label="Start time"
@@ -526,7 +560,7 @@ const RoomEdit: React.FC = () => {
                     value={dayjs(formData.close_time, "HH:mm")}
                   />
                 </div>
-                <div className="flex flex-row items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-center gap-4">
                   <TextField
                     defaultValue={0}
                     label="เวลาขั้นต่ำในการจองห้อง"
@@ -537,48 +571,52 @@ const RoomEdit: React.FC = () => {
                     error={!!errors.booking_interval_minutes}
                     helperText={errors.booking_interval_minutes}
                   />
-                  <div className="w-1/6">นาที</div>
+                  <div className="w-full sm:w-1/6">นาที</div>
                 </div>
               </LocalizationProvider>
-              <FormControlLabel
-                className="gap-2 text-red-500 bg-gray-50 rounded-full p-2"
-                control={
-                  <Switch
-                    checked={requireConfirmation}
-                    onChange={(e) => {
-                      setRequireConfirmation(e.target.checked);
-                      setFormData((prev) => ({
-                        ...prev,
-                        requires_confirmation: e.target.checked,
-                      }));
-                    }}
-                    color="error"
-                    size="small"
-                  />
-                }
-                label="ต้องขออนุมัติก่อนใช้งานห้อง"
-              />
               <FormControl>
                 <FormLabel>
                   <div className="text-sm">การอนุญาต (Authorizations)</div>
                 </FormLabel>
                 <FormGroup>
-                  {["STUDENT", "EMPLOYEE", "ADMIN"].map((role) => (
-                    <FormControlLabel
-                      key={role}
-                      control={
-                        <Checkbox
-                          checked={formAuthorizations.some(
-                            (auth) => auth.role === role && auth.is_allowed
-                          )}
-                          onChange={(e) =>
-                            handleAuthorizationChange(e, role as Role)
+                  {systemRoles.map((role) => {
+                    const isChecked =
+                      formAuthorizations.find(
+                        (auth) => auth.role_id === role.id
+                      ) !== undefined;
+                    return (
+                      <div key={role.id} className="flex items-center gap-2">
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={isChecked}
+                              onChange={(e) =>
+                                role.id !== undefined &&
+                                handleCreateAuthorizationChange(
+                                  role.id,
+                                  e.target.checked
+                                )
+                              }
+                            />
                           }
+                          label={role.role}
                         />
-                      }
-                      label={role}
-                    />
-                  ))}
+                        <Switch
+                          checked={
+                            formAuthorizations.find(
+                              (auth) => auth.role_id === role.id
+                            )?.requires_confirmation === true
+                          }
+                          onChange={(e) =>
+                            role.id !== undefined &&
+                            handleAuthorizationChange(role.id, e.target.checked)
+                          }
+                          color="primary"
+                          disabled={!isChecked}
+                        />
+                      </div>
+                    );
+                  })}
                 </FormGroup>
               </FormControl>
             </div>

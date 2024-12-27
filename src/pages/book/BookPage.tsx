@@ -8,6 +8,9 @@ import { RoomServiceDTO } from "../../types/room_service";
 import { GetAllRoomServices } from "../../common/apis/room_service/queries";
 import { RoomAuthorizationModel } from "../../types/room_authorization";
 import { GetAllRoomAuthorizations } from "../../common/apis/room_authorization/queries";
+import { SystemAccountRole } from "../../types/sys_account_role";
+import { GetSystemAccountRoleByAccountID } from "../../common/apis/system/system_account_role/queries";
+import useAccountContext from "../../common/contexts/AccountContext";
 
 const BookPage: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -16,6 +19,9 @@ const BookPage: React.FC = () => {
     RoomAuthorizationModel[]
   >([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [systemAccountRole, setSystemAccountRole] =
+    useState<SystemAccountRole[]>();
+  const { accountData } = useAccountContext();
   const images = [
     "/imgs/Mockroom.png",
     "/imgs/Mockroom.png",
@@ -26,15 +32,33 @@ const BookPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    const fetchRooms = async () => {
+    const fetchData = async () => {
       try {
-        const roomResponse = await GetAllRooms();
+        const [
+          roomResponse,
+          roomServiceResponse,
+          roomAuthoritiesResponse,
+          systemAccountRoleResponse,
+        ] = await Promise.all([
+          GetAllRooms(),
+          GetAllRoomServices(),
+          GetAllRoomAuthorizations(),
+          accountData?.userData.cmuitaccount
+            ? GetSystemAccountRoleByAccountID(accountData.userData.cmuitaccount)
+            : Promise.resolve({ result: [] }),
+        ]);
+
         if (Array.isArray(roomResponse.result)) {
           setRooms(roomResponse.result);
         }
-        const roomServiceResponse = await GetAllRoomServices();
         if (Array.isArray(roomServiceResponse.result)) {
           setRoomServices(roomServiceResponse.result);
+        }
+        if (Array.isArray(roomAuthoritiesResponse.result)) {
+          setRoomAuthorities(roomAuthoritiesResponse.result);
+        }
+        if (Array.isArray(systemAccountRoleResponse.result)) {
+          setSystemAccountRole(systemAccountRoleResponse.result);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -42,20 +66,13 @@ const BookPage: React.FC = () => {
         setLoading(false);
       }
     };
-    const fetchRoomAuthorities = async () => {
-      try {
-        const response = await GetAllRoomAuthorizations();
-        if (Array.isArray(response.result)) {
-          setRoomAuthorities(response.result);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
 
-    fetchRoomAuthorities();
-    fetchRooms();
+    fetchData();
   }, []);
+
+  console.log("Rooms:", rooms);
+  console.log("Room Authorities:", roomAuthorities);
+  console.log("System Account Role:", systemAccountRole);
 
   return (
     <PageContainer>
@@ -96,6 +113,30 @@ const BookPage: React.FC = () => {
                 .map((service) => service.facility)
                 .flat();
 
+              // Filter room authorizations based on the room ID and requires_confirmation
+              const roomAuth = roomAuthorities.filter(
+                (auth) => auth.room_id === room.id
+              );
+
+              // Check if the user is authorized for the room
+              const isAuthorized = roomAuth.some((auth) =>
+                systemAccountRole?.some((role) => role.role_id === auth.role_id)
+              );
+
+              console.log("Room ID :", room.id);
+              console.log("Room Auth :", roomAuth);
+              console.log("isAuthorized :", isAuthorized);
+
+              // Check if the room requires confirmation
+              const requires_confirmation = roomAuth.some((auth) =>
+                systemAccountRole?.some(
+                  (role) =>
+                    role.role_id === auth.role_id && auth.requires_confirmation
+                )
+              );
+
+              console.log("Requires Confirmation :", requires_confirmation);
+
               return (
                 <Grid item xs={12} key={room.id}>
                   <RoomCard
@@ -105,18 +146,14 @@ const BookPage: React.FC = () => {
                     capacity={room.capacity}
                     services={services}
                     description={room.description || "No description provided."}
-                    requires_confirmation={room.requires_confirmation}
                     booking_interval_minutes={room.booking_interval_minutes}
                     open_time={room.open_time}
                     close_time={room.close_time}
                     activation={room.activation}
                     id={room.id}
                     images={images}
-                    role={roomAuthorities
-                      .filter(
-                        (auth) => auth.room_id === room.id && auth.is_allowed
-                      )
-                      .map((auth) => auth.role)}
+                    authorized={!!isAuthorized}
+                    requires_confirmation={requires_confirmation}
                   />
                 </Grid>
               );

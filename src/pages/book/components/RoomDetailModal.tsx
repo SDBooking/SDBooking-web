@@ -61,6 +61,7 @@ interface RoomDetailModalProps extends Room {
   services?: string[];
   images?: string[];
   isActive?: boolean;
+  requires_confirmation?: boolean;
 }
 
 const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
@@ -281,7 +282,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
     };
 
     try {
-      if (requires_confirmation) {
+      if (requires_confirmation && !accountData.isAdmin) {
         const createBookPendingResponse = await CreateBookPending(
           formattedFormData
         );
@@ -293,8 +294,8 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
         toast.success("Booking created successfully (Approved)");
       }
     } catch (error) {
-      console.error("Error creating booking", error);
-      toast.error("Error creating booking");
+      toast.error("เวลาที่ท่านเลือกถูกจองไปแล้ว กรุณาเลือกเวลาอื่น");
+      fetchBooks();
     }
     fetchBooks();
   };

@@ -13,7 +13,6 @@ import { validateLocalToken } from "./core/auth";
 import { ClientRouteKey } from "./common/constants/keys";
 import routes from "./core/routes";
 import PageLayout from "./common/components/layouts/PageLayout";
-import { useEffect } from "react";
 
 import FixedLayer from "./common/components/layers/FixLayer";
 import DebugPanel from "./debug/DebugPanel";

@@ -7,13 +7,13 @@ import {
 } from "@heroicons/react/24/solid";
 import RoomDetailModal from "./RoomDetailModal";
 import { Room } from "../../../types/room";
-import { Role } from "../../../types";
 import useAccountContext from "../../../common/contexts/AccountContext";
 
 interface RoomCardProps extends Room {
   services: string[];
   images: string[];
-  role: Role[];
+  authorized?: boolean;
+  requires_confirmation?: boolean;
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({
@@ -23,14 +23,14 @@ const RoomCard: React.FC<RoomCardProps> = ({
   location,
   capacity,
   description,
-  requires_confirmation,
   activation,
   services,
   open_time,
   close_time,
   booking_interval_minutes,
+  requires_confirmation,
   images,
-  role,
+  authorized,
 }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const { accountData } = useAccountContext();
@@ -41,12 +41,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
   return (
     <div
       className={`w-full max-w-3xl h-auto md:h-64 shadow-lg bg-white rounded-3xl relative flex flex-col md:flex-row p-4 gap-4 ${
-        (accountData?.userData.role &&
-          role.includes(accountData.userData.role) &&
-          activation) ||
-        accountData?.isAdmin
-          ? ""
-          : "opacity-50"
+        authorized || accountData?.isAdmin ? "" : "opacity-50"
       }`}
     >
       <img
@@ -96,17 +91,13 @@ const RoomCard: React.FC<RoomCardProps> = ({
           capacity={capacity}
           description={description || "ไม่ระบุ"}
           services={services}
-          requires_confirmation={requires_confirmation}
           activation={activation}
           open_time={open_time || "00:00"}
           close_time={close_time || "23:59"}
           booking_interval_minutes={booking_interval_minutes}
+          requires_confirmation={requires_confirmation}
           images={images}
-          isActive={
-            accountData?.userData.role
-              ? role.includes(accountData.userData.role)
-              : false
-          }
+          isActive={authorized || accountData?.isAdmin}
         />
       )}
     </div>

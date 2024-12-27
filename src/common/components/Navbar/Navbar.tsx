@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getLogout } from "../../apis/logout";
 import { ClientRouteKey, LocalStorageKey } from "../../constants/keys";
 import { ListBulletIcon, UserIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import { Divider } from "@mui/material";
+import { Divider, Box } from "@mui/material";
 
 interface NavbarProps {
   isMobile: boolean;
@@ -34,7 +34,8 @@ function Navbar({ isMobile }: NavbarProps) {
   }, [location.pathname]);
 
   const renderNavItem = (to: string, imgSrc: string, label?: string) => (
-    <li
+    <Box
+      component="li"
       className={`flex flex-row justify-start items-center text-center p-2 rounded-[24px] w-full my-2 ${
         activeRoute === to
           ? "text-[#f57c00] bg-gradient-to-r from-[#ffc163] via-[#fd7427] to-[#e54a5f] bg-clip-text text-transparent whitespace-nowrap"
@@ -53,7 +54,7 @@ function Navbar({ isMobile }: NavbarProps) {
           </p>
         )}
       </Link>
-    </li>
+    </Box>
   );
 
   const renderNavHeader = (to: string, imgSrc: string, label?: string) => (
@@ -165,7 +166,7 @@ function Navbar({ isMobile }: NavbarProps) {
           role="navigation"
           aria-label="Main Navigation"
         >
-          <ul className="flex flex-col items-center">
+          <ul className="flex flex-col items-center h-screen">
             <div
               className="absolute bg-[#FFF6EE] bg-gradient-to-t from-[#FFC895]/35 rounded-full pointer-events-none"
               style={{
@@ -213,7 +214,7 @@ function Navbar({ isMobile }: NavbarProps) {
                 "/imgs/usersetting.svg",
                 "จัดการผู้ใช้"
               )}
-            <li className="fixed bottom-0 mb-4 flex flex-col justify-center items-center text-center">
+            <li className="absolute bottom-4 flex flex-col justify-center items-center text-center z-20">
               <p className="flex flex-row px-4 p-2 m-4 bg-white text-maincolor rounded-[24px] text-sm gap-4 cursor-default">
                 <UserIcon className="size-4" />
                 {accountData?.userData?.firstname
