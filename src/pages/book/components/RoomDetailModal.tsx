@@ -336,7 +336,13 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   }
 
   return (
-    <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="lg">
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      fullWidth
+      maxWidth="lg"
+      fullScreen={window.innerWidth < 600}
+    >
       <DialogTitle className="text-center">
         {name}
         <div className="absolute right-4 top-3">
@@ -351,7 +357,11 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
           <div className="flex flex-col lg:flex-row p-4 lg:p-16 gap-4 lg:gap-8">
             <div className="w-full lg:w-2/3 text-center items-center justify-center">
               {images && images.length > 0 ? (
-                <ImageList variant="quilted" cols={3} gap={4}>
+                <ImageList
+                  variant="quilted"
+                  cols={window.innerWidth < 600 ? 1 : 3}
+                  gap={4}
+                >
                   {images.map((image, index) => (
                     <ImageListItem key={index}>
                       <img
@@ -401,27 +411,34 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
               </Typography>
 
               {services && (
-                <div className="bg-[#FAFAFA] flex flex-col w-full items-center p-2 rounded-2xl">
-                  <Typography component="div" variant="subtitle2">
-                    <div className="flex flex-row gap-4 px-2">
-                      <CheckCircleIcon className="w-6 h-6 text-maincolor bg-[#FFE7D0] rounded-full p-0.5" />
-                      สิ่งอำนวยความสะดวก (Room Service)
+                <Typography
+                  component="div"
+                  variant="body2"
+                  color="textSecondary"
+                >
+                  <div className="bg-[#FAFAFA] flex flex-row w-full items-start gap-4 p-2 rounded-2xl">
+                    <CheckCircleIcon className="w-6 h-6 text-maincolor bg-[#FFE7D0] rounded-full p-0.5" />
+
+                    <div className="flex flex-col">
+                      <div className="text-black">
+                        สิ่งอำนวยความสะดวก (Room Services)
+                      </div>
+                      <ul className="pl-4">
+                        {services.map((service, index) => (
+                          <li key={index}>
+                            <Typography
+                              component="div"
+                              variant="body2"
+                              className="text-maincolor"
+                            >
+                              {service}
+                            </Typography>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                  </Typography>
-                  <ul style={{ paddingLeft: 16 }}>
-                    {services.map((service, index) => (
-                      <li key={index}>
-                        <Typography
-                          component="div"
-                          variant="body2"
-                          className="text-maincolor"
-                        >
-                          {service}
-                        </Typography>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                  </div>
+                </Typography>
               )}
               <Typography component="div" variant="body2" color="textSecondary">
                 <div className="bg-[#FAFAFA] flex flex-row w-full items-center gap-4 p-2 rounded-2xl">
@@ -449,13 +466,16 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
               </>
             )}
           </div>
-          <div className="flex flex-col lg:flex-row  m-4 lg:m-10">
+          <div className="flex flex-col lg:flex-row lg:m-10">
             <div
               className={`flex w-full ${
                 isActive ? "lg:w-3/5" : "w-full"
-              } lg:p-0 justify-center items-center overflow-x-auto border-1`}
+              } lg:p-0 justify-center items-center`}
+              style={{ overflowX: "auto" }}
             >
-              <TimeCalendar bookings={books} />
+              <div className="w-full h-full">
+                <TimeCalendar bookings={books} />
+              </div>
             </div>
             {isActive && (
               <div className="flex w-full lg:w-2/5 justify-center items-baseline">

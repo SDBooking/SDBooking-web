@@ -1,0 +1,30 @@
+/* RoomDetailModal.css */
+@media (max-width: 600px) {
+  .MuiDialog-paper {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .MuiDialogTitle-root {
+    font-size: 1.25rem;
+  }
+
+  .MuiDialogContent-root {
+    padding: 8px;
+  }
+
+  .MuiDialogActions-root {
+    padding: 8px;
+  }
+
+  .MuiImageList-root {
+    grid-template-columns: repeat(1, 1fr) !important;
+  }
+
+  .MuiTypography-root {
+    font-size: 0.875rem;
+  }
+}

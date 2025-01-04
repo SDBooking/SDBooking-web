@@ -252,59 +252,88 @@ const HomePage: React.FC = () => {
           <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell>รหัสการจองห้อง</TableCell>
                 <TableCell>รายการจองของคุณ</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {sortedBooks.map((book) => (
                 <TableRow key={book.id}>
-                  <TableCell>{book.id}</TableCell>
                   <TableCell>
-                    <div className="flex flex-col">
-                      <span>
-                        <strong>ชื่อห้อง:</strong> {book.room_name}
-                      </span>
-                      <span>
-                        <strong>หัวข้อการจอง:</strong> {book.title}
-                      </span>
-                      <span>
-                        <strong>วัน:</strong>{" "}
-                        {dayjs(book.date).utc().format("YYYY-MM-DD")}
-                      </span>
-                      <span>
-                        <strong>เวลา:</strong>{" "}
-                        {`${dayjs(book.start_time)
-                          .utc()
-                          .format("HH:mm")} - ${dayjs(book.end_time)
-                          .utc()
-                          .format("HH:mm")}`}
-                      </span>
-                      <span
-                        style={{
-                          color:
-                            book.status === BookingStatusList[0]
-                              ? "#F3A51D"
-                              : book.status === BookingStatusList[1]
-                              ? "#5FA13F"
-                              : book.status === BookingStatusList[2]
-                              ? "#E54444"
-                              : colors.grey[500], // Default color for the fourth status
-                        }}
-                      >
-                        <strong>สถานะการจอง:</strong>{" "}
-                        {getStatusInThai(book.status)}
-                      </span>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleOpenDetailsDialog(book)}
-                        disabled={!book}
-                        className="mt-2"
-                      >
-                        Details
-                      </Button>
-                    </div>
+                    <table className="table-auto w-full">
+                      <tbody>
+                        <tr>
+                          <td className="border px-4 py-2">
+                            <strong>รหัสการจองห้อง</strong>
+                          </td>
+                          <td className="border px-4 py-2">{book.id}</td>
+                        </tr>
+                        <tr>
+                          <td className="border px-4 py-2">
+                            <strong>ชื่อห้อง</strong>
+                          </td>
+                          <td className="border px-4 py-2">{book.room_name}</td>
+                        </tr>
+                        <tr>
+                          <td className="border px-4 py-2">
+                            <strong>หัวข้อการจอง</strong>
+                          </td>
+                          <td className="border px-4 py-2">{book.title}</td>
+                        </tr>
+                        <tr>
+                          <td className="border px-4 py-2">
+                            <strong>วัน</strong>
+                          </td>
+                          <td className="border px-4 py-2">
+                            {dayjs(book.date).utc().format("YYYY-MM-DD")}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="border px-4 py-2">
+                            <strong>เวลา</strong>
+                          </td>
+                          <td className="border px-4 py-2">{`${dayjs(
+                            book.start_time
+                          )
+                            .utc()
+                            .format("HH:mm")} - ${dayjs(book.end_time)
+                            .utc()
+                            .format("HH:mm")}`}</td>
+                        </tr>
+                        <tr>
+                          <td className="border px-4 py-2">
+                            <strong>สถานะ</strong>
+                          </td>
+                          <td
+                            className="border px-4 py-2"
+                            style={{
+                              color:
+                                book.status === BookingStatusList[0]
+                                  ? "#F3A51D"
+                                  : book.status === BookingStatusList[1]
+                                  ? "#5FA13F"
+                                  : book.status === BookingStatusList[2]
+                                  ? "#E54444"
+                                  : colors.grey[500],
+                            }}
+                          >
+                            {getStatusInThai(book.status)}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="border px-4 py-2" colSpan={2}>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              onClick={() => handleOpenDetailsDialog(book)}
+                              disabled={!book}
+                              className="mt-2"
+                            >
+                              Details
+                            </Button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </TableCell>
                 </TableRow>
               ))}

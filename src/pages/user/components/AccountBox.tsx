@@ -329,18 +329,18 @@ const AccountBox: React.FC = () => {
 
       <div className="my-4" />
       <Typography variant="body1" gutterBottom className="p-2">
-        Manage System Roles
+        ระบบจัดการตำแหน่งของผู้ใช้สำหรับให้สิทธิ์การใช้งานห้อง (เพิ่ม/แก้ไข/ลบ)
       </Typography>
       <Box className="flex flex-col gap-4 mb-4">
         <TextField
-          label="New Role Name"
+          label="เพิ่มตำแหน่งใหม่"
           variant="outlined"
           value={newRoleName}
           onChange={(e) => setNewRoleName(e.target.value)}
           className="w-full"
         />
         <Button variant="contained" color="primary" onClick={handleCreateRole}>
-          Create Role
+          สร้างตำแหน่งใหม่
         </Button>
       </Box>
       {systemRoles && systemRoles.length > 0 ? (
@@ -383,7 +383,7 @@ const AccountBox: React.FC = () => {
                         role.role
                       )}
                     >
-                      Edit
+                      แก้ไขชื่อตำแหน่ง
                     </Button>
                   )}
                   {!["ADMIN", "STUDENT", "EMPLOYEE"].includes(role.role) && (
@@ -395,7 +395,7 @@ const AccountBox: React.FC = () => {
                       }
                       className="mt-2"
                     >
-                      Delete
+                      ลบตำแหน่ง
                     </Button>
                   )}
                 </Box>
@@ -405,12 +405,12 @@ const AccountBox: React.FC = () => {
         </Grid>
       ) : (
         <Paper elevation={3} className="p-4 mt-4">
-          <Typography>No roles found</Typography>
+          <Typography>ไม่มีตำแหน่งในระบบ</Typography>
         </Paper>
       )}
 
       <Dialog open={!!editRoleId} onClose={() => setEditRoleId(null)}>
-        <DialogTitle>Edit Role</DialogTitle>
+        <DialogTitle>แก้ไขตำแหน่ง</DialogTitle>
         <DialogContent>
           <TextField
             label="Role Name"

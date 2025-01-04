@@ -2,7 +2,7 @@
   width: 100% !important;
   justify-content: space-between !important;
   align-items: center !important;
-  padding: 10px !important; /* Adjust padding for more space */
+  padding: 10px !important;
   background-color: #fff !important;
 }
 
@@ -12,19 +12,21 @@
 }
 
 .fc-toolbar-title {
-  font-size: 1rem !important; /* Use relative units for font size */
+  font-size: 1rem !important;
   width: auto !important;
-  font-weight: bold !important; /* Make title bold */
-  padding: 0 10px !important; /* Adjust padding */
+  font-weight: bold !important;
+  padding: 0 10px !important;
   align-items: center;
   text-align: center;
 }
 
 .fc-button {
-  font-size: 1rem !important; /* Use relative units for font size */
+  font-size: 1rem !important;
   color: #000 !important;
   background-color: #f0f0f0 !important;
   border: #fff !important;
+  padding: 5px 10px !important; /* Add padding for better touch targets */
+  border-radius: 5px !important; /* Rounded corners for buttons */
 }
 
 .fc-today-button {
@@ -63,42 +65,53 @@
 }
 
 .fc-view-harness {
-  overflow: visible !important; /* Ensure full calendar detail is always visible */
+  overflow: visible !important;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .fc-toolbar-title {
-    font-size: 0.875rem !important; /* Smaller font size for smaller screens */
-    padding: 0 5px !important; /* Adjust padding */
+    font-size: 0.875rem !important;
+    padding: 0 5px !important;
   }
 
   .fc-button {
-    font-size: 0.875rem !important; /* Smaller font size for smaller screens */
+    font-size: 0.875rem !important;
+    padding: 5px 8px !important; /* Adjust padding for smaller screens */
   }
 
   .fc-header-toolbar {
-    flex-direction: column !important; /* Stack toolbar items vertically */
+    flex-direction: column !important;
     align-items: flex-start !important;
   }
 
   .fc-toolbar-chunk {
-    margin-bottom: 10px !important; /* Add spacing between toolbar chunks */
+    margin-bottom: 10px !important;
   }
 
   .fc-view-harness {
-    overflow: visible !important; /* Allow scrolling for calendar detail */
-    width: 100vw !important; /* Adjust width for smaller screens */
-    height: 50vh !important; /* Adjust height for smaller screens */
+    overflow-x: auto !important; /* Allow horizontal scrolling for calendar detail */
+    overflow-y: auto !important; /* Allow vertical scrolling for calendar detail */
+    width: 100vw !important;
+    height: 60vh !important; /* Adjust height for better visibility */
   }
 }
 
 @media (max-width: 480px) {
   .fc-toolbar-title {
-    font-size: 0.75rem !important; /* Even smaller font size for very small screens */
+    font-size: 0.75rem !important;
   }
 
   .fc-button {
-    font-size: 0.75rem !important; /* Even smaller font size for very small screens */
+    font-size: 0.75rem !important;
+    padding: 4px 6px !important; /* Adjust padding for very small screens */
+  }
+
+  .fc-header-toolbar {
+    padding: 5px !important; /* Reduce padding for very small screens */
+  }
+
+  .fc-view-harness {
+    height: 70vh !important; /* Further adjust height for very small screens */
   }
 }

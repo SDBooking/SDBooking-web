@@ -80,7 +80,7 @@ const BookingDetailsViewDialog: React.FC<BookingDetailsViewDialogProps> = ({
           <Grid container spacing={1}>
             <Grid item xs={12} sm={4}>
               <Typography variant="body1">
-                <strong>รหัสการจองห้อง</strong>
+                <strong>ID</strong>
               </Typography>
             </Grid>
             <Grid item xs={12} sm={8}>
