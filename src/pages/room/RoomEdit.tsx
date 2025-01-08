@@ -12,6 +12,11 @@ import {
   Select,
   SelectChangeEvent,
   Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
   TextField,
 } from "@mui/material";
 
@@ -48,6 +53,7 @@ import { GetAllRoomAuthorizations } from "../../common/apis/room_authorization/q
 
 import { SystemRole } from "../../types/sys_role";
 import { GetAllSystemRoles } from "../../common/apis/system/system_role/queries";
+import { roleNameMappingToTH } from "./scripts/roleNameMappingToTH";
 
 const RoomEdit: React.FC = () => {
   const [open, setOpen] = React.useState(true);
@@ -142,24 +148,27 @@ const RoomEdit: React.FC = () => {
       );
 
       if (roomsData.length > 0) {
-        const firstRoom = roomsData[0];
-        setSelectedRoomId(firstRoom.id);
+        const currentRoomId = selectedRoomId || roomsData[0].id;
+        const currentRoom =
+          roomsData.find((room) => room.id === currentRoomId) || roomsData[0];
+
+        setSelectedRoomId(currentRoom.id);
         setFormData({
-          id: firstRoom.id,
-          name: firstRoom.name,
-          type_id: firstRoom.type_id,
-          location_id: firstRoom.location_id,
-          capacity: firstRoom.capacity,
-          description: firstRoom.description,
-          activation: firstRoom.activation,
-          booking_interval_minutes: firstRoom.booking_interval_minutes,
-          open_time: firstRoom.open_time,
-          close_time: firstRoom.close_time,
+          id: currentRoom.id,
+          name: currentRoom.name,
+          type_id: currentRoom.type_id,
+          location_id: currentRoom.location_id,
+          capacity: currentRoom.capacity,
+          description: currentRoom.description,
+          activation: currentRoom.activation,
+          booking_interval_minutes: currentRoom.booking_interval_minutes,
+          open_time: currentRoom.open_time,
+          close_time: currentRoom.close_time,
         });
 
         const initialRoomServices = Array.isArray(roomServicesResponse.result)
           ? roomServicesResponse.result.filter(
-              (service: RoomServiceModel) => service.room_id === firstRoom.id
+              (service: RoomServiceModel) => service.room_id === currentRoom.id
             )
           : [];
         setFilteredRoomServices(initialRoomServices);
@@ -173,7 +182,7 @@ const RoomEdit: React.FC = () => {
           roomAuthoritiesResponse.result
         )
           ? roomAuthoritiesResponse.result.filter(
-              (auth: RoomAuthorizationModel) => auth.room_id === firstRoom.id
+              (auth: RoomAuthorizationModel) => auth.room_id === currentRoom.id
             )
           : [];
 
@@ -183,10 +192,6 @@ const RoomEdit: React.FC = () => {
       console.error("Failed to fetch data:", error);
     }
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   useEffect(() => {
     fetchData();
@@ -245,12 +250,10 @@ const RoomEdit: React.FC = () => {
 
         // Use roomId to link authorizations with the room
         for (const authorization of formAuthorizations) {
-          {
-            await SaveRoomAuthorization({
-              ...authorization,
-              room_id: selectedRoomId!,
-            });
-          }
+          await SaveRoomAuthorization({
+            ...authorization,
+            room_id: roomId,
+          });
         }
 
         toast.success("Room Updated successfully");
@@ -574,51 +577,58 @@ const RoomEdit: React.FC = () => {
                   <div className="w-full sm:w-1/6">นาที</div>
                 </div>
               </LocalizationProvider>
-              <FormControl>
-                <FormLabel>
-                  <div className="text-sm">การอนุญาต (Authorizations)</div>
-                </FormLabel>
-                <FormGroup>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>จองได้?</TableCell>
+                    <TableCell>ต้องอนุมัติ?</TableCell>
+                    <TableCell>ตำแหน่ง</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
                   {systemRoles.map((role) => {
                     const isChecked =
                       formAuthorizations.find(
                         (auth) => auth.role_id === role.id
                       ) !== undefined;
                     return (
-                      <div key={role.id} className="flex items-center gap-2">
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={isChecked}
-                              onChange={(e) =>
-                                role.id !== undefined &&
-                                handleCreateAuthorizationChange(
-                                  role.id,
-                                  e.target.checked
-                                )
-                              }
-                            />
-                          }
-                          label={role.role}
-                        />
-                        <Switch
-                          checked={
-                            formAuthorizations.find(
-                              (auth) => auth.role_id === role.id
-                            )?.requires_confirmation === true
-                          }
-                          onChange={(e) =>
-                            role.id !== undefined &&
-                            handleAuthorizationChange(role.id, e.target.checked)
-                          }
-                          color="primary"
-                          disabled={!isChecked}
-                        />
-                      </div>
+                      <TableRow key={role.id}>
+                        <TableCell>
+                          <Checkbox
+                            checked={isChecked}
+                            onChange={(e) =>
+                              role.id !== undefined &&
+                              handleCreateAuthorizationChange(
+                                role.id,
+                                e.target.checked
+                              )
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={
+                              formAuthorizations.find(
+                                (auth) => auth.role_id === role.id
+                              )?.requires_confirmation === true
+                            }
+                            onChange={(e) =>
+                              role.id !== undefined &&
+                              handleAuthorizationChange(
+                                role.id,
+                                e.target.checked
+                              )
+                            }
+                            color="primary"
+                            disabled={!isChecked}
+                          />
+                        </TableCell>
+                        <TableCell>{roleNameMappingToTH(role.role)}</TableCell>
+                      </TableRow>
                     );
                   })}
-                </FormGroup>
-              </FormControl>
+                </TableBody>
+              </Table>
             </div>
           </div>
           <button

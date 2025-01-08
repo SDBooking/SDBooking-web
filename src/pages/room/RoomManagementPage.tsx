@@ -30,6 +30,27 @@ const RoomManagementPage: React.FC = () => {
     "/imgs/Mockroom.png",
   ];
 
+  const room1_images = [
+    "/imgs/room/1/1.jpg",
+    "/imgs/room/1/2.jpg",
+    "/imgs/room/1/3.jpg",
+    "/imgs/room/1/4.jpg",
+    "/imgs/room/1/5.jpg",
+    "/imgs/room/1/6.jpg",
+  ];
+
+  const room2_images = [
+    "/imgs/room/2/1.jpg",
+    "/imgs/room/2/2.jpg",
+    "/imgs/room/2/3.jpg",
+    "/imgs/room/2/4.jpg",
+    "/imgs/room/2/5.jpg",
+    "/imgs/room/2/6.jpg",
+    "/imgs/room/2/7.jpg",
+    "/imgs/room/2/8.jpg",
+    "/imgs/room/2/9.jpg",
+  ];
+
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -121,7 +142,13 @@ const RoomManagementPage: React.FC = () => {
                   close_time={room.close_time}
                   activation={room.activation}
                   id={room.id}
-                  images={images}
+                  images={
+                    room.name === "ห้องประชุมสโมสรนักศึกษา"
+                      ? room1_images
+                      : room.name === "ห้องประชุมงานพัฒนาคุณภาพนักศึกษา"
+                      ? room2_images
+                      : images
+                  }
                 />
               </div>
             );

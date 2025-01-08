@@ -46,7 +46,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
     >
       <img
         className="w-full md:w-1/3 h-56 md:h-56 bg-gray-300 rounded-xl bg-cover bg-center"
-        src="/imgs/Mockroom.png"
+        src={images[0]}
         alt="Room"
       />
       <div className="flex flex-col items-start gap-2 w-full md:w-2/3 px-4">

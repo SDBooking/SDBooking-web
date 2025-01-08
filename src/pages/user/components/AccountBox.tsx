@@ -30,6 +30,7 @@ import {
   DeleteSystemRole,
 } from "../../../common/apis/system/system_role/manipulates";
 import toast from "react-hot-toast";
+import { roleNameMappingToTH } from "../../room/scripts/roleNameMappingToTH";
 
 const AccountBox: React.FC = () => {
   const [accountData, setAccountData] = useState<User[] | null>(null);
@@ -244,7 +245,7 @@ const AccountBox: React.FC = () => {
         Object.keys(accountsByRole).map((role) => (
           <div key={role}>
             <Typography variant="h6" gutterBottom className="p-2">
-              {role}
+              {roleNameMappingToTH(role)}
             </Typography>
             <Grid container spacing={2}>
               {accountsByRole[role]
@@ -301,7 +302,7 @@ const AccountBox: React.FC = () => {
                                     marginRight: "4px",
                                   }}
                                 >
-                                  {roleName}
+                                  {roleName && roleNameMappingToTH(roleName)}
                                 </Box>
                               );
                             }) || "No roles assigned"}
@@ -353,7 +354,7 @@ const AccountBox: React.FC = () => {
                     variant="body2"
                     className="font-semibold text-center"
                   >
-                    {role.role}{" "}
+                    {roleNameMappingToTH(role.role)}{" "}
                     {["ADMIN", "STUDENT", "EMPLOYEE"].includes(role.role) && (
                       <Box
                         component="span"
@@ -431,7 +432,7 @@ const AccountBox: React.FC = () => {
       </Dialog>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-        <DialogTitle>Manage Account Roles</DialogTitle>
+        <DialogTitle>จัดการตำแหน่งของผู้ใช้</DialogTitle>
         <DialogContent>
           {systemRoles && systemRoles.length > 0 ? (
             <FormGroup>
@@ -448,7 +449,7 @@ const AccountBox: React.FC = () => {
                       )}
                     />
                   }
-                  label={role.role}
+                  label={roleNameMappingToTH(role.role)}
                 />
               ))}
             </FormGroup>
