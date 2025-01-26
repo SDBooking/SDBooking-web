@@ -3,12 +3,15 @@
   justify-content: space-between !important;
   align-items: center !important;
   padding: 10px !important;
-  background-color: #fff !important;
+  background-color: white !important;
 }
 
-.fc-toolbar-chunk {
+.fc-toolbar-chunk:last-child {
   display: flex;
   align-items: center;
+  background-color: #f0f0f0;
+  padding: 4px;
+  border-radius: 24px;
 }
 
 .fc-toolbar-title {
@@ -20,80 +23,209 @@
   text-align: center;
 }
 
+.fc-event {
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 5px 10px !important;
+  font-size: 14px !important;
+  cursor: pointer;
+  white-space: inherit !important; /* Allow text to wrap */
+  overflow: visible !important; /* Ensure overflow is visible */
+  font-weight: 400 !important;
+}
+
+.fc-event .fc-event-title {
+  font-weight: 400 !important;
+}
+
+.fc-event:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease-in-out;
+}
+
 .fc-button {
   font-size: 1rem !important;
-  color: #000 !important;
+  color: black !important;
   background-color: #f0f0f0 !important;
-  border: #fff !important;
-  padding: 5px 10px !important; /* Add padding for better touch targets */
-  border-radius: 5px !important; /* Rounded corners for buttons */
+  border: white !important;
+  padding: 4px 12px !important; /* Add padding for better touch targets */
+  border-radius: 24px !important; /* Rounded corners for buttons */
 }
 
 .fc-today-button {
-  background-image: linear-gradient(
-    90deg,
-    #ffc163 0%,
-    #fd7427 42.5%,
-    #e54a5f 100%
-  ) !important;
-  color: #fff !important;
+  background-color: white !important; /* Updated background color */
+  color: #fd7427 !important; /* Ensure text color is readable */
 }
 
 .fc-today-button:active {
-  background-image: linear-gradient(
-    90deg,
-    #fd7427 0%,
-    #e54a5f 42.5%,
-    #ffc163 100%
-  ) !important;
-  color: #fff !important;
-}
-
-.fc-today-button:disabled {
-  background-image: linear-gradient(
-    90deg,
-    #d3d3d3 0%,
-    #a9a9a9 42.5%,
-    #808080 100%
-  ) !important;
-  color: #ccc !important;
+  background-color: var(
+    --fc-button-active-bg-color
+  ) !important; /* Keep the same color when active */
+  color: var(--fc-button-text-color) !important;
 }
 
 .fc-button-active {
-  background-color: #fd7427 !important;
-  color: #fff !important;
+  background-color: white !important;
+  color: #fd7427 !important;
 }
 
-.fc-view-harness {
-  overflow: visible !important;
+.fc-col-header-cell {
+  background-color: white;
+  color: #fd7427;
+  font-weight: 500;
+  font-size: 15px;
+  text-transform: uppercase;
+  border: none;
+  border-bottom: 2px solid white;
+}
+
+.fc .fc-scrollgrid {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+.fc-col-header-cell:first-child {
+  border-left: 2px solid white;
+}
+
+.fc-col-header-cell:last-child {
+  border-right: 2px solid white;
+}
+
+.fc-timegrid .fc-col-header-cell.fc-day-today {
+  position: relative;
+  color: white !important;
+  font-weight: 500;
+  text-align: center;
+  z-index: 1;
+}
+
+.fc-timegrid .fc-col-header-cell.fc-day-today::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #fd7427;
+  z-index: -1;
+  border-radius: 10px;
+}
+
+.fc-timegrid .fc-scrollgrid-section-header {
+  background-color: white;
+  color: #fd7427;
+  text-align: center;
+  font-weight: bold;
+  border: none;
+}
+
+.fc-timegrid-slot-minor {
+  border-top: none !important;
+}
+
+.fc-timegrid-slot-label {
+  font-size: 12px;
+  color: rgb(165, 160, 160);
+  text-align: right;
+  padding-right: 5px;
+}
+
+.fc-daygrid-day.fc-day-today {
+  background-color: whitesmoke !important;
+}
+
+.fc-timegrid-col.fc-day-today {
+  background-color: whitesmoke !important;
+}
+
+.fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+  background-color: #fd7427;
+  color: white;
+  border-radius: 8px;
+  padding: 1px 2px;
+  display: inline-block;
+  min-width: 24px;
+  height: 23px;
+  text-align: center;
+  line-height: 20px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.fc-timegrid-axis-cushion {
+  font-size: 12px;
+  font-weight: normal;
+  color: #fd7427;
+  text-align: left;
+  padding: 5px;
+}
+
+.left-side {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 15px;
+  background-color: #f9f9fb;
+}
+
+@media (max-width: 768px) {
+  .left-side {
+    max-height: 60vh;
+  }
+}
+
+.fc .fc-scrollgrid {
+  border-left: none !important;
+  border-right: none !important;
+}
+
+.fc-timegrid-now-indicator-container {
+  position: relative;
+}
+
+.fc-timegrid-now-indicator-line {
+  height: 8px !important;
+  z-index: 1;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .fc-toolbar-title {
-    font-size: 0.875rem !important;
-    padding: 0 5px !important;
-  }
-
-  .fc-button {
-    font-size: 0.875rem !important;
-    padding: 5px 8px !important; /* Adjust padding for smaller screens */
-  }
-
   .fc-header-toolbar {
+    align-items: center !important;
     flex-direction: column !important;
-    align-items: flex-start !important;
   }
 
   .fc-toolbar-chunk {
     margin-bottom: 10px !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .fc-toolbar-title {
+    font-size: 1rem !important;
+    text-align: center !important;
+  }
+
+  .fc-button {
+    font-size: 0.875rem !important;
+    padding: 6px 10px !important;
   }
 
   .fc-view-harness {
     overflow-x: auto !important; /* Allow horizontal scrolling for calendar detail */
     overflow-y: auto !important; /* Allow vertical scrolling for calendar detail */
-    width: 100vw !important;
-    height: 60vh !important; /* Adjust height for better visibility */
+    width: 100% !important;
+    height: 75vh !important; /* Adjust height for better visibility */
+  }
+
+  .fc-event {
+    font-size: 12px !important;
+    padding: 4px 8px !important;
   }
 }
 
@@ -113,5 +245,10 @@
 
   .fc-view-harness {
     height: 70vh !important; /* Further adjust height for very small screens */
+  }
+
+  .fc-event {
+    font-size: 10px !important;
+    padding: 3px 6px !important;
   }
 }

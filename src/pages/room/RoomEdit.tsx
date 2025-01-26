@@ -54,8 +54,10 @@ import { GetAllRoomAuthorizations } from "../../common/apis/room_authorization/q
 import { SystemRole } from "../../types/sys_role";
 import { GetAllSystemRoles } from "../../common/apis/system/system_role/queries";
 import { roleNameMappingToTH } from "./scripts/roleNameMappingToTH";
+import { useParams } from "react-router-dom";
 
 const RoomEdit: React.FC = () => {
+  const { roomId } = useParams<{ roomId: string }>();
   const [open, setOpen] = React.useState(true);
   const [rooms, setRooms] = useState<RoomModelUpdate[]>([]);
   const [roomTypes, setRoomTypes] = useState<RoomTypeDTO[]>([]);
@@ -148,9 +150,9 @@ const RoomEdit: React.FC = () => {
       );
 
       if (roomsData.length > 0) {
-        const currentRoomId = selectedRoomId || roomsData[0].id;
+        const currentRoomId = selectedRoomId || Number(roomId);
         const currentRoom =
-          roomsData.find((room) => room.id === currentRoomId) || roomsData[0];
+          roomsData.find((room) => room.id === currentRoomId) || Number(roomId);
 
         setSelectedRoomId(currentRoom.id);
         setFormData({
@@ -195,7 +197,7 @@ const RoomEdit: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [roomId]);
 
   const handleClose = () => {
     setOpen(false);

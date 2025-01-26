@@ -48,7 +48,7 @@ function App() {
         setAccountData(data);
       } else {
         if (location.pathname !== ClientRouteKey.OAuth) {
-          navigate(ClientRouteKey.Login, { replace: true });
+          navigate(ClientRouteKey.Landing, { replace: true });
         }
       }
     },
@@ -77,14 +77,18 @@ function App() {
                   path={path}
                   element={
                     <PageLayout>
-                      <Component />
+                      {Component ? (
+                        <Component />
+                      ) : (
+                        <Navigate to={ClientRouteKey.Landing} replace={true} />
+                      )}
                     </PageLayout>
                   }
                 />
               ))}
             </Routes>
           ) : (
-            <Navigate to={ClientRouteKey.Login} replace={true} />
+            <Navigate to={ClientRouteKey.Landing} replace={true} />
           )}
         </ReactFlowProvider>
       </ThemeProvider>

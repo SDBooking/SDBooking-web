@@ -2,8 +2,8 @@ import { ClientRouteKey, AuthKey } from "../common/constants/keys";
 import withAuth from "../common/hoc/withAuth";
 import BookPage from "../pages/book/BookPage";
 import CalendarPage from "../pages/calendar/CalendarPage";
-import HistoryPage from "../pages/history/HistoryPage";
 import HomePage from "../pages/home/HomePage";
+import LandingPage from "../pages/landing/LandingPage";
 import LoginPage from "../pages/login/LoginPage";
 import OAuthPage from "../pages/oauth/OAuthPage";
 import RoomEdit from "../pages/room/RoomEdit";
@@ -14,12 +14,13 @@ import UserSettingPage from "../pages/user/UserSettingPage";
 
 type Route = {
   path: string;
-  component: React.ComponentType;
+  component?: React.ComponentType;
 };
+
 const routes: Route[] = [
   {
     path: ClientRouteKey.Home,
-    component: withAuth(AuthKey.Both)(HomePage),
+    component: withAuth(AuthKey.Both)(CalendarPage),
   },
   {
     path: ClientRouteKey.Book,
@@ -31,7 +32,7 @@ const routes: Route[] = [
   },
   {
     path: ClientRouteKey.History,
-    component: withAuth(AuthKey.Both)(HistoryPage),
+    component: withAuth(AuthKey.Both)(HomePage),
   },
   {
     path: ClientRouteKey.Setting,
@@ -46,7 +47,7 @@ const routes: Route[] = [
     component: withAuth(AuthKey.AdminAuth)(RoomManipulatePage),
   },
   {
-    path: ClientRouteKey.RoomUpdate,
+    path: `${ClientRouteKey.RoomUpdate}/:roomId`,
     component: withAuth(AuthKey.AdminAuth)(RoomEdit),
   },
   {
@@ -56,6 +57,10 @@ const routes: Route[] = [
   {
     path: ClientRouteKey.Login,
     component: LoginPage,
+  },
+  {
+    path: ClientRouteKey.Landing,
+    component: LandingPage,
   },
   {
     path: ClientRouteKey.OAuth,

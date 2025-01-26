@@ -1,0 +1,16 @@
+.slide-in-left {
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: opacity 1s ease-out, transform 1s ease-out;
+}
+
+.slide-in-right {
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 1s ease-out, transform 1s ease-out;
+}
+
+.animate {
+  opacity: 1;
+  transform: translateX(0);
+}

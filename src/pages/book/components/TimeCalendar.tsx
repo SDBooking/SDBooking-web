@@ -16,6 +16,7 @@ import { Booking, BookingStatusList } from "../../../types/booking";
 import { colors } from "@mui/material";
 import "./TimeCalendar.css";
 import BookingDetailsViewDialog from "../../calendar/components/BookingDetailViewDialog";
+import { getColorForRoom } from "../../calendar/scripts/RandomColor";
 
 dayjs.extend(utc);
 
@@ -59,6 +60,7 @@ const TimeCalendar: React.FC<TimeCalendarProps> = ({ bookings }) => {
             : book.status === BookingStatusList[3]
             ? colors.grey[500]
             : colors.yellow[800],
+        className: getColorForRoom(book.room_id),
       }));
 
       const calendar = new Calendar(calendarRef.current, {

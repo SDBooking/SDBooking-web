@@ -15,18 +15,13 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Checkbox,
   FormControlLabel,
   FormGroup,
   FormLabel,
-  SelectChangeEvent,
-  colors,
   Typography,
   Collapse,
-  IconButton,
+  colors,
 } from "@mui/material";
 import useAccountContext from "../../common/contexts/AccountContext";
 import { Room } from "../../types/room";
@@ -42,6 +37,12 @@ import {
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import { getStatusInThai } from "../home/scripts/StatusMapping";
+import {
+  getColorForRoom,
+  getContrastColorForRoom,
+  getPureColorForRoom,
+  getPureContrastColorForRoom,
+} from "./scripts/RandomColor";
 
 dayjs.extend(utc);
 
@@ -53,10 +54,10 @@ const CalendarPage: React.FC = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isMyBooking, setIsMyBooking] = useState<boolean>(false);
-  const [selectedRoom, setSelectedRoom] = useState<string | "">("");
+  const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const { accountData } = useAccountContext();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, _] = useState(true);
 
   const fetchData = async () => {
     const fetchBooks = async () => {
@@ -165,8 +166,13 @@ const CalendarPage: React.FC = () => {
     setModalOpen(true);
   };
 
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
+  // const toggleCollapse = () => {
+  //   setIsCollapsed(!isCollapsed);
+  // };
+
+  const getRoomOrder = (roomId: number): number | null => {
+    const roomIndex = rooms.findIndex((room) => room.id === roomId);
+    return roomIndex !== -1 ? roomIndex + 1 : null;
   };
 
   useEffect(() => {
@@ -178,7 +184,10 @@ const CalendarPage: React.FC = () => {
         ) {
           return false;
         }
-        if (selectedRoom && book.room_id.toString() !== selectedRoom) {
+        if (
+          selectedRooms.length > 0 &&
+          !selectedRooms.includes(book.room_id.toString())
+        ) {
           return false;
         }
         if (
@@ -191,7 +200,7 @@ const CalendarPage: React.FC = () => {
       });
 
       const events = filteredBooks.map((book) => ({
-        title: book.room_name + " - " + book.account_name + " - " + book.title,
+        title: book.room_name,
         start: dayjs(book.start_time).utc().format(),
         end: dayjs(book.end_time).utc().format(),
         extendedProps: { booking: book },
@@ -203,22 +212,31 @@ const CalendarPage: React.FC = () => {
             : book.status === BookingStatusList[3]
             ? colors.grey[500]
             : colors.yellow[800],
+        classNames: [
+          getColorForRoom(getRoomOrder(book.room_id) ?? 0),
+          getContrastColorForRoom(book.room_id),
+        ],
       }));
+
+      const initialView = window.innerWidth < 768 ? "listWeek" : "dayGridMonth";
+      const initialToolbar = "dayGridMonth,timeGridWeek,timeGridDay,listWeek";
 
       const calendar = new Calendar(calendarRef.current, {
         plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
         headerToolbar: {
           left: "prev,next today",
           center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+          right: initialToolbar,
         },
         timeZone: "Thailand/Bangkok",
         locale: "th",
         navLinks: true, // can click day/week names to navigate views
         editable: false,
-        dayMaxEvents: 5, // allow "more" link when too many events
+        dayMaxEvents: 3, // allow "more" link when too many events
         events,
+        initialView: initialView,
         eventClick: handleEventClick,
+        eventClassNames: (arg) => [arg.event.extendedProps.customClassName], // Apply custom class names
         eventTimeFormat: {
           hour: "2-digit",
           minute: "2-digit",
@@ -240,7 +258,7 @@ const CalendarPage: React.FC = () => {
       });
       calendar.render();
     }
-  }, [books, isMyBooking, selectedRoom, selectedStatuses]);
+  }, [books, isMyBooking, selectedRooms, selectedStatuses]);
 
   useEffect(() => {
     if (calendarRef.current) {
@@ -252,10 +270,6 @@ const CalendarPage: React.FC = () => {
   const handleCloseModal = () => {
     setModalOpen(false);
     setSelectedBooking(null);
-  };
-
-  const handleRoomChange = (event: SelectChangeEvent<string>) => {
-    setSelectedRoom(event.target.value as string);
   };
 
   const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -273,13 +287,21 @@ const CalendarPage: React.FC = () => {
     setIsMyBooking(event.target.checked);
   };
 
+  const handleRoomSelection = (roomId: string) => {
+    setSelectedRooms((prev) =>
+      prev.includes(roomId)
+        ? prev.filter((id) => id !== roomId)
+        : [...prev, roomId]
+    );
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
     <PageContainer>
-      <div className="flex flex-col p-4 overflow-y-auto bg-white rounded-2xl">
+      <div className="flex flex-col p-4 overflow-y-autorounded-2xl">
         <div className="flex flex-row gap-2 mb-4">
           <img src="/imgs/calendar.svg" alt="Calendar" />
           <h1 className="text-maincolor text-xl">ปฎิทินการจองห้อง</h1>
@@ -288,39 +310,55 @@ const CalendarPage: React.FC = () => {
         <Typography variant="body1" color="textSecondary" mb={4}>
           ปฎิทินการจองห้องที่แสดงข้อมูลการจองของระบบทั้งหมด
         </Typography>
-        <div className="flex flex-col md:flex-row items-center gap-4 bg-white p-6 rounded-2xl">
-          <p className="text-base font-normal my-4 w-fit inline whitespace-nowrap px-2">
+        <div className="flex flex-col bg-white md:flex-col items-start gap-4 p-6 rounded-2xl my-6">
+          <p className="text-base font-normal w-fit inline whitespace-nowrap px-2">
             เลือกแสดง
           </p>
-          <FormControl variant="outlined" className="w-full md:w-1/3">
-            <InputLabel id="room-select-label">ห้องประชุม</InputLabel>
-            <Select
-              labelId="room-select-label"
-              value={selectedRoom}
-              onChange={handleRoomChange}
-              label="ห้องประชุม"
+          <div className="flex flex-row gap-4">
+            {rooms.map((room) => (
+              <div
+                key={room.id}
+                className={`flex items-center gap-2 py-1 px-4 rounded cursor-pointer ${
+                  selectedRooms.includes(room.id.toString()) ? "border-2" : ""
+                }`}
+                style={{
+                  backgroundColor: getPureColorForRoom(
+                    getRoomOrder(room.id) ?? 0
+                  ),
+                  borderColor: getPureContrastColorForRoom(
+                    getRoomOrder(room.id) ?? 0
+                  ),
+                }}
+                onClick={() => handleRoomSelection(room.id.toString())}
+              >
+                <div className="size-2 rounded-full bg-white" />
+                <span>{room.name}</span>
+              </div>
+            ))}
+
+            <div
+              className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
+                selectedRooms.length === 0 ? "border-2 border-black" : ""
+              }`}
+              onClick={() => setSelectedRooms([])}
             >
-              <MenuItem value="">
-                <em>ทุกห้อง</em>
-              </MenuItem>
-              {rooms.map((room) => (
-                <MenuItem key={room.id} value={room.id.toString()}>
-                  {room.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl
-            component="fieldset"
-            variant="outlined"
-            className="w-full md:w-1/2 items-center justify-center"
-          >
-            <FormLabel component="legend" className="text-center">
-              สถานะการจอง
-            </FormLabel>
-            <FormGroup row>
-              {BookingStatusList.filter((status) => status !== "REJECTED").map(
-                (status, index) => (
+              <div className="w-4 h-4 rounded-full bg-gray-300" />
+              <span>ทุกห้อง</span>
+            </div>
+          </div>
+          <div className="flex flex-row justify-between w-full">
+            <FormControl
+              component="fieldset"
+              variant="outlined"
+              className="w-full md:w-1/2 items-start justify-start"
+            >
+              <FormLabel component="legend" className="text-start">
+                สถานะการจอง
+              </FormLabel>
+              <FormGroup row>
+                {BookingStatusList.filter(
+                  (status) => status !== "REJECTED"
+                ).map((status, index) => (
                   <FormControlLabel
                     key={index}
                     control={
@@ -333,22 +371,23 @@ const CalendarPage: React.FC = () => {
                     }
                     label={getStatusInThai(status)}
                   />
-                )
-              )}
-            </FormGroup>
-          </FormControl>
-          <FormControlLabel
-            className="right-0 text-base font-normal my-4 w-fit inline whitespace-nowrap px-2 items-center justify-center"
-            control={
-              <Checkbox
-                checked={isMyBooking}
-                onChange={handleMyBookingChange}
-                color="primary"
-              />
-            }
-            label="การจองของฉัน"
-          />
+                ))}
+              </FormGroup>
+            </FormControl>
+            <FormControlLabel
+              className="right-0 text-base font-normal my-4 w-fit inline whitespace-nowrap px-2 items-center justify-center"
+              control={
+                <Checkbox
+                  checked={isMyBooking}
+                  onChange={handleMyBookingChange}
+                  color="primary"
+                />
+              }
+              label="การจองของฉัน"
+            />
+          </div>
         </div>
+
         {accountData?.isAdmin ? (
           <div className="flex flex-col md:flex-row h-screen bg-white rounded-2xl p-4 md:p-10">
             <div
@@ -358,7 +397,7 @@ const CalendarPage: React.FC = () => {
               }}
               className="rounded-b-2xl"
             />
-            <IconButton
+            {/* <IconButton
               onClick={toggleCollapse}
               color="info"
               className="absolute right-5 top-1/2 transform -translate-y-1/2 size-10 z-10"
@@ -369,7 +408,7 @@ const CalendarPage: React.FC = () => {
               }}
             >
               {isCollapsed ? "<" : ">"}
-            </IconButton>
+            </IconButton> */}
             <div
               className={`flex flex-col ${
                 isCollapsed ? "hidden" : "w-full md:w-2/5"

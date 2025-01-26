@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 import { ClientRouteKey } from "../../common/constants/keys";
 
 import BackPageContainer from "../../common/components/container/BackPageContainer";
-import RoomCard from "../book/components/RoomCard";
+import RoomCardEdit from "./components/RoomCardEdit";
 
 const RoomManagementPage: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -98,13 +98,15 @@ const RoomManagementPage: React.FC = () => {
           </Button>
           <Button
             component={Link}
-            to={ClientRouteKey.RoomUpdate}
+            to={ClientRouteKey.Setting}
             variant="contained"
             color="inherit"
           >
             <Cog8ToothIcon className="w-5 h-5 items-center justify-center md:mr-2" />
 
-            <div className="hidden md:inline-flex">แก้ไขข้อมูลห้อง</div>
+            <div className="hidden md:inline-flex">
+              ตั้งค่าการกรอกรายละเอียด
+            </div>
           </Button>
         </Box>
       </Box>
@@ -130,7 +132,8 @@ const RoomManagementPage: React.FC = () => {
 
             return (
               <div key={room.id}>
-                <RoomCard
+                <RoomCardEdit
+                  id={room.id}
                   name={room.name}
                   type={room.type}
                   location={room.location}
@@ -141,7 +144,6 @@ const RoomManagementPage: React.FC = () => {
                   open_time={room.open_time}
                   close_time={room.close_time}
                   activation={room.activation}
-                  id={room.id}
                   images={
                     room.name === "ห้องประชุมสโมสรนักศึกษา"
                       ? room1_images

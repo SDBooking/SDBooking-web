@@ -50,6 +50,7 @@ import {
 } from "../../../common/apis/booking/manipulates";
 import { GetBookByRoomId } from "../../../common/apis/booking/queries";
 import TimeCalendar from "./TimeCalendar";
+import FeedbackModal from "./FeedbackModal";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -116,6 +117,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [timeError, setTimeError] = useState<string>("");
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
+  const [openFeedbackModal, setOpenFeedbackModal] = useState(false);
 
   const fetchBooks = async () => {
     try {
@@ -316,6 +318,31 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   const handleConfirmBooking = () => {
     handleCreateBookSubmit();
     setOpenConfirmModal(false);
+    setOpenFeedbackModal(true); // Open the feedback modal
+    // Clear the form after booking
+    setFormData({
+      room_id: id,
+      account_id: accountData?.userData.cmuitaccount,
+      start_time: dayjs()
+        .tz("Asia/Bangkok")
+        .hour(parseInt(open_time as string, 10) || 0)
+        .minute(0)
+        .second(0)
+        .toDate(),
+      end_time: dayjs()
+        .tz("Asia/Bangkok")
+        .hour(parseInt(open_time as string, 10) || 0)
+        .minute(0)
+        .second(0)
+        .add(booking_interval_minutes || 10, "minute")
+        .toDate(),
+      date: dayjs().tz("Asia/Bangkok").toDate(),
+      title: "",
+      tel: "",
+      reason: "",
+      status: "APPROVED",
+      confirmed_by: "",
+    });
   };
 
   if (loading) {
@@ -596,6 +623,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
         onClose={handleCloseConfirmModal}
         fullWidth
         maxWidth="sm"
+        fullScreen={window.innerWidth < 600}
       >
         <DialogTitle
           className="flex text-center items-center justify-center"
@@ -716,6 +744,10 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
+      <FeedbackModal
+        open={openFeedbackModal}
+        onClose={() => setOpenFeedbackModal(false)}
+      />
     </Dialog>
   );
 };

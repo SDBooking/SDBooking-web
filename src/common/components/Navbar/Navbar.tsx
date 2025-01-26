@@ -59,10 +59,10 @@ function Navbar({ isMobile }: NavbarProps) {
 
   const renderNavHeader = (to: string, imgSrc: string, label?: string) => (
     <li className="flex flex-row justify-start items-start text-start mt-4">
-      <Link to={to} className="flex flex-row items-start justify-start">
+      <Link to={to} className="flex flex-row items-center justify-center">
         <img
           src={imgSrc}
-          className="transition-all duration-300 transform group hover:scale-125"
+          className="w-3/4 transition-all duration-300 transform group hover:scale-125"
         />
         {<p className="text-[14px] mt-2 text-black hidden md:block">{label}</p>}
       </Link>
@@ -119,11 +119,10 @@ function Navbar({ isMobile }: NavbarProps) {
                 <div className="my-4"></div>
                 <Divider className="w-full mx-auto my-4" />
                 <div className="my-4"></div>
-
                 {renderNavItem(
                   ClientRouteKey.Home,
-                  "/imgs/mailbox.svg",
-                  "รายการของคุณ"
+                  "/imgs/calendar.svg",
+                  "ปฎิทินการจองห้อง"
                 )}
                 {renderNavItem(
                   ClientRouteKey.Book,
@@ -131,16 +130,16 @@ function Navbar({ isMobile }: NavbarProps) {
                   "จองห้อง"
                 )}
                 {renderNavItem(
-                  ClientRouteKey.Calendar,
-                  "/imgs/calendar.svg",
-                  "ปฎิทินการจองห้อง"
+                  ClientRouteKey.History,
+                  "/imgs/mailbox.svg",
+                  "รายการของคุณ"
                 )}
-                {accountData?.isAdmin &&
+                {/* {accountData?.isAdmin &&
                   renderNavItem(
                     ClientRouteKey.Setting,
                     "/imgs/setting.svg",
                     "ตั้งค่าระบบ"
-                  )}
+                  )} */}
                 {accountData?.isAdmin &&
                   renderNavItem(
                     ClientRouteKey.RoomManagement,
@@ -219,8 +218,8 @@ function Navbar({ isMobile }: NavbarProps) {
             <div className="my-4"></div>
             {renderNavItem(
               ClientRouteKey.Home,
-              "/imgs/mailbox.svg",
-              "รายการของคุณ"
+              "/imgs/calendar.svg",
+              "ปฎิทินการจองห้อง"
             )}
             {renderNavItem(
               ClientRouteKey.Book,
@@ -228,16 +227,16 @@ function Navbar({ isMobile }: NavbarProps) {
               "จองห้อง"
             )}
             {renderNavItem(
-              ClientRouteKey.Calendar,
-              "/imgs/calendar.svg",
-              "ปฎิทินการจองห้อง"
+              ClientRouteKey.History,
+              "/imgs/mailbox.svg",
+              "รายการของคุณ"
             )}
-            {accountData?.isAdmin &&
+            {/* {accountData?.isAdmin &&
               renderNavItem(
                 ClientRouteKey.Setting,
                 "/imgs/setting.svg",
                 "ตั้งค่าระบบ"
-              )}
+              )} */}
             {accountData?.isAdmin &&
               renderNavItem(
                 ClientRouteKey.RoomManagement,
@@ -260,7 +259,7 @@ function Navbar({ isMobile }: NavbarProps) {
               "/imgs/report.svg",
               "รายงานปัญหา"
             )}
-            <li className="absolute bottom-4 flex flex-col justify-center items-center text-center z-20">
+            <li className="fixed bottom-4 flex flex-col justify-center items-center text-center z-20">
               <p className="flex flex-row px-4 p-2 m-4 bg-white text-maincolor rounded-[24px] text-sm gap-4 cursor-default">
                 <UserIcon className="size-4" />
                 {accountData?.userData?.firstname
