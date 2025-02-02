@@ -250,11 +250,26 @@ const AccountBox: React.FC = () => {
       .filter((role) => role) as string[];
 
     roles.forEach((role) => {
-      aggregatedAccounts[account.cmuitaccount].roles.add(
-        roleNameMappingToTH(role)
-      );
+      aggregatedAccounts[account.cmuitaccount].roles.add(role);
     });
   });
+
+  // Filter accounts based on search query and selected roles
+  const filteredAccounts = Object.values(aggregatedAccounts).filter(
+    (account) => {
+      const matchesSearchQuery = account.firstname
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesRoleFilter =
+        selectedRoleFilter.length === 0 ||
+        Array.from(account.roles).some((role) =>
+          selectedRoleFilter.includes(role)
+        );
+      return matchesSearchQuery && matchesRoleFilter;
+    }
+  );
+
+  console.log(aggregatedAccounts);
 
   return (
     <div className="min-w-full p-4">
@@ -318,61 +333,55 @@ const AccountBox: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Object.values(aggregatedAccounts)
-              .filter((account) =>
-                account.firstname
-                  .toLowerCase()
-                  .includes(searchQuery.toLowerCase())
-              )
-              .map((account, index) => (
-                <TableRow key={account.cmuitaccount || index}>
-                  <TableCell>
-                    <Typography
-                      variant="body2"
-                      className="font-semibold truncate"
-                      title={account.cmuitaccount}
-                    >
-                      {account.cmuitaccount}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      variant="body2"
-                      className="truncate"
-                      title={`${account.firstname} ${account.lastname}`}
-                    >
-                      {account.firstname} {account.lastname}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {new Date(account.updated_at).toLocaleDateString()}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    {account.roles.size > 0
-                      ? Array.from(account.roles).map((role, index) => (
-                          <Box
-                            key={index}
-                            component="span"
-                            className="bg-gray-200 rounded px-2 py-1 mr-1"
-                          >
-                            {role}
-                          </Box>
-                        ))
-                      : "No roles assigned"}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      color="success"
-                      onClick={() => handleOpenDialog(account.cmuitaccount)}
-                    >
-                      Edit
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+            {filteredAccounts.map((account, index) => (
+              <TableRow key={account.cmuitaccount || index}>
+                <TableCell>
+                  <Typography
+                    variant="body2"
+                    className="font-semibold truncate"
+                    title={account.cmuitaccount}
+                  >
+                    {account.cmuitaccount}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography
+                    variant="body2"
+                    className="truncate"
+                    title={`${account.firstname} ${account.lastname}`}
+                  >
+                    {account.firstname} {account.lastname}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {new Date(account.updated_at).toLocaleDateString()}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  {account.roles.size > 0
+                    ? Array.from(account.roles).map((role, index) => (
+                        <Box
+                          key={index}
+                          component="span"
+                          className="bg-gray-200 rounded px-2 py-1 mr-1"
+                        >
+                          {roleNameMappingToTH(role)}
+                        </Box>
+                      ))
+                    : "No roles assigned"}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={() => handleOpenDialog(account.cmuitaccount)}
+                  >
+                    Edit
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -389,78 +398,72 @@ const AccountBox: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Object.values(aggregatedAccounts)
-              .filter((account) =>
-                account.firstname
-                  .toLowerCase()
-                  .includes(searchQuery.toLowerCase())
-              )
-              .map((account, index) => (
-                <TableRow key={account.cmuitaccount || index}>
-                  <TableCell>
-                    <table className="table-auto w-full">
-                      <tbody>
-                        <tr>
-                          <td className="border px-4 py-2">
-                            <strong>Account</strong>
-                          </td>
-                          <td className="border px-4 py-2">
-                            {account.cmuitaccount}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="border px-4 py-2">
-                            <strong>ชื่อ-สกุล</strong>
-                          </td>
-                          <td className="border px-4 py-2">
-                            {account.firstname} {account.lastname}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="border px-4 py-2">
-                            <strong>อัพเดทล่าสุด</strong>
-                          </td>
-                          <td className="border px-4 py-2">
-                            {new Date(account.updated_at).toLocaleDateString()}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="border px-4 py-2">
-                            <strong>ตำแหน่งทั้งหมด</strong>
-                          </td>
-                          <td className="border px-4 py-2">
-                            {account.roles.size > 0
-                              ? Array.from(account.roles).map((role, index) => (
-                                  <Box
-                                    key={index}
-                                    component="span"
-                                    className="bg-gray-200 rounded px-2 py-1 mr-1"
-                                  >
-                                    {role}
-                                  </Box>
-                                ))
-                              : "No roles assigned"}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="border px-4 py-2" colSpan={2}>
-                            <Button
-                              variant="contained"
-                              color="success"
-                              onClick={() =>
-                                handleOpenDialog(account.cmuitaccount)
-                              }
-                              className="mt-2"
-                            >
-                              Edit
-                            </Button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </TableCell>
-                </TableRow>
-              ))}
+            {filteredAccounts.map((account, index) => (
+              <TableRow key={account.cmuitaccount || index}>
+                <TableCell>
+                  <table className="table-auto w-full">
+                    <tbody>
+                      <tr>
+                        <td className="border px-4 py-2">
+                          <strong>Account</strong>
+                        </td>
+                        <td className="border px-4 py-2">
+                          {account.cmuitaccount}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="border px-4 py-2">
+                          <strong>ชื่อ-สกุล</strong>
+                        </td>
+                        <td className="border px-4 py-2">
+                          {account.firstname} {account.lastname}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="border px-4 py-2">
+                          <strong>อัพเดทล่าสุด</strong>
+                        </td>
+                        <td className="border px-4 py-2">
+                          {new Date(account.updated_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="border px-4 py-2">
+                          <strong>ตำแหน่งทั้งหมด</strong>
+                        </td>
+                        <td className="border px-4 py-2">
+                          {account.roles.size > 0
+                            ? Array.from(account.roles).map((role, index) => (
+                                <Box
+                                  key={index}
+                                  component="span"
+                                  className="bg-gray-200 rounded px-2 py-1 mr-1"
+                                >
+                                  {role}
+                                </Box>
+                              ))
+                            : "No roles assigned"}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="border px-4 py-2" colSpan={2}>
+                          <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() =>
+                              handleOpenDialog(account.cmuitaccount)
+                            }
+                            className="mt-2"
+                          >
+                            Edit
+                          </Button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

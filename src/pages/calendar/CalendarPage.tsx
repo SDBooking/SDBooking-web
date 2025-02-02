@@ -214,7 +214,7 @@ const CalendarPage: React.FC = () => {
             : colors.yellow[800],
         classNames: [
           getColorForRoom(getRoomOrder(book.room_id) ?? 0),
-          getContrastColorForRoom(book.room_id),
+          getContrastColorForRoom(getRoomOrder(book.room_id) ?? 0),
         ],
       }));
 
@@ -224,7 +224,7 @@ const CalendarPage: React.FC = () => {
       const calendar = new Calendar(calendarRef.current, {
         plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
         headerToolbar: {
-          left: "prev,next today",
+          left: "prev,next,today",
           center: "title",
           right: initialToolbar,
         },
@@ -318,7 +318,7 @@ const CalendarPage: React.FC = () => {
             {rooms.map((room) => (
               <div
                 key={room.id}
-                className={`flex items-center gap-2 py-1 px-4 rounded cursor-pointer ${
+                className={`flex items-center rounded-[4px] px-6 cursor-pointer ${
                   selectedRooms.includes(room.id.toString()) ? "border-2" : ""
                 }`}
                 style={{
@@ -328,10 +328,12 @@ const CalendarPage: React.FC = () => {
                   borderColor: getPureContrastColorForRoom(
                     getRoomOrder(room.id) ?? 0
                   ),
+                  color: getPureContrastColorForRoom(
+                    getRoomOrder(room.id) ?? 0
+                  ),
                 }}
                 onClick={() => handleRoomSelection(room.id.toString())}
               >
-                <div className="size-2 rounded-full bg-white" />
                 <span>{room.name}</span>
               </div>
             ))}

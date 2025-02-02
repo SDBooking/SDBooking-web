@@ -6,6 +6,14 @@
   background-color: white !important;
 }
 
+.fc-toolbar-chunk:first-child {
+  display: flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  padding: 4px;
+  border-radius: 24px;
+}
+
 .fc-toolbar-chunk:last-child {
   display: flex;
   align-items: center;
@@ -24,9 +32,8 @@
 }
 
 .fc-event {
-  border: none !important;
-  border-radius: 10px !important;
   padding: 5px 10px !important;
+  border-radius: 4px !important;
   font-size: 14px !important;
   cursor: pointer;
   white-space: inherit !important; /* Allow text to wrap */
@@ -34,11 +41,12 @@
   font-weight: 400 !important;
 }
 
-.fc-event .fc-event-title {
+.fc-event-title {
   font-weight: 400 !important;
+  font-style: normal !important;
 }
 
-.fc-event:hover {
+.fc-event:not(.fc-list-event):hover {
   transform: scale(1.05);
   transition: transform 0.2s ease-in-out;
 }
@@ -50,6 +58,12 @@
   border: white !important;
   padding: 4px 12px !important; /* Add padding for better touch targets */
   border-radius: 24px !important; /* Rounded corners for buttons */
+  margin-right: 4px !important;
+  margin-left: 4px !important;
+}
+
+.fc-button:hover {
+  background-color: white !important; /* Keep the same color on hover */
 }
 
 .fc-today-button {
@@ -58,10 +72,8 @@
 }
 
 .fc-today-button:active {
-  background-color: var(
-    --fc-button-active-bg-color
-  ) !important; /* Keep the same color when active */
-  color: var(--fc-button-text-color) !important;
+  background-color: #fd7427 !important; /* Keep the same color when active */
+  color: white !important;
 }
 
 .fc-button-active {
@@ -251,4 +263,27 @@
     font-size: 10px !important;
     padding: 3px 6px !important;
   }
+}
+
+.fc-list-event:hover td {
+  background-color: inherit !important; /* Highlight row on hover */
+}
+
+.fc-list-event-dot {
+  display: inline-block !important;
+  box-sizing: content-box !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Reset <a> styling */
+.fc-list-event-title a {
+  color: inherit !important;
+  text-decoration: none !important;
+  font-weight: 400 !important;
+}
+
+/* Underline link when hovering over any part of row */
+.fc-list-event.fc-event-forced-url:hover a {
+  text-decoration: underline;
 }

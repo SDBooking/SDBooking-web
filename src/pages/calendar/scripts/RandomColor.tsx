@@ -38,16 +38,16 @@ const contrastColorsWithoutText = [
 ];
 
 const bgcolors = [
-  "bg-[#FFEBD9]",
-  "bg-[#FAE1E4]",
-  "bg-[#FFE4EF]",
-  "bg-[#FDE8FA]",
-  "bg-[#F0E7FD]",
-  "bg-[#FFFBDF]",
-  "bg-[#EFFFE7]",
-  "bg-[#D5F3F0]",
-  "bg-[#E5F7FF]",
-  "bg-[#EAECFF]",
+  "bg-[#FFEBD9] hover:bg-[#FFD9B3]",
+  "bg-[#FAE1E4] hover:bg-[#F5C3D1]",
+  "bg-[#FFE4EF] hover:bg-[#FFC9E0]",
+  "bg-[#FDE8FA] hover:bg-[#F9D1F5]",
+  "bg-[#F0E7FD] hover:bg-[#D9D1F5]",
+  "bg-[#FFFBDF] hover:bg-[#FFF6B3]",
+  "bg-[#EFFFE7] hover:bg-[#D9F5C3]",
+  "bg-[#D5F3F0] hover:bg-[#A7E8E1]",
+  "bg-[#E5F7FF] hover:bg-[#C5E8FD]",
+  "bg-[#EAECFF] hover:bg-[#D1D3F5]",
 ];
 
 export const getColorForRoom = (roomId: number) => {
