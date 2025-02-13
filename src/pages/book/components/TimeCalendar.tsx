@@ -16,7 +16,13 @@ import { Booking, BookingStatusList } from "../../../types/booking";
 import { colors } from "@mui/material";
 import "./TimeCalendar.css";
 import BookingDetailsViewDialog from "../../calendar/components/BookingDetailViewDialog";
-import { getColorForRoom } from "../../calendar/scripts/RandomColor";
+import {
+  getColorForRoom,
+  getContrastColorForRoom,
+  getPureContrastColorForRoom,
+} from "../../calendar/scripts/RandomColor";
+import { Room } from "../../../types/room";
+import { getRoomOrder } from "../../calendar/scripts/GetRoomOrder";
 
 dayjs.extend(utc);
 
@@ -38,17 +44,18 @@ window.mobilecheck = function () {
 
 interface TimeCalendarProps {
   bookings: Booking[];
+  rooms: Room[];
 }
 
-const TimeCalendar: React.FC<TimeCalendarProps> = ({ bookings }) => {
+const TimeCalendar: React.FC<TimeCalendarProps> = ({ bookings, rooms }) => {
   const calendarRef = useRef<HTMLDivElement>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (calendarRef.current) {
-      const events = bookings.map((book) => ({
-        title: book.room_name + " - " + book.title,
+      const eventsMain = bookings.map((book) => ({
+        title: book.account_name + " - " + book.title,
         start: dayjs(book.start_time).utc().format(),
         end: dayjs(book.end_time).utc().format(),
         extendedProps: { booking: book },
@@ -60,7 +67,32 @@ const TimeCalendar: React.FC<TimeCalendarProps> = ({ bookings }) => {
             : book.status === BookingStatusList[3]
             ? colors.grey[500]
             : colors.yellow[800],
-        className: getColorForRoom(book.room_id),
+        classNames: [
+          getColorForRoom(getRoomOrder(book.room_id, rooms) ?? 0),
+          getContrastColorForRoom(getRoomOrder(book.room_id, rooms) ?? 0),
+        ],
+      }));
+
+      const eventsWithoutColor = bookings.map((book) => ({
+        title: book.account_name + " - " + book.title,
+        start: dayjs(book.start_time).utc().format(),
+        end: dayjs(book.end_time).utc().format(),
+        extendedProps: { booking: book },
+        classNames: [
+          getColorForRoom(getRoomOrder(book.room_id, rooms) ?? 0),
+          "border-2",
+        ],
+        textColor: getPureContrastColorForRoom(
+          getRoomOrder(book.room_id, rooms) ?? 0
+        ), // Add this line to change text color
+        borderColor:
+          book.status === BookingStatusList[1]
+            ? colors.green[500]
+            : book.status === BookingStatusList[2]
+            ? colors.red[500]
+            : book.status === BookingStatusList[3]
+            ? colors.grey[500]
+            : colors.yellow[800], // Add this line to change border color
       }));
 
       const calendar = new Calendar(calendarRef.current, {
@@ -74,11 +106,25 @@ const TimeCalendar: React.FC<TimeCalendarProps> = ({ bookings }) => {
         locale: "th",
         navLinks: true, // can click day/week names to navigate views
         editable: false,
-        dayMaxEvents: true, // allow "more" link when too many events
-        events,
+        dayMaxEvents: 5, // allow "more" link when too many events
+        events: eventsMain,
         eventClick: (info) => {
           setSelectedBooking(info.event.extendedProps.booking);
           setModalOpen(true);
+        },
+        datesSet: (dateInfo) => {
+          const currentView = dateInfo.view.type;
+          calendar.setOption(
+            "events",
+            currentView === "dayGridMonth" || currentView === "listWeek"
+              ? eventsMain
+              : eventsWithoutColor
+          );
+        },
+        eventTimeFormat: {
+          hour: "2-digit",
+          minute: "2-digit",
+          meridiem: false,
         },
         windowResize: () => {
           calendar.updateSize();

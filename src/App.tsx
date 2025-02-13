@@ -1,4 +1,3 @@
-import { ReactFlowProvider } from "@xyflow/react";
 import { Toaster } from "react-hot-toast";
 import { useQuery } from "react-query";
 import {
@@ -68,29 +67,28 @@ function App() {
         <FixedLayer>
           <DebugPanel isDisplayed={false} routes={routes} />
         </FixedLayer>
-        <ReactFlowProvider>
-          {status === "loading" ? null : status === "success" ? (
-            <Routes>
-              {routes.map(({ path, component: Component }) => (
-                <Route
-                  key={path}
-                  path={path}
-                  element={
-                    <PageLayout>
-                      {Component ? (
-                        <Component />
-                      ) : (
-                        <Navigate to={ClientRouteKey.Landing} replace={true} />
-                      )}
-                    </PageLayout>
-                  }
-                />
-              ))}
-            </Routes>
-          ) : (
-            <Navigate to={ClientRouteKey.Landing} replace={true} />
-          )}
-        </ReactFlowProvider>
+
+        {status === "loading" ? null : status === "success" ? (
+          <Routes>
+            {routes.map(({ path, component: Component }) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <PageLayout>
+                    {Component ? (
+                      <Component />
+                    ) : (
+                      <Navigate to={ClientRouteKey.Landing} replace={true} />
+                    )}
+                  </PageLayout>
+                }
+              />
+            ))}
+          </Routes>
+        ) : (
+          <Navigate to={ClientRouteKey.Landing} replace={true} />
+        )}
       </ThemeProvider>
     </>
   );

@@ -51,6 +51,7 @@ import {
 import { GetBookByRoomId } from "../../../common/apis/booking/queries";
 import TimeCalendar from "./TimeCalendar";
 import FeedbackModal from "./FeedbackModal";
+import { GetAllRooms } from "../../../common/apis/room/queries";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -113,6 +114,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   });
 
   const [books, setBooks] = useState<Booking[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [timeError, setTimeError] = useState<string>("");
@@ -127,6 +129,10 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
           (book) => book.status !== BookingStatusList[3]
         );
         setBooks(filteredBooks);
+      }
+      const roomResponse = await GetAllRooms();
+      if (Array.isArray(roomResponse.result)) {
+        setRooms(roomResponse.result);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -363,13 +369,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
   }
 
   return (
-    <Dialog
-      open={isOpen}
-      onClose={onClose}
-      fullWidth
-      maxWidth="lg"
-      fullScreen={window.innerWidth < 600}
-    >
+    <Dialog open={isOpen} onClose={onClose} fullWidth fullScreen={true}>
       <DialogTitle className="text-center">
         {name}
         <div className="absolute right-4 top-3">
@@ -501,7 +501,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
               style={{ overflowX: "auto" }}
             >
               <div className="w-full h-full">
-                <TimeCalendar bookings={books} />
+                <TimeCalendar bookings={books} rooms={rooms} />
               </div>
             </div>
             {isActive && (

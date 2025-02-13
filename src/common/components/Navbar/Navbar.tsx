@@ -201,64 +201,64 @@ function Navbar({ isMobile }: NavbarProps) {
           role="navigation"
           aria-label="Main Navigation"
         >
-          <ul className="flex flex-col items-center h-screen">
-            <div
-              className="absolute bg-[#FFF6EE] bg-gradient-to-t from-[#FFC895]/35 rounded-full pointer-events-none"
-              style={{
-                width: "483px",
-                height: "483px",
-                left: "311px",
-                top: "850px",
-                transform: "translate(-100%, -20%)",
-              }}
-            ></div>
-            {renderNavHeader(ClientRouteKey.Home, "/imgs/icon.svg", "")}
-            <div className="my-4"></div>
-            <Divider className="w-full mx-auto my-4" />
-            <div className="my-4"></div>
-            {renderNavItem(
-              ClientRouteKey.Home,
-              "/imgs/calendar.svg",
-              "ปฎิทินการจองห้อง"
-            )}
-            {renderNavItem(
-              ClientRouteKey.Book,
-              "/imgs/bookmark.svg",
-              "จองห้อง"
-            )}
-            {renderNavItem(
-              ClientRouteKey.History,
-              "/imgs/mailbox.svg",
-              "รายการของคุณ"
-            )}
-            {/* {accountData?.isAdmin &&
+          <div
+            className="absolute bg-[#FFF6EE] bg-gradient-to-t from-[#FFC895]/35 rounded-full pointer-events-none overflow-hidden"
+            style={{
+              width: "483px",
+              height: "483px",
+              left: "311px",
+              top: "850px",
+              transform: "translate(-100%, -20%)",
+            }}
+          />
+          <ul className="flex flex-col items-center overflow-hidden">
+            <div className="flex flex-col items-center gap-2 fixed p-4 overflow-hidden  ">
+              {renderNavHeader(ClientRouteKey.Home, "/imgs/icon.svg", "")}
+              <Divider className="w-full mx-auto my-4 p-4" />
+              {renderNavItem(
+                ClientRouteKey.Home,
+                "/imgs/calendar.svg",
+                "ปฎิทินการจองห้อง"
+              )}
+              {renderNavItem(
+                ClientRouteKey.Book,
+                "/imgs/bookmark.svg",
+                "จองห้อง"
+              )}
+              {renderNavItem(
+                ClientRouteKey.History,
+                "/imgs/mailbox.svg",
+                "รายการของคุณ"
+              )}
+              {/* {accountData?.isAdmin &&
               renderNavItem(
-                ClientRouteKey.Setting,
-                "/imgs/setting.svg",
-                "ตั้งค่าระบบ"
+              ClientRouteKey.Setting,
+              "/imgs/setting.svg",
+              "ตั้งค่าระบบ"
               )} */}
-            {accountData?.isAdmin &&
-              renderNavItem(
-                ClientRouteKey.RoomManagement,
-                "/imgs/setting.svg",
-                "จัดการห้อง"
+              {accountData?.isAdmin &&
+                renderNavItem(
+                  ClientRouteKey.RoomManagement,
+                  "/imgs/setting.svg",
+                  "จัดการห้อง"
+                )}
+              {accountData?.isAdmin &&
+                renderNavItem(
+                  ClientRouteKey.UserSetting,
+                  "/imgs/usersetting.svg",
+                  "จัดการผู้ใช้"
+                )}
+              {renderExternalLink(
+                "https://forms.office.com/r/y0jCJG50qu",
+                "/imgs/feedback.svg",
+                "แบบสอบถาม"
               )}
-            {accountData?.isAdmin &&
-              renderNavItem(
-                ClientRouteKey.UserSetting,
-                "/imgs/usersetting.svg",
-                "จัดการผู้ใช้"
+              {renderExternalLink(
+                "https://forms.gle/urK2QyhZDYZoFcNf6",
+                "/imgs/report.svg",
+                "รายงานปัญหา"
               )}
-            {renderExternalLink(
-              "https://forms.office.com/r/y0jCJG50qu",
-              "/imgs/feedback.svg",
-              "แบบสอบถาม"
-            )}
-            {renderExternalLink(
-              "https://forms.gle/urK2QyhZDYZoFcNf6",
-              "/imgs/report.svg",
-              "รายงานปัญหา"
-            )}
+            </div>
             <li className="fixed bottom-4 flex flex-col justify-center items-center text-center z-20">
               <p className="flex flex-row px-4 p-2 m-4 bg-white text-maincolor rounded-[24px] text-sm gap-4 cursor-default">
                 <UserIcon className="size-4" />

@@ -16,40 +16,16 @@ import { ClientRouteKey } from "../../common/constants/keys";
 
 import BackPageContainer from "../../common/components/container/BackPageContainer";
 import RoomCardEdit from "./components/RoomCardEdit";
+import { RoomAttachmentModel } from "../../types/room_attactment";
+import { GetAllRoomAttachments } from "../../common/apis/room_attachment/queries";
 
 const RoomManagementPage: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [roomServices, setRoomServices] = useState<RoomServiceDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const images = [
-    "/imgs/Mockroom.png",
-    "/imgs/Mockroom.png",
-    "/imgs/Mockroom.png",
-    "/imgs/Mockroom.png",
-    "/imgs/Mockroom.png",
-    "/imgs/Mockroom.png",
-  ];
-
-  const room1_images = [
-    "/imgs/room/1/1.jpg",
-    "/imgs/room/1/2.jpg",
-    "/imgs/room/1/3.jpg",
-    "/imgs/room/1/4.jpg",
-    "/imgs/room/1/5.jpg",
-    "/imgs/room/1/6.jpg",
-  ];
-
-  const room2_images = [
-    "/imgs/room/2/1.jpg",
-    "/imgs/room/2/2.jpg",
-    "/imgs/room/2/3.jpg",
-    "/imgs/room/2/4.jpg",
-    "/imgs/room/2/5.jpg",
-    "/imgs/room/2/6.jpg",
-    "/imgs/room/2/7.jpg",
-    "/imgs/room/2/8.jpg",
-    "/imgs/room/2/9.jpg",
-  ];
+  const [roomAttachments, setRoomAttachments] = useState<RoomAttachmentModel[]>(
+    []
+  );
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -61,6 +37,10 @@ const RoomManagementPage: React.FC = () => {
         const roomServiceResponse = await GetAllRoomServices();
         if (Array.isArray(roomServiceResponse.result)) {
           setRoomServices(roomServiceResponse.result);
+        }
+        const roomAttachmentResponse = await GetAllRoomAttachments();
+        if (Array.isArray(roomAttachmentResponse.result)) {
+          setRoomAttachments(roomAttachmentResponse.result);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -74,6 +54,12 @@ const RoomManagementPage: React.FC = () => {
 
   // console.log("Rooms:", rooms);
   // console.log("Room Services:", roomServices);
+
+  const filterRoomAttachments = (room_id: number) => {
+    return roomAttachments.filter(
+      (attachment) => attachment.room_id === room_id
+    );
+  };
 
   return (
     <BackPageContainer
@@ -144,13 +130,9 @@ const RoomManagementPage: React.FC = () => {
                   open_time={room.open_time}
                   close_time={room.close_time}
                   activation={room.activation}
-                  images={
-                    room.name === "ห้องประชุมสโมสรนักศึกษา"
-                      ? room1_images
-                      : room.name === "ห้องประชุมงานพัฒนาคุณภาพนักศึกษา"
-                      ? room2_images
-                      : images
-                  }
+                  images={filterRoomAttachments(room.id).map(
+                    (path) => `${API_ENDPOINT_URL}${path.path}`
+                  )}
                 />
               </div>
             );

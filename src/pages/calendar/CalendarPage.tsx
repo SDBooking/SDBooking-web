@@ -22,6 +22,7 @@ import {
   Typography,
   Collapse,
   colors,
+  CircularProgress,
 } from "@mui/material";
 import useAccountContext from "../../common/contexts/AccountContext";
 import { Room } from "../../types/room";
@@ -43,6 +44,7 @@ import {
   getPureColorForRoom,
   getPureContrastColorForRoom,
 } from "./scripts/RandomColor";
+import { getRoomOrder } from "./scripts/GetRoomOrder";
 
 dayjs.extend(utc);
 
@@ -60,32 +62,25 @@ const CalendarPage: React.FC = () => {
   const [isCollapsed, _] = useState(true);
 
   const fetchData = async () => {
-    const fetchBooks = async () => {
-      try {
-        const bookResponse = await GetAllBooks();
-        if (Array.isArray(bookResponse.result)) {
-          setBooks(bookResponse.result);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    try {
+      const [bookResponse, roomResponse] = await Promise.all([
+        GetAllBooks(),
+        GetAllRooms(),
+      ]);
 
-    const fetchRooms = async () => {
-      try {
-        const roomResponse = await GetAllRooms();
-        if (Array.isArray(roomResponse.result)) {
-          setRooms(roomResponse.result);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      if (Array.isArray(bookResponse.result)) {
+        setBooks(bookResponse.result);
       }
-    };
 
-    fetchRooms();
-    fetchBooks();
+      if (Array.isArray(roomResponse.result)) {
+        setRooms(roomResponse.result);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -170,11 +165,6 @@ const CalendarPage: React.FC = () => {
   //   setIsCollapsed(!isCollapsed);
   // };
 
-  const getRoomOrder = (roomId: number): number | null => {
-    const roomIndex = rooms.findIndex((room) => room.id === roomId);
-    return roomIndex !== -1 ? roomIndex + 1 : null;
-  };
-
   useEffect(() => {
     if (calendarRef.current) {
       const filteredBooks = books.filter((book) => {
@@ -199,8 +189,8 @@ const CalendarPage: React.FC = () => {
         return true;
       });
 
-      const events = filteredBooks.map((book) => ({
-        title: book.room_name,
+      const eventsMain = filteredBooks.map((book) => ({
+        title: book.account_name + " - " + book.title,
         start: dayjs(book.start_time).utc().format(),
         end: dayjs(book.end_time).utc().format(),
         extendedProps: { booking: book },
@@ -213,9 +203,31 @@ const CalendarPage: React.FC = () => {
             ? colors.grey[500]
             : colors.yellow[800],
         classNames: [
-          getColorForRoom(getRoomOrder(book.room_id) ?? 0),
-          getContrastColorForRoom(getRoomOrder(book.room_id) ?? 0),
+          getColorForRoom(getRoomOrder(book.room_id, rooms) ?? 0),
+          getContrastColorForRoom(getRoomOrder(book.room_id, rooms) ?? 0),
         ],
+      }));
+
+      const eventsWithoutColor = filteredBooks.map((book) => ({
+        title: book.account_name + " - " + book.title,
+        start: dayjs(book.start_time).utc().format(),
+        end: dayjs(book.end_time).utc().format(),
+        extendedProps: { booking: book },
+        classNames: [
+          getColorForRoom(getRoomOrder(book.room_id, rooms) ?? 0),
+          "border-2",
+        ],
+        textColor: getPureContrastColorForRoom(
+          getRoomOrder(book.room_id, rooms) ?? 0
+        ), // Add this line to change text color
+        borderColor:
+          book.status === BookingStatusList[1]
+            ? colors.green[500]
+            : book.status === BookingStatusList[2]
+            ? colors.red[500]
+            : book.status === BookingStatusList[3]
+            ? colors.grey[500]
+            : colors.yellow[800], // Add this line to change border color
       }));
 
       const initialView = window.innerWidth < 768 ? "listWeek" : "dayGridMonth";
@@ -233,21 +245,37 @@ const CalendarPage: React.FC = () => {
         navLinks: true, // can click day/week names to navigate views
         editable: false,
         dayMaxEvents: 3, // allow "more" link when too many events
-        events,
+        events: eventsMain,
         initialView: initialView,
+        monthStartFormat: { month: "long", year: "numeric" },
         eventClick: handleEventClick,
         eventClassNames: (arg) => [arg.event.extendedProps.customClassName], // Apply custom class names
+        datesSet: (dateInfo) => {
+          const currentView = dateInfo.view.type;
+          calendar.setOption(
+            "events",
+            currentView === "dayGridMonth" || currentView === "listWeek"
+              ? eventsMain
+              : eventsWithoutColor
+          );
+        },
         eventTimeFormat: {
           hour: "2-digit",
           minute: "2-digit",
           meridiem: false,
         },
         eventMouseEnter: (info) => {
-          tippy(info.el, {
-            content: info.event.title,
-            placement: "top",
-            theme: "light",
-          });
+          {
+            tippy(info.el, {
+              content: `${
+                rooms.find(
+                  (room) => room.id === info.event.extendedProps.booking.room_id
+                )?.name
+              }`,
+              placement: "top",
+              theme: "light",
+            });
+          }
         },
         eventMouseLeave: (info) => {
           const tip = (info.el as HTMLElement & { _tippy?: any })._tippy;
@@ -296,7 +324,13 @@ const CalendarPage: React.FC = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <PageContainer>
+        <div className="flex justify-center items-center h-full">
+          <CircularProgress size={60} thickness={5} />
+        </div>
+      </PageContainer>
+    );
   }
 
   return (
@@ -323,13 +357,13 @@ const CalendarPage: React.FC = () => {
                 }`}
                 style={{
                   backgroundColor: getPureColorForRoom(
-                    getRoomOrder(room.id) ?? 0
+                    getRoomOrder(room.id, rooms) ?? 0
                   ),
                   borderColor: getPureContrastColorForRoom(
-                    getRoomOrder(room.id) ?? 0
+                    getRoomOrder(room.id, rooms) ?? 0
                   ),
                   color: getPureContrastColorForRoom(
-                    getRoomOrder(room.id) ?? 0
+                    getRoomOrder(room.id, rooms) ?? 0
                   ),
                 }}
                 onClick={() => handleRoomSelection(room.id.toString())}

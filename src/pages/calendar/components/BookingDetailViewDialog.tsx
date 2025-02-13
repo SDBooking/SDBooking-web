@@ -78,14 +78,19 @@ const BookingDetailsViewDialog: React.FC<BookingDetailsViewDialogProps> = ({
         </Box>
         <Box className="p-6">
           <Grid container spacing={1}>
-            <Grid item xs={12} sm={4}>
-              <Typography variant="body1">
-                <strong>ID</strong>
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={8}>
-              <Typography variant="body1">{selectedBooking.id}</Typography>
-            </Grid>
+            {accountData?.isAdmin && (
+              <>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="body1">
+                    <strong>ID</strong>
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={8}>
+                  <Typography variant="body1">{selectedBooking.id}</Typography>
+                </Grid>
+                )
+              </>
+            )}
             <Grid item xs={12} sm={4}>
               <Typography variant="body1">
                 <strong>ชื่อผู้จอง</strong>
@@ -104,14 +109,20 @@ const BookingDetailsViewDialog: React.FC<BookingDetailsViewDialogProps> = ({
             <Grid item xs={12} sm={8}>
               <Typography variant="body1">{selectedBooking.title}</Typography>
             </Grid>
-            <Grid item xs={12} sm={4}>
-              <Typography variant="body1">
-                <strong>เหตุผลการจอง</strong>
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={8}>
-              <Typography variant="body1">{selectedBooking.reason}</Typography>
-            </Grid>
+            {accountData?.isAdmin && (
+              <>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant="body1">
+                    <strong>เหตุผลการจอง</strong>
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={8}>
+                  <Typography variant="body1">
+                    {selectedBooking.reason}
+                  </Typography>
+                </Grid>
+              </>
+            )}
             {accountData?.isAdmin && (
               <>
                 <Grid item xs={12} sm={4}>

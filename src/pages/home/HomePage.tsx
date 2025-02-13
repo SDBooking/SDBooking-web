@@ -17,6 +17,7 @@ import {
   Paper,
   Button,
   colors,
+  CircularProgress,
 } from "@mui/material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -120,7 +121,13 @@ const HomePage: React.FC = () => {
   };
 
   if (loading) {
-    return <PageContainer>Loading...</PageContainer>;
+    return (
+      <PageContainer>
+        <div className="flex justify-center items-center h-full">
+          <CircularProgress size={60} thickness={5} />
+        </div>
+      </PageContainer>
+    );
   }
 
   return (

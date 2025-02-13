@@ -11,6 +11,8 @@ import { GetAllRoomAuthorizations } from "../../common/apis/room_authorization/q
 import { SystemAccountRole } from "../../types/sys_account_role";
 import { GetSystemAccountRoleByAccountID } from "../../common/apis/system/system_account_role/queries";
 import useAccountContext from "../../common/contexts/AccountContext";
+import { GetAllRoomAttachments } from "../../common/apis/room_attachment/queries";
+import { RoomAttachmentModel } from "../../types/room_attactment";
 
 const BookPage: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -18,39 +20,13 @@ const BookPage: React.FC = () => {
   const [roomAuthorities, setRoomAuthorities] = useState<
     RoomAuthorizationModel[]
   >([]);
+  const [roomAttachments, setRoomAttachments] = useState<RoomAttachmentModel[]>(
+    []
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [systemAccountRole, setSystemAccountRole] =
     useState<SystemAccountRole[]>();
   const { accountData } = useAccountContext();
-  const images = [
-    "/imgs/Mockroom.png",
-    "/imgs/Mockroom.png",
-    "/imgs/Mockroom.png",
-    "/imgs/Mockroom.png",
-    "/imgs/Mockroom.png",
-    "/imgs/Mockroom.png",
-  ];
-
-  const room1_images = [
-    "/imgs/room/1/1.jpg",
-    "/imgs/room/1/2.jpg",
-    "/imgs/room/1/3.jpg",
-    "/imgs/room/1/4.jpg",
-    "/imgs/room/1/5.jpg",
-    "/imgs/room/1/6.jpg",
-  ];
-
-  const room2_images = [
-    "/imgs/room/2/1.jpg",
-    "/imgs/room/2/2.jpg",
-    "/imgs/room/2/3.jpg",
-    "/imgs/room/2/4.jpg",
-    "/imgs/room/2/5.jpg",
-    "/imgs/room/2/6.jpg",
-    "/imgs/room/2/7.jpg",
-    "/imgs/room/2/8.jpg",
-    "/imgs/room/2/9.jpg",
-  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,6 +36,7 @@ const BookPage: React.FC = () => {
           roomServiceResponse,
           roomAuthoritiesResponse,
           systemAccountRoleResponse,
+          roomAttachmentResponse,
         ] = await Promise.all([
           GetAllRooms(),
           GetAllRoomServices(),
@@ -67,6 +44,7 @@ const BookPage: React.FC = () => {
           accountData?.userData.cmuitaccount
             ? GetSystemAccountRoleByAccountID(accountData.userData.cmuitaccount)
             : Promise.resolve({ result: [] }),
+          GetAllRoomAttachments(),
         ]);
 
         if (Array.isArray(roomResponse.result)) {
@@ -81,6 +59,9 @@ const BookPage: React.FC = () => {
         if (Array.isArray(systemAccountRoleResponse.result)) {
           setSystemAccountRole(systemAccountRoleResponse.result);
         }
+        if (Array.isArray(roomAttachmentResponse.result)) {
+          setRoomAttachments(roomAttachmentResponse.result);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -91,9 +72,16 @@ const BookPage: React.FC = () => {
     fetchData();
   }, []);
 
+  const filterRoomAttachments = (room_id: number) => {
+    return roomAttachments.filter(
+      (attachment) => attachment.room_id === room_id
+    );
+  };
+
   console.log("Rooms:", rooms);
   console.log("Room Authorities:", roomAuthorities);
   console.log("System Account Role:", systemAccountRole);
+  console.log("Room Attachments:", roomAttachments);
 
   return (
     <PageContainer>
@@ -172,13 +160,9 @@ const BookPage: React.FC = () => {
                     close_time={room.close_time}
                     activation={room.activation}
                     id={room.id}
-                    images={
-                      room.name === "ห้องประชุมสโมสรนักศึกษา"
-                        ? room1_images
-                        : room.name === "ห้องประชุมงานพัฒนาคุณภาพนักศึกษา"
-                        ? room2_images
-                        : images
-                    }
+                    images={filterRoomAttachments(room.id).map(
+                      (path) => `${API_ENDPOINT_URL}${path.path}`
+                    )}
                     authorized={!!isAuthorized}
                     requires_confirmation={requires_confirmation}
                   />

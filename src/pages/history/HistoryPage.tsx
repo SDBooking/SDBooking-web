@@ -23,6 +23,7 @@ import utc from "dayjs/plugin/utc";
 import useAccountContext from "../../common/contexts/AccountContext";
 import RejectionHistoryModal from "./components/RejectionHistoryModal";
 import BackPageContainer from "../../common/components/container/BackPageContainer";
+import PageContainer from "../../common/components/container/PageContainer";
 
 dayjs.extend(utc);
 
@@ -94,7 +95,13 @@ const HistoryPage: React.FC = () => {
   };
 
   if (loading) {
-    return <CircularProgress />;
+    return (
+      <PageContainer>
+        <div className="flex justify-center items-center h-full">
+          <CircularProgress size={60} thickness={5} />
+        </div>
+      </PageContainer>
+    );
   }
 
   return (

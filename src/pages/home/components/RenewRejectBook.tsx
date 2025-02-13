@@ -25,6 +25,8 @@ import { GetBookByRoomId } from "../../../common/apis/booking/queries";
 import TimeCalendar from "../../book/components/TimeCalendar";
 import toast from "react-hot-toast";
 import { UpdateBook } from "../../../common/apis/booking/manipulates";
+import { Room } from "../../../types/room";
+import { GetAllRooms } from "../../../common/apis/room/queries";
 
 interface ResubmitBookingModalProps {
   isOpen: boolean;
@@ -44,6 +46,7 @@ const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
   close_time,
 }) => {
   const [books, setBooks] = useState<Booking[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [timeError, setTimeError] = useState<string>("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState<BookingUpdateModel>(BookingFormData);
@@ -57,6 +60,10 @@ const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
             (book) => book.status !== BookingStatusList[3]
           );
           setBooks(filteredBooks);
+        }
+        const roomResponse = await GetAllRooms();
+        if (Array.isArray(roomResponse.result)) {
+          setRooms(roomResponse.result);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -229,7 +236,7 @@ const ResubmitBookingModal: React.FC<ResubmitBookingModalProps> = ({
       <DialogContent>
         <div className="flex flex-row m-10">
           <div className="flex w-3/5 justify-center items-center">
-            <TimeCalendar bookings={books} />
+            <TimeCalendar bookings={books} rooms={rooms} />
           </div>
           <div className="flex w-2/5 justify-center items-baseline">
             <LocalizationProvider dateAdapter={AdapterDayjs}>

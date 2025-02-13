@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import BackPageContainer from "../../common/components/container/BackPageContainer";
 import {
   Alert,
+  Button,
   Checkbox,
+  CircularProgress,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -15,7 +17,6 @@ import {
   TextField,
 } from "@mui/material";
 
-import AttachImage from "./components/AttachImage";
 import { RoomFacilityDTO } from "../../types/room_facility";
 import { RoomLocationDTO } from "../../types/room_location";
 import { RoomTypeDTO } from "../../types/room_type";
@@ -35,6 +36,15 @@ import { CreateRoomService } from "../../common/apis/room_service/manipulates";
 import { RoomAuthorizationCreateModel } from "../../types/room_authorization";
 import { CreateRoomAuthorization } from "../../common/apis/room_authorization/manipulates";
 import { SystemRole } from "../../types/sys_role";
+import { CreateRoomAttachment } from "../../common/apis/room_attachment/manipulates";
+import { ImagePreview } from "./RoomEdit";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ChevronDoubleUpIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/solid";
+import PageContainer from "../../common/components/container/PageContainer";
 
 const RoomManipulatePage: React.FC = () => {
   const [open, setOpen] = React.useState(true);
@@ -53,6 +63,9 @@ const RoomManipulatePage: React.FC = () => {
     close_time: dayjs().set("hour", 0).set("minute", 0).format("HH:mm"),
   });
   const [systemRoles, setSystemRoles] = useState<SystemRole[]>([]);
+  const [roomImagePreviews, setRoomImagePreviews] = useState<ImagePreview[]>(
+    []
+  );
 
   const [formFacilities, setFormFacilities] = useState<
     RoomServiceCreateModel[]
@@ -60,11 +73,12 @@ const RoomManipulatePage: React.FC = () => {
   const [formAuthorizations, setFormAuthorizations] = useState<
     RoomAuthorizationCreateModel[]
   >([]);
-
+  const [formAttachments, setFormAttachments] = useState<File[]>([]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+  const [Loading, setLoading] = useState<boolean>(false);
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [
           roomTypesResponse,
@@ -97,6 +111,8 @@ const RoomManipulatePage: React.FC = () => {
         );
       } catch (error) {
         console.error("Failed to fetch data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -148,6 +164,14 @@ const RoomManipulatePage: React.FC = () => {
               room_id: roomId,
             });
           }
+        }
+
+        for (let idx = 0; idx < formAttachments.length; idx++) {
+          await CreateRoomAttachment({
+            file: formAttachments[idx],
+            room_id: roomId,
+            position: idx,
+          });
         }
 
         toast.success("Room created successfully");
@@ -229,7 +253,48 @@ const RoomManipulatePage: React.FC = () => {
     );
   };
 
-  console.log(formAuthorizations);
+  const handleAddRoomAttachment = () => {
+    // Open a file input dialog to upload room attachments
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".jpg,.png";
+    input.multiple = true;
+    input.onchange = async (event) => {
+      const files = (event.target as HTMLInputElement).files;
+      if (files) {
+        try {
+          const newPreviews: ImagePreview[] = [];
+          const newAttachments: File[] = [];
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const previewUrl = URL.createObjectURL(file);
+            newPreviews.push({ src: previewUrl, title: file.name });
+            newAttachments.push(file);
+          }
+          setRoomImagePreviews((prev) => [...prev, ...newPreviews]);
+          setFormAttachments((prev) => [...prev, ...newAttachments]);
+        } catch (error) {
+          console.error("Failed to upload attachments:", error);
+        }
+      }
+    };
+    input.click();
+  };
+
+  const handleRemoveRoomAttachment = (index: number) => {
+    setRoomImagePreviews((prev) => prev.filter((_, idx) => idx !== index));
+    setFormAttachments((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  if (Loading) {
+    return (
+      <PageContainer>
+        <div className="flex justify-center items-center h-full">
+          <CircularProgress size={60} thickness={5} />
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <BackPageContainer
@@ -268,16 +333,141 @@ const RoomManipulatePage: React.FC = () => {
           </div>
           <div className="flex flex-col lg:flex-row items-start justify-center gap-10 w-full h-full">
             <div className="flex flex-col p-4 sm:p-8 bg-white rounded-xl shadow-lg w-full lg:w-3/5 h-full">
-              <span>อัพโหลดภาพห้องที่ต้องการแสดง</span>
-
-              <AttachImage
-                placeholder={false}
-                handleAttachImage={() => {}}
-                image={"/imgs/icon.svg"}
-              />
-              <label className="my-2 text-sm font-light text-gray-500">
-                Only support .jpg, .png and .svg and zip files
-              </label>
+              <div className="flex flex-col gap-4">
+                {" "}
+                <span>อัพโหลดภาพห้องที่ต้องการแสดง</span>
+                <Button
+                  variant="contained"
+                  onClick={handleAddRoomAttachment}
+                  style={{
+                    backgroundColor: "#4CAF50",
+                    color: "white",
+                    padding: "10px 20px",
+                    fontSize: "16px",
+                    borderRadius: "8px",
+                    textTransform: "none",
+                  }}
+                >
+                  อัพโหลด
+                </Button>
+                <label className="my-2 text-sm font-light text-gray-500">
+                  Only support .jpg, .jpeg ,.png
+                </label>
+              </div>
+              {roomImagePreviews.map((src, idx) => (
+                <div
+                  key={idx}
+                  className={`relative flex flex-col 2xl:flex-row items-center justify-between gap-2 my-2 border border-gray-300 rounded-lg p-4 ${
+                    idx === 0 ? "bg-yellow-50" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={
+                        src.src.startsWith("blob:")
+                          ? src.src
+                          : `${API_ENDPOINT_URL}${src.src}`
+                      }
+                      alt={`Preview-${idx}`}
+                      className="hover:scale-150 transition-transform duration-300 cursor-pointer rounded-md"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                      }}
+                      onClick={() =>
+                        window.open(
+                          src.src.startsWith("blob:")
+                            ? src.src
+                            : `${API_ENDPOINT_URL}${src.src}`,
+                          "_blank"
+                        )
+                      }
+                    />
+                  </div>
+                  <p className="text-sm font-medium">{src.title}</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button
+                      variant="contained"
+                      onClick={() => {
+                        if (idx > 0) {
+                          const newPreviews = [...roomImagePreviews];
+                          [newPreviews[idx - 1], newPreviews[idx]] = [
+                            newPreviews[idx],
+                            newPreviews[idx - 1],
+                          ];
+                          setRoomImagePreviews(newPreviews);
+                          const newAttachments = [...formAttachments];
+                          if (newAttachments[idx - 1] && newAttachments[idx]) {
+                            [newAttachments[idx - 1], newAttachments[idx]] = [
+                              newAttachments[idx],
+                              newAttachments[idx - 1],
+                            ];
+                          }
+                          setFormAttachments(newAttachments);
+                        }
+                      }}
+                      disabled={idx === 0}
+                      size="small"
+                    >
+                      <ArrowUpIcon className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => {
+                        if (idx < roomImagePreviews.length - 1) {
+                          const newPreviews = [...roomImagePreviews];
+                          [newPreviews[idx + 1], newPreviews[idx]] = [
+                            newPreviews[idx],
+                            newPreviews[idx + 1],
+                          ];
+                          setRoomImagePreviews(newPreviews);
+                          const newAttachments = [...formAttachments];
+                          if (newAttachments[idx + 1] && newAttachments[idx]) {
+                            [newAttachments[idx + 1], newAttachments[idx]] = [
+                              newAttachments[idx],
+                              newAttachments[idx + 1],
+                            ];
+                          }
+                          setFormAttachments(newAttachments);
+                        }
+                      }}
+                      disabled={idx === roomImagePreviews.length - 1}
+                      size="small"
+                    >
+                      <ArrowDownIcon className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => {
+                        const newPreviews = [...roomImagePreviews];
+                        const [movedPreview] = newPreviews.splice(idx, 1);
+                        newPreviews.unshift(movedPreview);
+                        setRoomImagePreviews(newPreviews);
+                        const newAttachments = [...formAttachments];
+                        if (newAttachments[idx]) {
+                          const [movedAttachment] = newAttachments.splice(
+                            idx,
+                            1
+                          );
+                          newAttachments.unshift(movedAttachment);
+                        }
+                        setFormAttachments(newAttachments);
+                      }}
+                      disabled={idx === 0}
+                      size="small"
+                    >
+                      <ChevronDoubleUpIcon className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div
+                    onClick={() => handleRemoveRoomAttachment(idx)}
+                    className="absolute cursor-pointer border rounded-full w-fit p-1 top-2 right-2 hover:bg-gray-200"
+                  >
+                    <XMarkIcon className="size-4 text-gray-500" />
+                  </div>
+                </div>
+              ))}
             </div>
             <div className="flex flex-col flex-grow-0 w-full lg:w-2/5 gap-6">
               <FormControl size="small" variant="standard" fullWidth>

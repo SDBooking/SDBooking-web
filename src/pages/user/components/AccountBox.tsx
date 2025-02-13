@@ -21,6 +21,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  CircularProgress,
 } from "@mui/material";
 import { SystemAccountRole } from "../../../types/sys_account_role";
 import { GetAllSystemAccountRoles } from "../../../common/apis/system/system_account_role/queries";
@@ -37,6 +38,7 @@ import {
 } from "../../../common/apis/system/system_role/manipulates";
 import toast from "react-hot-toast";
 import { roleNameMappingToTH } from "../../room/scripts/roleNameMappingToTH";
+import PageContainer from "../../../common/components/container/PageContainer";
 
 const AccountBox: React.FC = () => {
   const [accountData, setAccountData] = useState<User[] | null>(null);
@@ -214,7 +216,13 @@ const AccountBox: React.FC = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <PageContainer>
+        <div className="flex justify-center items-center h-full">
+          <CircularProgress size={60} thickness={5} />
+        </div>
+      </PageContainer>
+    );
   }
 
   // Group accounts by role

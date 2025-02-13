@@ -39,6 +39,10 @@
   white-space: inherit !important; /* Allow text to wrap */
   overflow: visible !important; /* Ensure overflow is visible */
   font-weight: 400 !important;
+  margin-bottom: 2px !important;
+  flex-direction: column !important;
+  white-space: normal !important; /* Allow text to wrap */
+  word-wrap: break-word !important; /* Break long words */
 }
 
 .fc-event-title {

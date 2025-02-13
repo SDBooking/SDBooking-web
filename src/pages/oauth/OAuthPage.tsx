@@ -6,6 +6,8 @@ import { getUserDataQuery, signInQuery } from "../../common/apis/auth/queries";
 import { coreApi } from "../../core/connections";
 import useAccountContext from "../../common/contexts/AccountContext";
 import { getDataOrNull } from "../../common/apis/selectors";
+import PageContainer from "../../common/components/container/PageContainer";
+import { CircularProgress } from "@mui/material";
 
 function OAuthPage() {
   const location = useLocation();
@@ -40,7 +42,13 @@ function OAuthPage() {
     callbackHandler();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountData, code]);
-  return <div>Loading.. .</div>;
+  return (
+    <PageContainer>
+      <div className="flex justify-center items-center h-full">
+        <CircularProgress size={60} thickness={5} />
+      </div>
+    </PageContainer>
+  );
 }
 
 export default OAuthPage;
