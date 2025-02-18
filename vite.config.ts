@@ -30,6 +30,7 @@ export default defineConfig(({ mode }) => {
       IS_PRODUCTION_MODE: `${!isDevelopmentMode}`,
       API_ENDPOINT_URL: `"${process.env["API_ENDPOINT_URL"]}"`,
       CMU_OAUTH_URL: `"${process.env["CMU_OAUTH_URL"]}"`,
+      CMU_OAUTH_LOGOUT_URL: `"${process.env["CMU_OAUTH_LOGOUT_URL"]}"`,
       IS_LOCAL_DEVELOPMENT: `${isLocalDevelopmentMode}`,
     },
     server: {

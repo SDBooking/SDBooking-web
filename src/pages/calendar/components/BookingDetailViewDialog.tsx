@@ -88,7 +88,6 @@ const BookingDetailsViewDialog: React.FC<BookingDetailsViewDialogProps> = ({
                 <Grid item xs={12} sm={8}>
                   <Typography variant="body1">{selectedBooking.id}</Typography>
                 </Grid>
-                )
               </>
             )}
             <Grid item xs={12} sm={4}>

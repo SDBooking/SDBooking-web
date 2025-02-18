@@ -361,7 +361,7 @@ const RoomManipulatePage: React.FC = () => {
                     idx === 0 ? "bg-yellow-50" : ""
                   }`}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 p-4">
                     <img
                       src={
                         src.src.startsWith("blob:")
@@ -369,10 +369,10 @@ const RoomManipulatePage: React.FC = () => {
                           : `${API_ENDPOINT_URL}${src.src}`
                       }
                       alt={`Preview-${idx}`}
-                      className="hover:scale-150 transition-transform duration-300 cursor-pointer rounded-md"
+                      className="hover:scale-105 transition-transform duration-300 cursor-pointer rounded-md"
                       style={{
-                        width: "100px",
-                        height: "100px",
+                        width: "200px",
+                        height: "200px",
                         objectFit: "cover",
                       }}
                       onClick={() =>
@@ -385,7 +385,6 @@ const RoomManipulatePage: React.FC = () => {
                       }
                     />
                   </div>
-                  <p className="text-sm font-medium">{src.title}</p>
                   <div className="grid grid-cols-3 gap-2">
                     <Button
                       variant="contained"

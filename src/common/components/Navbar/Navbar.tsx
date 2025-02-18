@@ -1,6 +1,6 @@
 import useAccountContext from "../../contexts/AccountContext";
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { getLogout } from "../../apis/logout";
 import { ClientRouteKey, LocalStorageKey } from "../../constants/keys";
 import { ListBulletIcon, UserIcon, XMarkIcon } from "@heroicons/react/24/solid";
@@ -15,7 +15,6 @@ function Navbar({ isMobile }: NavbarProps) {
   const { accountData } = useAccountContext();
   const [activeRoute, setActiveRoute] = useState<string>("");
   const [isOpened, setIsOpened] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
 
   const handleBurgerClick = () => {
@@ -26,7 +25,6 @@ function Navbar({ isMobile }: NavbarProps) {
     await getLogout();
     setAccountData(null);
     localStorage.removeItem(LocalStorageKey.Auth);
-    navigate(ClientRouteKey.Login);
   };
 
   useEffect(() => {
