@@ -348,38 +348,40 @@ const CalendarPage: React.FC = () => {
           <p className="text-base font-normal w-fit inline whitespace-nowrap px-2">
             เลือกแสดง
           </p>
-          <div className="flex flex-row gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
             {rooms.map((room) => (
               <div
                 key={room.id}
-                className={`flex items-center rounded-[4px] px-6 cursor-pointer ${
-                  selectedRooms.includes(room.id.toString()) ? "border-2" : ""
-                }`}
+                className={`flex items-center rounded-[4px] cursor-pointer justify-center border-2 px-2`}
                 style={{
                   backgroundColor: getPureColorForRoom(
-                    getRoomOrder(room.id, rooms) ?? 0
-                  ),
-                  borderColor: getPureContrastColorForRoom(
                     getRoomOrder(room.id, rooms) ?? 0
                   ),
                   color: getPureContrastColorForRoom(
                     getRoomOrder(room.id, rooms) ?? 0
                   ),
+                  borderColor: selectedRooms.includes(room.id.toString())
+                    ? getPureContrastColorForRoom(
+                        getRoomOrder(room.id, rooms) ?? 0
+                      )
+                    : "transparent",
                 }}
                 onClick={() => handleRoomSelection(room.id.toString())}
               >
-                <span>{room.name}</span>
+                <span className="text-sm text-center">{room.name}</span>
               </div>
             ))}
 
             <div
               className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
-                selectedRooms.length === 0 ? "border-2 border-black" : ""
+                selectedRooms.length === 0
+                  ? "border-2 border-black"
+                  : "border-2 border-transparent"
               }`}
               onClick={() => setSelectedRooms([])}
             >
               <div className="w-4 h-4 rounded-full bg-gray-300" />
-              <span>ทุกห้อง</span>
+              <span className="text-sm">ทุกห้อง</span>
             </div>
           </div>
           <div className="flex flex-row justify-between w-full">

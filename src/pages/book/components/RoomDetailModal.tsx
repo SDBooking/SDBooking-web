@@ -291,14 +291,12 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
 
     try {
       if (requires_confirmation && !accountData.isAdmin) {
-        const createBookPendingResponse = await CreateBookPending(
-          formattedFormData
-        );
-        console.log("CreateBookPending", createBookPendingResponse);
+        await CreateBookPending(formattedFormData);
+        // console.log("CreateBookPending", createBookPendingResponse);
         toast.success("Booking created successfully (Pending)");
       } else {
-        const createBookApprovedResponse = await CreateBook(formattedFormData);
-        console.log("CreateBookApproved", createBookApprovedResponse);
+        await CreateBook(formattedFormData);
+        // console.log("CreateBookApproved", createBookApprovedResponse);
         toast.success("Booking created successfully (Approved)");
       }
     } catch (error) {

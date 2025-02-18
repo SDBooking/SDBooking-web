@@ -4,6 +4,7 @@ import {
   Alert,
   Button,
   Checkbox,
+  CircularProgress,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -125,6 +126,7 @@ const RoomEdit: React.FC = () => {
   >([]);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState<boolean>(false);
   const fetchData = async () => {
     try {
       const [
@@ -314,6 +316,7 @@ const RoomEdit: React.FC = () => {
     }
 
     try {
+      setLoading(true);
       const createdRoom = await UpdateRoom({
         ...formData,
         booking_interval_minutes: Number(formData.booking_interval_minutes),
@@ -373,12 +376,12 @@ const RoomEdit: React.FC = () => {
                 attachment.id === roomImagePreviews[idx].id
             );
             if (attachment) {
-              console.log(
-                "Updating attachment id :",
-                attachment.id,
-                "position : ",
-                idx + 1
-              );
+              // console.log(
+              //   "Updating attachment id :",
+              //   attachment.id,
+              //   "position : ",
+              //   idx + 1
+              // );
               await UpdateRoomAttachmentPosition({
                 id: attachment.id!,
                 position: (idx + 1).toString(),
@@ -389,6 +392,7 @@ const RoomEdit: React.FC = () => {
 
         toast.success("Room Updated successfully");
         fetchData();
+        setLoading(false);
       } else {
         throw new Error("Failed to create room: result is undefined");
       }
@@ -571,11 +575,11 @@ const RoomEdit: React.FC = () => {
   // console.log(formAuthorizations);
   // console.log(roomAuthorities);
 
-  console.log("Selected Room ID:", selectedRoomId);
-  console.log("Room Image Previews:", roomImagePreviews);
-  console.log("Room Image Previews Map:", roomImagePreviewsMap);
-  console.log("Room Attachments:", NewformAttachmentFiles);
-  console.log("Room Attachments Data:", currentFormAttachmentData);
+  // console.log("Selected Room ID:", selectedRoomId);
+  // console.log("Room Image Previews:", roomImagePreviews);
+  // console.log("Room Image Previews Map:", roomImagePreviewsMap);
+  // console.log("Room Attachments:", NewformAttachmentFiles);
+  // console.log("Room Attachments Data:", currentFormAttachmentData);
 
   return (
     <BackPageContainer
@@ -953,6 +957,16 @@ const RoomEdit: React.FC = () => {
           </button>
         </div>
       </div>
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg">
+            <div className="flex flex-col justify-center items-center h-full gap-8">
+              <CircularProgress size={60} thickness={5} />
+              <p> กำลังอัพโหลดข้อมูลกรุณารอสักครู่ </p>
+            </div>
+          </div>
+        </div>
+      )}
     </BackPageContainer>
   );
 };

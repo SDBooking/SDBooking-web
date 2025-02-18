@@ -277,7 +277,7 @@ const AccountBox: React.FC = () => {
     }
   );
 
-  console.log(aggregatedAccounts);
+  // console.log(aggregatedAccounts);
 
   return (
     <div className="min-w-full p-4">

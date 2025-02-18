@@ -44,7 +44,6 @@ import {
   ChevronDoubleUpIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
-import PageContainer from "../../common/components/container/PageContainer";
 
 const RoomManipulatePage: React.FC = () => {
   const [open, setOpen] = React.useState(true);
@@ -141,6 +140,7 @@ const RoomManipulatePage: React.FC = () => {
     }
 
     try {
+      setLoading(true);
       const createdRoom = await CreateRoom({
         ...formData,
         booking_interval_minutes: Number(formData.booking_interval_minutes),
@@ -175,6 +175,7 @@ const RoomManipulatePage: React.FC = () => {
         }
 
         toast.success("Room created successfully");
+        setLoading(false);
       } else {
         throw new Error("Failed to create room: result is undefined");
       }
@@ -285,16 +286,6 @@ const RoomManipulatePage: React.FC = () => {
     setRoomImagePreviews((prev) => prev.filter((_, idx) => idx !== index));
     setFormAttachments((prev) => prev.filter((_, idx) => idx !== index));
   };
-
-  if (Loading) {
-    return (
-      <PageContainer>
-        <div className="flex justify-center items-center h-full">
-          <CircularProgress size={60} thickness={5} />
-        </div>
-      </PageContainer>
-    );
-  }
 
   return (
     <BackPageContainer
@@ -638,6 +629,16 @@ const RoomManipulatePage: React.FC = () => {
           </button>
         </div>
       </div>
+      {Loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg">
+            <div className="flex flex-col justify-center items-center h-full gap-8">
+              <CircularProgress size={60} thickness={5} />
+              <p> กำลังอัพโหลดข้อมูลกรุณารอสักครู่ </p>
+            </div>
+          </div>
+        </div>
+      )}
     </BackPageContainer>
   );
 };

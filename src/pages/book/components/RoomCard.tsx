@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BuildingOfficeIcon,
   LockClosedIcon,
@@ -8,6 +8,7 @@ import {
 import RoomDetailModal from "./RoomDetailModal";
 import { Room } from "../../../types/room";
 import useAccountContext from "../../../common/contexts/AccountContext";
+import "./RoomCard.css";
 
 interface RoomCardProps extends Room {
   services: string[];
@@ -34,6 +35,37 @@ const RoomCard: React.FC<RoomCardProps> = ({
 }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const { accountData } = useAccountContext();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [nextImageIndex, setNextImageIndex] = useState(1);
+  const [isChangingImage, setIsChangingImage] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    let interval: NodeJS.Timeout;
+    let timeout: NodeJS.Timeout;
+
+    const cycleImages = () => {
+      if (!isMounted) return;
+
+      setIsChangingImage(true);
+
+      timeout = setTimeout(() => {
+        if (!isMounted) return;
+
+        setNextImageIndex((prev) => (prev + 1) % images.length);
+        setCurrentImageIndex((prev) => (prev + 1) % images.length);
+        setIsChangingImage(false);
+      }, 2000);
+    };
+
+    interval = setInterval(cycleImages, 4000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [images]);
 
   const handleModalOpen = () => setModalOpen(true);
   const handleModalClose = () => setModalOpen(false);
@@ -44,12 +76,24 @@ const RoomCard: React.FC<RoomCardProps> = ({
         authorized || accountData?.isAdmin ? "" : "opacity-50"
       }`}
     >
-      <img
-        className="w-full md:w-1/3 h-56 md:h-56 bg-gray-300 rounded-xl bg-cover bg-center"
-        src={images[0]}
-        style={{ objectFit: "cover" }}
-        alt="Room"
-      />
+      <div className="w-full md:w-1/3 h-56 md:h-56 bg-gray-300 rounded-xl overflow-hidden relative">
+        <img
+          className={`absolute w-full h-full bg-cover bg-center transition-transform duration-500 ease-in-out transform ${
+            isChangingImage ? "slide-out" : ""
+          }`}
+          src={images[currentImageIndex]}
+          style={{ objectFit: "cover" }}
+          alt="Room"
+        />
+        <img
+          className={`absolute w-full h-full bg-cover bg-center transition-transform duration-500 ease-in-out transform ${
+            isChangingImage ? "slide-in" : "hidden"
+          }`}
+          src={images[nextImageIndex]}
+          style={{ objectFit: "cover" }}
+          alt="Room"
+        />
+      </div>
       <div className="flex flex-col items-start gap-2 w-full md:w-2/3 px-4">
         <h2 className="font-kanit font-medium text-xl leading-7 text-black">
           {name}

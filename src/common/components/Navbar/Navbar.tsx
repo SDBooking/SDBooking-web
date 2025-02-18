@@ -1,25 +1,14 @@
 import useAccountContext from "../../contexts/AccountContext";
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 import { getLogout } from "../../apis/logout";
 import { ClientRouteKey, LocalStorageKey } from "../../constants/keys";
 import { ListBulletIcon, UserIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import { Divider, Box } from "@mui/material";
+import { Divider } from "@mui/material";
 
-interface NavbarProps {
-  isMobile: boolean;
-}
-
-function Navbar({ isMobile }: NavbarProps) {
-  const { setAccountData } = useAccountContext();
-  const { accountData } = useAccountContext();
-  const [activeRoute, setActiveRoute] = useState<string>("");
-  const [isOpened, setIsOpened] = useState(false);
-  const location = useLocation();
-
-  const handleBurgerClick = () => {
-    setIsOpened((prev) => !prev);
-  };
+function Navbar() {
+  const { setAccountData, accountData } = useAccountContext();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await getLogout();
@@ -27,275 +16,196 @@ function Navbar({ isMobile }: NavbarProps) {
     localStorage.removeItem(LocalStorageKey.Auth);
   };
 
-  useEffect(() => {
-    setActiveRoute(location.pathname);
-  }, [location.pathname]);
+  const navigationItems = [
+    {
+      to: ClientRouteKey.Home,
+      icon: "/imgs/calendar.svg", // Updated with imgSrc
+      label: "ปฎิทินการจองห้อง",
+    },
+    {
+      to: ClientRouteKey.Book,
+      icon: "/imgs/bookmark.svg", // Updated with imgSrc
+      label: "จองห้อง",
+    },
+    {
+      to: ClientRouteKey.History,
+      icon: "/imgs/mailbox.svg", // Updated with imgSrc
+      label: "รายการของคุณ",
+    },
+    ...(accountData?.isAdmin
+      ? [
+          {
+            to: ClientRouteKey.RoomManagement,
+            icon: "/imgs/setting.svg", // Updated with imgSrc
+            label: "จัดการห้อง",
+          },
+          {
+            to: ClientRouteKey.UserSetting,
+            icon: "/imgs/usersetting.svg", // Updated with imgSrc
+            label: "จัดการผู้ใช้",
+          },
+        ]
+      : []),
+  ];
 
-  const renderNavItem = (to: string, imgSrc: string, label?: string) => (
-    <Box
-      component="li"
-      className={`flex flex-row justify-start items-center text-center p-2 rounded-[24px] w-full my-2 ${
-        activeRoute === to
-          ? "text-[#f57c00] bg-gradient-to-r from-[#ffc163] via-[#fd7427] to-[#e54a5f] bg-clip-text text-transparent whitespace-nowrap"
-          : "text-black"
-      }`}
-    >
-      <Link
+  const externalLinks = [
+    {
+      href: "https://forms.office.com/r/y0jCJG50qu",
+      icon: "/imgs/feedback.svg", // Updated with imgSrc
+      label: "แบบสอบถาม",
+    },
+    {
+      href: "https://forms.gle/urK2QyhZDYZoFcNf6",
+      icon: "/imgs/report.svg", // Updated with imgSrc
+      label: "รายงานปัญหา",
+    },
+  ];
+
+  const NavItem = ({
+    to,
+    icon,
+    label,
+  }: {
+    to: string;
+    icon: string; // Changed to string for imgSrc
+    label: string;
+  }) => (
+    <li className="w-full">
+      <NavLink
         to={to}
-        className="flex flex-row items-center justify-start px-2 gap-4"
-        onClick={() => setIsOpened(false)}
+        className={({ isActive }) =>
+          `flex items-center gap-3 p-3 rounded-xl transition-colors
+          ${
+            isActive
+              ? "text-orange-600 bg-orange-50 font-medium"
+              : "text-gray-700 hover:bg-gray-50"
+          }`
+        }
+        onClick={() => setIsMobileMenuOpen(false)}
       >
-        <img src={imgSrc} className="w-[25px] h-[25px]" />
-        {label && (
-          <p className="text-[14px] text-center flex items-center justify-center whitespace-nowrap">
-            {label}
-          </p>
-        )}
-      </Link>
-    </Box>
-  );
-
-  const renderNavHeader = (to: string, imgSrc: string, label?: string) => (
-    <li className="flex flex-row justify-start items-start text-start mt-4">
-      <Link to={to} className="flex flex-row items-center justify-center">
-        <img
-          src={imgSrc}
-          className="w-3/4 transition-all duration-300 transform group hover:scale-125"
-        />
-        {<p className="text-[14px] mt-2 text-black hidden md:block">{label}</p>}
-      </Link>
+        <img src={icon} alt={label} className="w-6 h-6" />{" "}
+        {/* Updated to use imgSrc */}
+        <span className="text-sm">{label}</span>
+      </NavLink>
     </li>
   );
 
-  const renderExternalLink = (href: string, imgSrc: string, label?: string) => (
-    <Box
-      component="li"
-      className={`flex flex-row justify-start items-center text-center p-2 rounded-[24px] w-full my-2 ${
-        activeRoute === href
-          ? "text-[#f57c00] bg-gradient-to-r from-[#ffc163] via-[#fd7427] to-[#e54a5f] bg-clip-text text-transparent whitespace-nowrap"
-          : "text-black"
-      }`}
-    >
+  const ExternalLinkItem = ({
+    href,
+    icon,
+    label,
+  }: {
+    href: string;
+    icon: string; // Changed to string for imgSrc
+    label: string;
+  }) => (
+    <li className="w-full">
       <a
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex flex-row items-center justify-start px-2 gap-4"
-        onClick={() => setIsOpened(false)}
+        className="flex items-center gap-3 p-3 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors"
       >
-        <img src={imgSrc} className="w-[25px] h-[25px]" />
-        {label && (
-          <p className="text-[14px] text-center flex items-center justify-center whitespace-nowrap">
-            {label}
-          </p>
-        )}
+        <img src={icon} alt={label} className="w-6 h-6" />{" "}
+        {/* Updated to use imgSrc */}
+        <span className="text-sm">{label}</span>
       </a>
-    </Box>
+    </li>
   );
 
   return (
     <>
-      {isMobile ? (
-        <>
-          <div className="fixed items-center p-2 top-4 left-4 rounded-full bg-[#FD7427] z-50">
-            <div className="text-white block" onClick={handleBurgerClick}>
-              {isOpened ? (
-                <XMarkIcon className="size-5" />
+      {/* Top Navbar for Mobile */}
+      <div className="md:hidden fixed top-4 right-4 z-50">
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className={`flex items-center justify-center overflow-hidden rounded-full bg-transparent shadow-lg transition-all duration-300 w-12 h-12 hover:bg-gray-50`}
+        >
+          <div className="flex items-center gap-2">
+            {/* Animated icon container */}
+            <div
+              className={`rounded-full transition-colors ${
+                isMobileMenuOpen ? "bg-orange-100" : "bg-transparent"
+              }`}
+            >
+              {isMobileMenuOpen ? (
+                <XMarkIcon className="size-5 text-orange-600" />
               ) : (
-                <ListBulletIcon className="size-5" />
+                <ListBulletIcon className="size-5 text-gray-700" />
               )}
             </div>
           </div>
-          {isOpened && (
-            <nav
-              className="fixed inset-0 bg-white z-30 p-4 overflow-hidden w-full"
-              role="navigation"
-              aria-label="Main Navigation"
-            >
-              <ul className="list-none flex flex-col items-start m-4 ml-8">
-                {renderNavHeader(ClientRouteKey.Home, "/imgs/icon.svg", "")}
-                <div className="my-4"></div>
-                <Divider className="w-full mx-auto my-4" />
-                <div className="my-4"></div>
-                {renderNavItem(
-                  ClientRouteKey.Home,
-                  "/imgs/calendar.svg",
-                  "ปฎิทินการจองห้อง"
-                )}
-                {renderNavItem(
-                  ClientRouteKey.Book,
-                  "/imgs/bookmark.svg",
-                  "จองห้อง"
-                )}
-                {renderNavItem(
-                  ClientRouteKey.History,
-                  "/imgs/mailbox.svg",
-                  "รายการของคุณ"
-                )}
-                {/* {accountData?.isAdmin &&
-                  renderNavItem(
-                    ClientRouteKey.Setting,
-                    "/imgs/setting.svg",
-                    "ตั้งค่าระบบ"
-                  )} */}
-                {accountData?.isAdmin &&
-                  renderNavItem(
-                    ClientRouteKey.RoomManagement,
-                    "/imgs/setting.svg",
-                    "จัดการห้อง"
-                  )}
-                {accountData?.isAdmin &&
-                  renderNavItem(
-                    ClientRouteKey.UserSetting,
-                    "/imgs/usersetting.svg",
-                    "จัดการผู้ใช้"
-                  )}
-                {renderExternalLink(
-                  "https://forms.office.com/r/y0jCJG50qu",
-                  "/imgs/feedback.svg",
-                  "แบบสอบถาม"
-                )}
-                {renderExternalLink(
-                  "https://forms.gle/urK2QyhZDYZoFcNf6",
-                  "/imgs/report.svg",
-                  "รายงานปัญหา"
-                )}
-                <li className="mb-4 flex flex-col justify-start items-start text-start mt-10">
-                  <button
-                    className="flex flex-row items-start justify-start gap-2"
-                    onClick={handleLogout}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      padding: "0",
-                      cursor: "pointer",
-                    }}
-                    aria-label="Log out"
-                  >
-                    <div className="hover:bg-[#FFDCD8] flex-row flex gap-2 p-2 rounded-[24px]">
-                      <img src="/imgs/logout.svg" className="size-4" />
-                      <p
-                        className="text-sm text-start"
-                        style={{ color: "#E54A5F" }}
-                      >
-                        Logout
-                      </p>
-                    </div>
-                  </button>
-                  <p
-                    className="text-xs my-4 cursor-default"
-                    style={{ color: "#D0A095" }}
-                  >
-                    @SD Eng
-                  </p>
-                </li>
-              </ul>
-            </nav>
-          )}
-        </>
-      ) : (
-        <nav
-          className="bg-white text-white relative flex flex-col left-0 h-auto w-64 z-40 p-4 border-r overflow-hidden"
-          role="navigation"
-          aria-label="Main Navigation"
-        >
-          <div
-            className="absolute bg-[#FFF6EE] bg-gradient-to-t from-[#FFC895]/35 rounded-full pointer-events-none overflow-hidden"
-            style={{
-              width: "483px",
-              height: "483px",
-              left: "311px",
-              top: "850px",
-              transform: "translate(-100%, -20%)",
-            }}
-          />
-          <ul className="flex flex-col items-center overflow-hidden">
-            <div className="flex flex-col items-center gap-2 fixed p-4 overflow-hidden  ">
-              {renderNavHeader(ClientRouteKey.Home, "/imgs/icon.svg", "")}
-              <Divider className="w-full mx-auto my-4 p-4" />
-              {renderNavItem(
-                ClientRouteKey.Home,
-                "/imgs/calendar.svg",
-                "ปฎิทินการจองห้อง"
-              )}
-              {renderNavItem(
-                ClientRouteKey.Book,
-                "/imgs/bookmark.svg",
-                "จองห้อง"
-              )}
-              {renderNavItem(
-                ClientRouteKey.History,
-                "/imgs/mailbox.svg",
-                "รายการของคุณ"
-              )}
-              {/* {accountData?.isAdmin &&
-              renderNavItem(
-              ClientRouteKey.Setting,
-              "/imgs/setting.svg",
-              "ตั้งค่าระบบ"
-              )} */}
-              {accountData?.isAdmin &&
-                renderNavItem(
-                  ClientRouteKey.RoomManagement,
-                  "/imgs/setting.svg",
-                  "จัดการห้อง"
-                )}
-              {accountData?.isAdmin &&
-                renderNavItem(
-                  ClientRouteKey.UserSetting,
-                  "/imgs/usersetting.svg",
-                  "จัดการผู้ใช้"
-                )}
-              {renderExternalLink(
-                "https://forms.office.com/r/y0jCJG50qu",
-                "/imgs/feedback.svg",
-                "แบบสอบถาม"
-              )}
-              {renderExternalLink(
-                "https://forms.gle/urK2QyhZDYZoFcNf6",
-                "/imgs/report.svg",
-                "รายงานปัญหา"
-              )}
-            </div>
-            <li className="fixed bottom-4 flex flex-col justify-center items-center text-center z-20">
-              <p className="flex flex-row px-4 p-2 m-4 bg-white text-maincolor rounded-[24px] text-sm gap-4 cursor-default">
-                <UserIcon className="size-4" />
-                {accountData?.userData?.firstname
-                  ? accountData.userData.firstname.charAt(0).toUpperCase() +
-                    accountData.userData.firstname.slice(1).toLowerCase()
-                  : ""}
-              </p>
-              <button
-                className="flex flex-row items-center justify-center gap-2"
-                onClick={handleLogout}
-                style={{
-                  background: "none",
-                  border: "none",
-                  padding: "0",
-                  cursor: "pointer",
-                }}
-                aria-label="Log out"
-              >
-                <div className="hover:bg-[#FFDCD8] flex-row flex gap-2 px-10 p-2 rounded-[24px]">
-                  <img src="/imgs/logout.svg" className="w-[20px] h-[20px]" />
-                  <p
-                    className="text-sm text-center"
-                    style={{ color: "#E54A5F" }}
-                  >
-                    Logout
-                  </p>
-                </div>
-              </button>
-              <p
-                className="text-xs my-4 cursor-default"
-                style={{ color: "#D0A095" }}
-              >
-                @SD Eng
-              </p>
-            </li>
-          </ul>
-        </nav>
+        </button>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
       )}
+
+      {/* Sidebar (Mobile + Desktop) */}
+      <aside
+        className={`fixed md:relative md:translate-x-0 inset-y-0 left-0 w-64 bg-white z-50 shadow-lg md:shadow-none
+        transform transition-transform duration-300 ease-in-out 
+        ${
+          isMobileMenuOpen
+            ? "translate-x-0"
+            : "-translate-x-full md:translate-x-0"
+        }`}
+      >
+        <div className="flex flex-col h-full p-4">
+          {/* Logo */}
+          <Link
+            to={ClientRouteKey.Home}
+            className="mb-8 px-2 py-4"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <img src="/imgs/icon.svg" alt="Logo" className="md:h-full p-4" />
+          </Link>
+
+          {/* Navigation Items */}
+          <nav className="flex-1">
+            <ul className="space-y-1">
+              {navigationItems.map((item) => (
+                <NavItem key={item.to} {...item} />
+              ))}
+
+              <Divider className="my-4" />
+
+              {externalLinks.map((link) => (
+                <ExternalLinkItem key={link.href} {...link} />
+              ))}
+            </ul>
+          </nav>
+
+          {/* User Section */}
+          <div className="mt-auto border-t pt-4">
+            <div className="flex items-center gap-3 px-2 py-3 text-gray-700">
+              <UserIcon className="w-6 h-6 text-gray-500" />
+              <span className="text-sm font-medium">
+                {accountData?.userData?.firstname || "Guest"}
+              </span>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 p-3 rounded-xl text-red-600 bg-white hover:bg-red-50 transition-colors"
+            >
+              <img src="/imgs/logout.svg" alt="Logout" className="w-6 h-6" />{" "}
+              {/* Updated to use imgSrc */}
+              <span className="text-sm">Logout</span>
+            </button>
+
+            <p className="text-center text-xs text-gray-400 mt-4">@SD Eng</p>
+          </div>
+        </div>
+      </aside>
+
+      {/* Padding for Mobile Top Navbar */}
+      <div className="md:hidden h-16" />
     </>
   );
 }

@@ -78,10 +78,10 @@ const BookPage: React.FC = () => {
     );
   };
 
-  console.log("Rooms:", rooms);
-  console.log("Room Authorities:", roomAuthorities);
-  console.log("System Account Role:", systemAccountRole);
-  console.log("Room Attachments:", roomAttachments);
+  // console.log("Rooms:", rooms);
+  // console.log("Room Authorities:", roomAuthorities);
+  // console.log("System Account Role:", systemAccountRole);
+  // console.log("Room Attachments:", roomAttachments);
 
   return (
     <PageContainer>
@@ -132,9 +132,9 @@ const BookPage: React.FC = () => {
                 systemAccountRole?.some((role) => role.role_id === auth.role_id)
               );
 
-              console.log("Room ID :", room.id);
-              console.log("Room Auth :", roomAuth);
-              console.log("isAuthorized :", isAuthorized);
+              // console.log("Room ID :", room.id);
+              // console.log("Room Auth :", roomAuth);
+              // console.log("isAuthorized :", isAuthorized);
 
               // Check if the room requires confirmation
               const requires_confirmation = roomAuth.some((auth) =>
@@ -144,7 +144,7 @@ const BookPage: React.FC = () => {
                 )
               );
 
-              console.log("Requires Confirmation :", requires_confirmation);
+              // console.log("Requires Confirmation :", requires_confirmation);
 
               return (
                 <Grid item xs={12} key={room.id}>
