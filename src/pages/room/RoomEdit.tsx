@@ -70,6 +70,7 @@ import {
   ChevronDoubleUpIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 export interface ImagePreview {
   id?: number;
@@ -568,6 +569,14 @@ const RoomEdit: React.FC = () => {
     }
   };
 
+  const onDragEnd = (result: any) => {
+    if (!result.destination) return;
+    const items = Array.from(roomImagePreviews);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    setRoomImagePreviews(items);
+  };
+
   // console.log("Form Data:", formData);
   // console.log("Room Services:", filteredRoomServices);
   // console.log("Form Facilities:", formFacilities);
@@ -658,120 +667,165 @@ const RoomEdit: React.FC = () => {
                 </label>
               </div>
 
-              {roomImagePreviews.map((src, idx) => (
-                <div
-                  key={idx}
-                  className={`relative flex flex-col 2xl:flex-row items-center justify-between gap-2 my-2 border border-gray-300 rounded-lg p-4 ${
-                    idx === 0 ? "bg-yellow-50" : ""
-                  }`}
-                >
-                  <div className="flex items-center gap-4 p-4">
-                    <img
-                      src={
-                        src.src.startsWith("blob:")
-                          ? src.src
-                          : `${API_ENDPOINT_URL}${src.src}`
-                      }
-                      alt={`Preview-${idx}`}
-                      className="hover:scale-105 transition-transform duration-300 cursor-pointer rounded-md"
-                      style={{
-                        width: "200px",
-                        height: "200px",
-                        objectFit: "cover",
-                      }}
-                      onClick={() =>
-                        window.open(
-                          src.src.startsWith("blob:")
-                            ? src.src
-                            : `${API_ENDPOINT_URL}${src.src}`,
-                          "_blank"
-                        )
-                      }
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-3  gap-2">
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        if (idx > 0) {
-                          const newPreviews = [...roomImagePreviews];
-                          [newPreviews[idx - 1], newPreviews[idx]] = [
-                            newPreviews[idx],
-                            newPreviews[idx - 1],
-                          ];
-                          setRoomImagePreviews(newPreviews);
-                          const newAttachments = [...NewformAttachmentFiles];
-                          if (newAttachments[idx - 1] && newAttachments[idx]) {
-                            [newAttachments[idx - 1], newAttachments[idx]] = [
-                              newAttachments[idx],
-                              newAttachments[idx - 1],
-                            ];
-                          }
-                          setNewFormAttachmentFiles(newAttachments);
-                        }
-                      }}
-                      disabled={idx === 0}
-                      size="small"
-                    >
-                      <ArrowUpIcon className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        if (idx < roomImagePreviews.length - 1) {
-                          const newPreviews = [...roomImagePreviews];
-                          [newPreviews[idx + 1], newPreviews[idx]] = [
-                            newPreviews[idx],
-                            newPreviews[idx + 1],
-                          ];
-                          setRoomImagePreviews(newPreviews);
-                          const newAttachments = [...NewformAttachmentFiles];
-                          if (newAttachments[idx + 1] && newAttachments[idx]) {
-                            [newAttachments[idx + 1], newAttachments[idx]] = [
-                              newAttachments[idx],
-                              newAttachments[idx + 1],
-                            ];
-                          }
-                          setNewFormAttachmentFiles(newAttachments);
-                        }
-                      }}
-                      disabled={idx === roomImagePreviews.length - 1}
-                      size="small"
-                    >
-                      <ArrowDownIcon className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        const newPreviews = [...roomImagePreviews];
-                        const [movedPreview] = newPreviews.splice(idx, 1);
-                        newPreviews.unshift(movedPreview);
-                        setRoomImagePreviews(newPreviews);
-                        const newAttachments = [...NewformAttachmentFiles];
-                        if (newAttachments[idx]) {
-                          const [movedAttachment] = newAttachments.splice(
-                            idx,
-                            1
-                          );
-                          newAttachments.unshift(movedAttachment);
-                        }
-                        setNewFormAttachmentFiles(newAttachments);
-                      }}
-                      disabled={idx === 0}
-                      size="small"
-                    >
-                      <ChevronDoubleUpIcon className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <div
-                    onClick={() => handleRemoveRoomAttachment(idx)}
-                    className="absolute cursor-pointer border rounded-full w-fit p-1 top-2 right-2 hover:bg-gray-200"
-                  >
-                    <XMarkIcon className="size-4 text-gray-500" />
-                  </div>
-                </div>
-              ))}
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="roomImagePreviews">
+                  {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                      {roomImagePreviews.map((src, idx) => (
+                        <Draggable
+                          key={idx}
+                          draggableId={`item-${idx}`}
+                          index={idx}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`relative flex flex-col 2xl:flex-row items-center justify-between gap-2 my-2 border bg-white border-gray-300 rounded-lg p-4 ${
+                                idx === 0 ? "bg-yellow-50" : ""
+                              }`}
+                            >
+                              <div className="flex items-center gap-4 p-4">
+                                <img
+                                  src={
+                                    src.src.startsWith("blob:")
+                                      ? src.src
+                                      : `${API_ENDPOINT_URL}${src.src}`
+                                  }
+                                  alt={`Preview-${idx}`}
+                                  className="hover:scale-105 transition-transform duration-300 cursor-pointer rounded-md"
+                                  style={{
+                                    width: "200px",
+                                    height: "200px",
+                                    objectFit: "cover",
+                                  }}
+                                  onClick={() =>
+                                    window.open(
+                                      src.src.startsWith("blob:")
+                                        ? src.src
+                                        : `${API_ENDPOINT_URL}${src.src}`,
+                                      "_blank"
+                                    )
+                                  }
+                                />
+                              </div>
+                              <div className="grid grid-cols-3 gap-2">
+                                <Button
+                                  variant="contained"
+                                  onClick={() => {
+                                    if (idx > 0) {
+                                      const newPreviews = [
+                                        ...roomImagePreviews,
+                                      ];
+                                      [newPreviews[idx - 1], newPreviews[idx]] =
+                                        [
+                                          newPreviews[idx],
+                                          newPreviews[idx - 1],
+                                        ];
+                                      setRoomImagePreviews(newPreviews);
+                                      const newAttachments = [
+                                        ...NewformAttachmentFiles,
+                                      ];
+                                      if (
+                                        newAttachments[idx - 1] &&
+                                        newAttachments[idx]
+                                      ) {
+                                        [
+                                          newAttachments[idx - 1],
+                                          newAttachments[idx],
+                                        ] = [
+                                          newAttachments[idx],
+                                          newAttachments[idx - 1],
+                                        ];
+                                      }
+                                      setNewFormAttachmentFiles(newAttachments);
+                                    }
+                                  }}
+                                  disabled={idx === 0}
+                                  size="small"
+                                >
+                                  <ArrowUpIcon className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  onClick={() => {
+                                    if (idx < roomImagePreviews.length - 1) {
+                                      const newPreviews = [
+                                        ...roomImagePreviews,
+                                      ];
+                                      [newPreviews[idx + 1], newPreviews[idx]] =
+                                        [
+                                          newPreviews[idx],
+                                          newPreviews[idx + 1],
+                                        ];
+                                      setRoomImagePreviews(newPreviews);
+                                      const newAttachments = [
+                                        ...NewformAttachmentFiles,
+                                      ];
+                                      if (
+                                        newAttachments[idx + 1] &&
+                                        newAttachments[idx]
+                                      ) {
+                                        [
+                                          newAttachments[idx + 1],
+                                          newAttachments[idx],
+                                        ] = [
+                                          newAttachments[idx],
+                                          newAttachments[idx + 1],
+                                        ];
+                                      }
+                                      setNewFormAttachmentFiles(newAttachments);
+                                    }
+                                  }}
+                                  disabled={
+                                    idx === roomImagePreviews.length - 1
+                                  }
+                                  size="small"
+                                >
+                                  <ArrowDownIcon className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  onClick={() => {
+                                    const newPreviews = [...roomImagePreviews];
+                                    const [movedPreview] = newPreviews.splice(
+                                      idx,
+                                      1
+                                    );
+                                    newPreviews.unshift(movedPreview);
+                                    setRoomImagePreviews(newPreviews);
+                                    const newAttachments = [
+                                      ...NewformAttachmentFiles,
+                                    ];
+                                    if (newAttachments[idx]) {
+                                      const [movedAttachment] =
+                                        newAttachments.splice(idx, 1);
+                                      newAttachments.unshift(movedAttachment);
+                                    }
+                                    setNewFormAttachmentFiles(newAttachments);
+                                  }}
+                                  disabled={idx === 0}
+                                  size="small"
+                                >
+                                  <ChevronDoubleUpIcon className="w-4 h-4" />
+                                </Button>
+                              </div>
+                              <div
+                                onClick={() => handleRemoveRoomAttachment(idx)}
+                                className="absolute cursor-pointer border rounded-full w-fit p-1 top-2 right-2 hover:bg-gray-200"
+                              >
+                                <XMarkIcon className="size-4 text-gray-500" />
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
             </div>
             <div className="flex flex-col flex-grow-0 w-full lg:w-2/5 gap-6">
               <FormControl size="small" variant="standard" fullWidth>

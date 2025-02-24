@@ -45,7 +45,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
     let timeout: NodeJS.Timeout;
 
     const cycleImages = () => {
-      if (!isMounted) return;
+      if (!isMounted || images.length <= 1) return;
 
       setIsChangingImage(true);
 
@@ -58,13 +58,23 @@ const RoomCard: React.FC<RoomCardProps> = ({
       }, 2000);
     };
 
-    interval = setInterval(cycleImages, 4000);
+    if (images.length > 1) {
+      interval = setInterval(cycleImages, 4000);
+    }
 
     return () => {
       isMounted = false;
       clearInterval(interval);
       clearTimeout(timeout);
     };
+  }, [images]);
+
+  useEffect(() => {
+    // Preload images
+    images.forEach((image) => {
+      const img = new Image();
+      img.src = image;
+    });
   }, [images]);
 
   const handleModalOpen = () => setModalOpen(true);
