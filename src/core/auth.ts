@@ -17,8 +17,8 @@ export async function validateLocalToken() {
 
     return data;
   } catch {
-    coreApi.defaults.headers.common["Authorization"] = "";
-    localStorage.removeItem(LocalStorageKey.Auth);
+    delete coreApi.defaults.headers.common["Authorization"];
+    localStorage.clear();
   }
 
   return null;

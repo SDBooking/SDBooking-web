@@ -19,6 +19,7 @@ import DebugPanel from "./debug/DebugPanel";
 import { createTheme, ThemeProvider } from "@mui/material";
 import { usePopupContext } from "./common/contexts/PopupContext";
 import Popup from "./common/components/popup/Popup";
+import { Account } from "./types";
 
 const theme = createTheme({
   typography: {
@@ -42,7 +43,7 @@ function App() {
 
   const { status } = useQuery("init", initData, {
     staleTime: Infinity,
-    onSuccess: (data) => {
+    onSuccess: (data: Account) => {
       if (data) {
         setAccountData(data);
       } else {

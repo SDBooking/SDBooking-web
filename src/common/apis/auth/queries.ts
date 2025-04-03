@@ -1,8 +1,8 @@
 import { coreApi } from "../../../core/connections";
-import { TResponse, Account } from "../../../types";
+import { Account, TResponseOK } from "../../../types";
 import { ApiRouteKey } from "../../constants/keys";
 
-export function signInQuery(code: string): Promise<TResponse<string>> {
+export function signInQuery(code: string) {
   return new Promise((resolve, reject) => {
     coreApi
       .post(
@@ -28,13 +28,11 @@ export function signInQuery(code: string): Promise<TResponse<string>> {
   });
 }
 
-export function getUserDataQuery(): Promise<TResponse<Account>> {
+export function getUserDataQuery(): Promise<TResponseOK<Account>> {
   return new Promise((resolve, reject) => {
     coreApi
       .get(ApiRouteKey.Me)
-      .then((res) => {
-        resolve(res.data);
-      })
+      .then((res) => resolve(res.data))
       .catch(reject);
   });
 }

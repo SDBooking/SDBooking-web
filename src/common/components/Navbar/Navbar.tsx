@@ -1,19 +1,27 @@
 import useAccountContext from "../../contexts/AccountContext";
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { getLogout } from "../../apis/logout";
-import { ClientRouteKey, LocalStorageKey } from "../../constants/keys";
+import { ClientRouteKey } from "../../constants/keys";
 import { ListBulletIcon, UserIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { Divider } from "@mui/material";
 
 function Navbar() {
   const { setAccountData, accountData } = useAccountContext();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
-    await getLogout();
-    setAccountData(null);
-    localStorage.removeItem(LocalStorageKey.Auth);
+    try {
+      const resp = await getLogout();
+      if (resp === null) {
+        setAccountData(null);
+        localStorage.clear();
+        navigate(ClientRouteKey.Landing, { replace: true });
+      }
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
   };
 
   const navigationItems = [

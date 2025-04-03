@@ -1,15 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BuildingOfficeIcon,
   LockClosedIcon,
   MapPinIcon,
   UserIcon,
   PencilIcon,
+  TrashIcon,
 } from "@heroicons/react/24/solid";
 import { Room } from "../../../types/room";
 import useAccountContext from "../../../common/contexts/AccountContext";
-import { Button } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 import { ClientRouteKey } from "../../../common/constants/keys";
+import { DeleteRoom } from "../../../common/apis/room/manipulates";
 
 interface RoomCardProps extends Room {
   services: string[];
@@ -29,22 +38,20 @@ const RoomCardEdit: React.FC<RoomCardProps> = ({
   authorized,
 }) => {
   const { accountData } = useAccountContext();
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  // const deleteRoom = async (id: number) => {
-  //   const confirmed = window.confirm(
-  //     "Are you sure you want to delete this room?"
-  //   );
-  //   if (!confirmed) return;
-
-  //   try {
-  //     await DeleteRoom(id);
-  //     alert("Room deleted successfully");
-  //     window.location.reload(); // Reload the page after successful deletion
-  //   } catch (error) {
-  //     console.error("Failed to delete room:", error);
-  //     alert("Failed to delete room. Please try again.");
-  //   }
-  // };
+  const handleDelete = async () => {
+    try {
+      await DeleteRoom(id);
+      alert("Room deleted successfully");
+      window.location.reload(); // Reload the page after successful deletion
+    } catch (error) {
+      console.error("Failed to delete room:", error);
+      alert("Failed to delete room. Please try again.");
+    } finally {
+      setDeleteModalOpen(false);
+    }
+  };
 
   return (
     <div
@@ -93,18 +100,41 @@ const RoomCardEdit: React.FC<RoomCardProps> = ({
             <PencilIcon className="w-5 h-5" />
             <p className="px-2">แก้ไขข้อมูลห้อง</p>
           </Button>
-          {/* <Button
+          <Button
             className="absolute"
             component="button"
             color="error"
             variant="outlined"
-            onClick={() => deleteRoom(id)}
+            onClick={() => setDeleteModalOpen(true)}
           >
             <TrashIcon className="w-5 h-5" />
             <p className="px-2">ลบห้อง</p>
-          </Button> */}
+          </Button>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog
+        open={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        aria-labelledby="delete-room-dialog-title"
+        aria-describedby="delete-room-dialog-description"
+      >
+        <DialogTitle id="delete-room-dialog-title">ยืนยันการลบห้อง</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-room-dialog-description">
+            คุณแน่ใจหรือไม่ว่าต้องการลบห้องนี้? การกระทำนี้ไม่สามารถย้อนกลับได้
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteModalOpen(false)} color="primary">
+            ยกเลิก
+          </Button>
+          <Button onClick={handleDelete} color="error" autoFocus>
+            ลบ
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

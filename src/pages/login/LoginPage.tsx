@@ -18,16 +18,12 @@ const LoginPage = () => {
   return (
     <div className="flex flex-col md:flex-row w-screen h-screen">
       <div
-        className="flex flex-1 items-center justify-center mt-12 md:mt-0 rounded-t-[36px] md:rounded-none"
+        className="flex flex-1 items-center justify-center"
         style={{
           backgroundImage: `linear-gradient(180deg, rgba(255, 193, 99, 0.3) 0%, rgba(253, 116, 39, 0.3) 42.5%, rgba(229, 74, 95, 0.3) 100%), url('/imgs/loginbg.svg')`,
           backgroundSize: "cover",
         }}
       >
-        <div
-          className="absolute h-[100px] w-screen rounded-t-[36px] bottom-0 md:hidden"
-          style={{ background: "#33302E" }}
-        ></div>
         <div className="flex flex-col w-[90%] md:w-[512px] h-auto md:h-[535px] bg-white rounded-[24px] mb-10 items-center shadow-lg p-4 md:p-0">
           <img
             src="imgs/icon.svg"
@@ -44,7 +40,10 @@ linear-gradient(180deg, #FFC163 0%, #FD7427 42.5%, #E54A5F 100%)`,
           >
             ระบบจองห้อง
           </p>
-          <p className="p-2 text-base md:text-lg" style={{ color: "#5D141E" }}>
+          <p
+            className="p-2 text-base md:text-lg text-center"
+            style={{ color: "#5D141E" }}
+          >
             งานพัฒนาคุณภาพนักศึกษา คณะวิศวกรรมศาสตร์
           </p>
           <p
